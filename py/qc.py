@@ -4,16 +4,12 @@
     py/.venv/bin/python py/qc.py <request.json>
 
 request.json: {"video": "<segment.mp4>", "audio": "<segment audio wav, same timeline>", "frames": <expected n>,
-               "landmarker": "<face_landmarker.task>", "out": "<qc.json>",
-               "words": [{"word", "start", "end"}, ...]  (optional, seconds on the segment's timeline)}
+               "landmarker": "<face_landmarker.task>", "syncnet": "<syncnet_v2.model>", "out": "<qc.json>"}
 
 Checks: exact frame count; no black, frozen or noise-spike frames; a face in >= 95% of frames; lip sync.
-Lip sync has two parts, because speech is rhythmic and a plain lag search finds false peaks one word
-period away (seen on the first H3 clip):
-  - envelope: mouth opening vs the voice's loudness at offsets -2..+2 frames must beat the same
-    measure against the time-reversed voice (same rhythm, wrong words) by >= 0.20;
-  - pauses (when word timings are given and the clip has pauses): the mouth must be clearly more open
-    during words than in pauses at offsets -2..+2 (ratio >= 1.2), and more so than at 8..16 frames off.
+Lip sync is SyncNet's (py/syncnet.py): the audio-video offset and the LSE-C / LSE-D scores. The first
+QC (mouth opening vs loudness) failed segments that were in sync — wide "ee" vowels open the lips with
+little energy — so it was replaced (docs/PROGRESS.md, 2026-10-15).
 A segment with no face at all is "unscored" (e.g. a stylised character), not failed.
 """
 import json
@@ -23,10 +19,13 @@ from pathlib import Path
 import numpy as np
 
 FPS = 24
-ENVELOPE_MARGIN = 0.20
-PAUSE_RATIO = 1.2
-LATE_MARGIN = 0.15
 FACE_MIN = 0.95
+# Calibrated on the first 60 s proof (13 H3 takes) and controls; see docs/MASTER_PROMPT.md §6.7.
+MIN_CONFIDENCE = 6.0  # LSE-C: in-sync takes 8.1–10.0; no audio anchor 5.1; time-reversed voice 0.8
+MAX_DISTANCE = 9.0  # LSE-D: in-sync takes 6.6–8.4; no audio anchor 11.1; time-reversed voice 15.8
+# Offset in frames at 25 fps; negative = the voice comes after the lips. The voice may trail by up to
+# 120 ms or lead by 40 ms (ITU-R BT.1359 detectability: audio 45 ms early, 125 ms late).
+OFFSET_RANGE = (-3, 1)
 
 
 def read_frames(path: str):
@@ -85,96 +84,32 @@ def mouth_series(frames: list, landmarker_path: str) -> tuple[np.ndarray, float]
     return np.array(series, dtype=np.float64), found / max(1, len(frames))
 
 
-def audio_envelope(path: str, n: int) -> np.ndarray:
-    import soundfile as sf
-    audio, rate = sf.read(path, always_2d=True)
-    mono = audio.mean(axis=1)
-    hop = rate / FPS
-    env = np.array([np.sqrt(np.mean(mono[int(i * hop):int((i + 1) * hop)] ** 2)) if int(i * hop) < len(mono) else 0.0
-                    for i in range(n)])
-    return env
+def sync_verdict(score: dict) -> dict:
+    """Pass/fail from a SyncNet score (py/syncnet.py)."""
+    if score.get("status") != "ok":  # no face or too short: the face and duration checks decide
+        return {**score, "pass": True}
+    ok = (OFFSET_RANGE[0] <= score["offset"] <= OFFSET_RANGE[1]
+          and score["confidence"] >= MIN_CONFIDENCE and score["minDist"] <= MAX_DISTANCE)
+    return {**score, "pass": bool(ok)}
 
 
-def corr_at(a: np.ndarray, b: np.ndarray, offset: int) -> float:
-    """Correlation of a[t] with b[t + offset], ignoring frames without a face."""
-    if offset >= 0:
-        x, y = a[: len(a) - offset], b[offset:]
-    else:
-        x, y = a[-offset:], b[: len(b) + offset]
-    mask = ~(np.isnan(x) | np.isnan(y))
-    if mask.sum() < 24 or np.std(x[mask]) == 0 or np.std(y[mask]) == 0:
-        return float("nan")
-    return float(np.corrcoef(x[mask], y[mask])[0, 1])
-
-
-def smooth(x: np.ndarray) -> np.ndarray:
-    kernel = np.ones(3) / 3
-    filled = np.nan_to_num(x, nan=np.nanmean(x) if np.isfinite(np.nanmean(x)) else 0.0)
-    out = np.convolve(filled, kernel, mode="same")
-    out[np.isnan(x)] = np.nan
-    return out
-
-
-def best_near(a: np.ndarray, b: np.ndarray) -> float:
-    values = [v for v in (corr_at(a, b, o) for o in range(-2, 3)) if not np.isnan(v)]
-    return max(values) if values else float("nan")
-
-
-def envelope_check(mouth: np.ndarray, env: np.ndarray) -> dict:
-    m, e = smooth(mouth), np.convolve(env, np.ones(3) / 3, mode="same")
-    near = best_near(m, e)
-    control = best_near(m, e[::-1].copy())
-    margin = near - control
-    return {"near": round(near, 3), "reversedControl": round(control, 3), "margin": round(margin, 3),
-            "pass": bool(np.isfinite(margin) and margin >= ENVELOPE_MARGIN)}
-
-
-def speech_mask(words: list, n: int) -> np.ndarray:
-    mask = np.zeros(n, bool)
-    for w in words:
-        mask[max(0, int(w["start"] * FPS)):min(n, int(np.ceil(w["end"] * FPS)))] = True
-    return mask
-
-
-def pause_check(mouth: np.ndarray, words: list) -> dict:
-    n = len(mouth)
-    speech = speech_mask(words, n)
-    m = np.nan_to_num(mouth, nan=np.nanmean(mouth))
-    if speech.sum() < FPS or (~speech).sum() < FPS // 2:
-        return {"status": "not applicable (too few pause frames)"}
-
-    def ratio(shift: int) -> float:
-        sp = np.roll(speech, shift)
-        off = m[~sp].mean()
-        return float(m[sp].mean() / off) if off > 0 else float("nan")
-
-    near = max(ratio(s) for s in range(-2, 3))
-    far = max(ratio(s) for s in [*range(8, 17), *range(-16, -7)])
-    # Continuous speech has short gaps, so a wrong offset can score almost as well as the right one;
-    # only a clearly better wrong offset means the lips run late/early.
-    return {"nearRatio": round(near, 3), "farRatio": round(far, 3),
-            "pass": bool(near >= PAUSE_RATIO and far - near < LATE_MARGIN)}
-
-
-def sync_score(mouth: np.ndarray, env: np.ndarray, words: list | None) -> dict:
-    envelope = envelope_check(mouth, env)
-    pauses = pause_check(mouth, words) if words else {"status": "not applicable (no word timings)"}
-    passed = envelope["pass"] and pauses.get("pass", True)
-    return {"envelope": envelope, "pauses": pauses, "pass": bool(passed)}
+def lip_sync(req: dict) -> dict:
+    weights = req.get("syncnet")
+    if not weights or not Path(weights).exists():
+        return {"status": "unscored (SyncNet weights not found)", "pass": True}
+    import syncnet
+    return sync_verdict(syncnet.score({"video": req["video"], "audio": req["audio"], "weights": weights,
+                                       "landmarker": req["landmarker"], "device": req.get("device", "cpu")}))
 
 
 def run(req: dict) -> dict:
     frames = read_frames(req["video"])
-    result = {"video": req["video"], "frames": len(frames), "expectedFrames": req.get("frames")}
+    result = {"frames": len(frames), "expectedFrames": req.get("frames")}
     result["duration"] = {"ok": req.get("frames") is None or len(frames) == req["frames"]}
     result["clean"] = frame_checks(frames) if frames else {"ok": False}
     mouth, face_ratio = mouth_series(frames, req["landmarker"]) if frames else (np.array([]), 0.0)
     result["face"] = {"ratio": round(face_ratio, 3), "ok": face_ratio >= FACE_MIN}
-    if face_ratio == 0:
-        result["lipSync"] = {"status": "unscored"}
-    else:
-        env = audio_envelope(req["audio"], len(frames))
-        result["lipSync"] = sync_score(mouth, env, req.get("words"))
+    result["lipSync"] = {"status": "unscored"} if face_ratio == 0 else lip_sync(req)
     lip_ok = result["lipSync"].get("pass", True)
     result["pass"] = bool(result["duration"]["ok"] and result["clean"]["ok"] and (face_ratio == 0 or result["face"]["ok"]) and lip_ok)
     return result

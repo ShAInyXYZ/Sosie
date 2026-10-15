@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { ROOT } from './config.ts'
 
-export type PyTool = 'tts' | 'align' | 'qc'
+export type PyTool = 'tts' | 'align' | 'qc' | 'cutout'
 
 /**
  * Run one of Sosie's one-shot Python tools (py/<tool>.py) with a JSON request file.

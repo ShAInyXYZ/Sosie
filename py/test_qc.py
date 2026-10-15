@@ -1,23 +1,16 @@
-"""Synthetic checks for the lip-sync scoring (run: py/.venv/bin/python py/test_qc.py)."""
-import numpy as np
+"""Checks for the lip-sync verdict (run: py/.venv/bin/python py/test_qc.py).
+
+The scores are the measured ones from the first 60 s proof and its controls (docs/PROGRESS.md)."""
 import qc
 
-rng = np.random.default_rng(1)
-n, fps = 240, 24
-words, env = [], np.zeros(n)
-t = 0.3
-while t < 9.5:  # words of 0.3 s with 0.25 s gaps, and a long pause in the middle
-    if 4.0 < t < 5.0:
-        t = 5.0
-    words.append({"word": "w", "start": t, "end": t + 0.3})
-    env[int(t * fps):int((t + 0.3) * fps)] = 1 + 0.3 * rng.random()
-    t += 0.55
-synced = 0.02 + 0.05 * qc.smooth(np.convolve(env, np.ones(2) / 2, mode="same")) + 0.003 * rng.random(n)
-late = np.roll(synced, 11)  # mouth one word period behind the voice
+ok = lambda offset, dist, conf: qc.sync_verdict({"status": "ok", "offset": offset, "minDist": dist, "confidence": conf})["pass"]
 
-good = qc.sync_score(synced, env, words)
-bad = qc.sync_score(late, env, words)
-assert good["pass"], good
-assert not bad["pass"], bad
-assert qc.sync_score(synced, env, None)["envelope"]["pass"]
-print("ok", good["envelope"]["margin"], good["pauses"]["nearRatio"], "| late:", bad["pauses"])
+assert ok(0, 7.435, 9.162)  # segment 1
+assert ok(-1, 8.394, 8.1)  # the weakest real take (segment 7)
+assert not ok(13, 15.789, 0.751)  # the voice played backwards
+assert not ok(-9, 7.608, 9.257)  # the voice 8 frames late: confident, but out of time
+assert not ok(-1, 11.09, 5.108)  # filmed without the audio anchor
+assert not ok(2, 7.0, 9.0)  # the voice 80 ms early
+assert ok(-3, 7.0, 9.0)  # the voice 120 ms late is still within tolerance
+assert qc.sync_verdict({"status": "no face"})["pass"]  # the face check decides
+print("ok")

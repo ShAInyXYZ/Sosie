@@ -44,7 +44,8 @@ export async function trimAndMux(video: string, audio: string, frames: number, f
   await ffmpeg([
     '-i', video, '-i', audio,
     '-map', '0:v:0', '-map', '1:a:0',
-    '-frames:v', String(frames),
+    // cut the picture with a filter: an output -frames:v limit ends the file before the audio is written
+    '-vf', `trim=end_frame=${frames},setpts=PTS-STARTPTS`,
     '-af', `apad=whole_dur=${seconds.toFixed(6)},atrim=duration=${seconds.toFixed(6)}`,
     '-c:v', 'libx264', '-crf', '14', '-preset', 'medium', '-pix_fmt', 'yuv420p',
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000',

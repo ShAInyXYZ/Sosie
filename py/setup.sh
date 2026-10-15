@@ -19,8 +19,8 @@ PY=py/.venv/bin/python
 echo "Breeze requirements (constrained to the tested versions)"
 "$UV" pip install -q --python "$PY" -r py/breeze-tts/requirements.txt -c py/constraints.txt
 
-echo "faster-whisper, mediapipe"
-"$UV" pip install -q --python "$PY" -c py/constraints.txt faster-whisper mediapipe
+echo "faster-whisper, mediapipe, BiRefNet deps (timm, kornia, einops), python_speech_features (SyncNet QC)"
+"$UV" pip install -q --python "$PY" -c py/constraints.txt faster-whisper mediapipe timm kornia einops python_speech_features==0.6
 
 "$PY" - <<'EOF'
 import torch, faster_whisper, mediapipe, numpy

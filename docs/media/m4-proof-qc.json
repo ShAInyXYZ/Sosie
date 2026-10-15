@@ -1,0 +1,250 @@
+[
+ {
+  "index": 0,
+  "status": "done",
+  "takes": 1,
+  "qc": {
+   "frames": 233,
+   "expectedFrames": 233,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": 0,
+    "minDist": 7.435,
+    "confidence": 9.162,
+    "frames": 242,
+    "pass": true
+   },
+   "pass": true
+  }
+ },
+ {
+  "index": 1,
+  "status": "done",
+  "takes": 2,
+  "qc": {
+   "frames": 233,
+   "expectedFrames": 233,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": -1,
+    "minDist": 7.682,
+    "confidence": 9.497,
+    "frames": 242,
+    "pass": true
+   },
+   "pass": true
+  }
+ },
+ {
+  "index": 2,
+  "status": "done",
+  "takes": 1,
+  "qc": {
+   "frames": 149,
+   "expectedFrames": 149,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": -1,
+    "minDist": 6.699,
+    "confidence": 9.403,
+    "frames": 155,
+    "pass": true
+   },
+   "pass": true
+  }
+ },
+ {
+  "index": 3,
+  "status": "done",
+  "takes": 2,
+  "qc": {
+   "frames": 231,
+   "expectedFrames": 231,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": -1,
+    "minDist": 7.093,
+    "confidence": 9.036,
+    "frames": 240,
+    "pass": true
+   },
+   "pass": true
+  }
+ },
+ {
+  "index": 4,
+  "status": "done",
+  "takes": 2,
+  "qc": {
+   "frames": 180,
+   "expectedFrames": 180,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": -1,
+    "minDist": 7.227,
+    "confidence": 9.824,
+    "frames": 187,
+    "pass": true
+   },
+   "pass": true
+  }
+ },
+ {
+  "index": 5,
+  "status": "done",
+  "takes": 2,
+  "qc": {
+   "frames": 152,
+   "expectedFrames": 152,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": -1,
+    "minDist": 6.766,
+    "confidence": 10.038,
+    "frames": 158,
+    "pass": true
+   },
+   "pass": true
+  }
+ },
+ {
+  "index": 6,
+  "status": "done",
+  "takes": 2,
+  "qc": {
+   "frames": 152,
+   "expectedFrames": 152,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": 0,
+    "minDist": 7.774,
+    "confidence": 8.68,
+    "frames": 158,
+    "pass": true
+   },
+   "pass": true
+  }
+ },
+ {
+  "index": 7,
+  "status": "done",
+  "takes": 1,
+  "qc": {
+   "frames": 204,
+   "expectedFrames": 204,
+   "duration": {
+    "ok": true
+   },
+   "clean": {
+    "blackFrames": 0,
+    "longestFrozenRun": 0,
+    "noiseSpikes": 0,
+    "ok": true
+   },
+   "face": {
+    "ratio": 1,
+    "ok": true
+   },
+   "lipSync": {
+    "status": "ok",
+    "offset": -1,
+    "minDist": 7.384,
+    "confidence": 8.788,
+    "frames": 212,
+    "pass": true
+   },
+   "pass": true
+  }
+ }
+]

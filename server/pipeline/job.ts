@@ -11,6 +11,7 @@ import { captionLines, toSrt, type Word } from './captions.ts'
 import { getFace, faceFiles } from './faces.ts'
 import { FORMATS, H3_MODELS, SPEED_LORAS, h3VramNeeds, talkGraph, type Format, type SpeedLora } from './h3.ts'
 import { planSegments, type Segment } from './plan.ts'
+import { qcReportHtml } from './qc-report.ts'
 import { talkPrompt } from './prompt.ts'
 import { FPS, framesFor } from './segments.ts'
 import { listVoices, speakScript, type ScriptLine, type SpokenLine } from './voice.ts'
@@ -45,7 +46,7 @@ export type JobState = {
   message: string
   voice?: { wav: string; durationS: number; words: Word[]; lines: SpokenLine[] }
   segments: SegmentState[]
-  outputs?: { dir: string; video: string; captions: string; words: string; project: string; poster: string }
+  outputs?: { dir: string; video: string; captions: string; words: string; project: string; poster: string; qcJson?: string; qcHtml?: string }
   error?: string
   timings: Record<string, number>
   createdAt: string
@@ -94,6 +95,34 @@ export function rerollSegment(id: string, index: number, root = ROOT): JobState 
   return state
 }
 
+/**
+ * Score every take of a job again with the current QC (no filming), keep the best passing take per
+ * segment, and mark the job for a new join and bundle. Used after the QC itself changed.
+ */
+export async function rescoreJob(id: string, engines: Pick<Engines, 'qc'>, root = ROOT): Promise<JobState> {
+  const state = loadJob(id, root)
+  if (!state) throw new Error('Job not found')
+  const segDir = join(projectDir(id, root), 'segments')
+  for (const segment of state.segments) {
+    const tag = `seg-${String(segment.index + 1).padStart(2, '0')}`
+    for (const attempt of segment.attempts) {
+      attempt.qc = await engines.qc({ video: attempt.file, audio: join(segDir, `${tag}-voice.wav`), frames: segment.frames, out: attempt.file.replace(/\.mp4$/, '-qc.json'), words: segment.words, workDir: segDir })
+    }
+    const passing = segment.attempts.filter((a) => a.qc.pass)
+    const pool = passing.length ? passing : segment.attempts
+    const best = [...pool].sort((a, b) => syncConfidence(b.qc) - syncConfidence(a.qc))[0]
+    if (best) {
+      segment.file = best.file
+      segment.status = passing.length ? 'done' : 'flagged'
+    }
+  }
+  state.status = 'queued'
+  state.step = 'join'
+  state.outputs = undefined
+  saveJob(state, root)
+  return state
+}
+
 async function assertVram(config: SosieConfig) {
   const gpus = await readGpus()
   if (!gpus) return // unknown: let ComfyUI try
@@ -105,7 +134,60 @@ async function assertVram(config: SosieConfig) {
   }
 }
 
-export type JobHooks = { signal?: AbortSignal; onUpdate?: (state: JobState) => void; root?: string }
+/** One take of one segment, as the video engine needs it. Paths are relative to Sosie's ComfyUI input folder. */
+export type FilmRequest = {
+  keyFrame: string; audio: string; prompt: string; format: Format; renderFrames: number; seed: number; lora: SpeedLora; outPrefix: string
+  signal?: AbortSignal
+}
+export type QcRequest = { video: string; audio: string; frames: number; out: string; words: Word[]; workDir: string }
+
+/** What a job calls out to. The real ones drive Breeze TTS, Sosie's ComfyUI and the QC tool; tests swap in fakes. */
+export type Engines = {
+  speak: typeof speakScript
+  /** Check the video model can run (service up, memory free) before the first take. */
+  prepare: () => Promise<void>
+  /** Film one take; returns the raw video file. */
+  film: (request: FilmRequest) => Promise<string>
+  release: () => Promise<void>
+  qc: (request: QcRequest) => Promise<QcReport>
+}
+
+/** SyncNet weights for the lip-sync check, in the shared model store. */
+export function syncnetWeights(config: SosieConfig): string {
+  return join(config.paths.modelStore, 'syncnet', 'syncnet_v2.model')
+}
+
+/** How clearly a take is in sync (SyncNet LSE-C); picks the best of several takes. */
+export function syncConfidence(qc: QcReport): number {
+  return Number((qc.lipSync as { confidence?: number } | undefined)?.confidence ?? -1)
+}
+
+export function realEngines(config: SosieConfig, root = ROOT): Engines {
+  const comfy = new ComfyClient(`http://127.0.0.1:${config.ports.comfy}`)
+  return {
+    speak: speakScript,
+    prepare: async () => {
+      if (!(await comfy.alive())) throw new Error("Sosie's ComfyUI is not running. Start services from the System panel.")
+      await comfy.free() // unload image models before the video model
+      await assertVram(config)
+    },
+    film: async ({ signal, ...input }) => {
+      const result = await comfy.run(talkGraph(config, input), { onTick: () => { if (signal?.aborted) void comfy.interrupt() } })
+      const raw = result.files.find((f) => f.filename.endsWith('.mp4'))
+      if (!raw) throw new Error('The video model returned no video')
+      return join(root, 'data', 'comfy-io', 'output', raw.subfolder, raw.filename)
+    },
+    release: async () => { await comfy.free() },
+    qc: async ({ workDir, ...request }) => {
+      await runPy('qc', {
+        ...request, landmarker: join(root, 'py', 'models', 'face_landmarker.task'), syncnet: syncnetWeights(config),
+      }, { gpu: null, workDir })
+      return JSON.parse(readFileSync(request.out, 'utf8')) as QcReport
+    },
+  }
+}
+
+export type JobHooks = { signal?: AbortSignal; onUpdate?: (state: JobState) => void; root?: string; engines?: Engines }
 
 /** Run (or resume) a job to the end. Every step is saved, so a crash or restart continues where it stopped. */
 export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks = {}): Promise<JobState> {
@@ -131,13 +213,13 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
       state.timings[name] = (state.timings[name] ?? 0) + Math.round((Date.now() - started) / 100) / 10
     }
   }
-  const comfy = new ComfyClient(`http://127.0.0.1:${config.ports.comfy}`)
+  const engines = hooks.engines ?? realEngines(config, root)
 
   try {
     // 1–2. voice + word timings
     if (!state.voice || !existsSync(state.voice.wav)) {
       update({ step: 'voice', message: 'Recording the voice', progress: 0.02 })
-      const track = await time('voice', () => speakScript(config, spec.voiceId, spec.script, join(dir, 'voice'), {
+      const track = await time('voice', () => engines.speak(config, spec.voiceId, spec.script, join(dir, 'voice'), {
         seed: spec.seed,
         onProgress: (done, total) => update({ message: `Voicing line ${done} of ${total}`, progress: 0.02 + 0.08 * (done / total) }),
       }, root))
@@ -165,9 +247,7 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
     // 5–7. H3 per segment: render, trim + exact audio, QC, one automatic re-roll
     const pending = state.segments.filter((s) => s.status === 'pending')
     if (pending.length) {
-      if (!(await comfy.alive())) throw new Error("Sosie's ComfyUI is not running. Start services from the System panel.")
-      await comfy.free() // unload image models before the video model
-      await assertVram(config)
+      await engines.prepare()
       update({ step: 'h3' })
       const segDir = join(dir, 'segments')
       mkdirSync(segDir, { recursive: true })
@@ -186,18 +266,15 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
           update({ message: `Filming segment ${segment.index + 1} of ${state.segments.length}${attempt ? ` (take ${attempt + 1})` : ''}`, progress: 0.15 + 0.75 * (done / state.segments.length) })
           const seed = segment.seedBase + attempt
           const started = Date.now()
-          const result = await time('h3', () => comfy.run(talkGraph(config, {
+          const raw = await time('h3', () => engines.film({
             keyFrame: `${inputRel}/keyframe.png`, audio: refAudio, prompt, format: spec.format,
-            renderFrames: segment.renderFrames, seed, lora: spec.lora, outPrefix: `${inputRel}/${tag}-t${attempt + 1}`,
-          }), { onTick: () => { if (hooks.signal?.aborted) void comfy.interrupt() } }))
+            renderFrames: segment.renderFrames, seed, lora: spec.lora, outPrefix: `${inputRel}/${tag}-t${attempt + 1}`, signal: hooks.signal,
+          }))
           checkCancel()
-          const raw = result.files.find((f) => f.filename.endsWith('.mp4'))
-          if (!raw) throw new Error(`Segment ${segment.index + 1}: the video model returned no video`)
           const file = join(segDir, `${tag}-t${attempt + 1}.mp4`)
-          await trimAndMux(join(root, 'data', 'comfy-io', 'output', raw.subfolder, raw.filename), voiceCut, segment.frames, FPS, file)
+          await trimAndMux(raw, voiceCut, segment.frames, FPS, file)
           const qcFile = join(segDir, `${tag}-t${attempt + 1}-qc.json`)
-          await time('qc', () => runPy('qc', { video: file, audio: voiceCut, frames: segment.frames, landmarker: join(root, 'py', 'models', 'face_landmarker.task'), out: qcFile, words: segment.words }, { gpu: null, workDir: segDir }))
-          const qc = JSON.parse(readFileSync(qcFile, 'utf8')) as QcReport
+          const qc = await time('qc', () => engines.qc({ video: file, audio: voiceCut, frames: segment.frames, out: qcFile, words: segment.words, workDir: segDir }))
           segment.attempts.push({ seed, seconds: Math.round((Date.now() - started) / 1000), qc, file })
           if (qc.pass) {
             segment.status = 'done'
@@ -207,14 +284,13 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
         }
         if (segment.status === 'pending') {
           // keep the take with the clearest lip sync and flag it for the user
-          const score = (a: Attempt) => Number(((a.qc.lipSync as { envelope?: { margin?: number } } | undefined)?.envelope?.margin) ?? -1)
-          const best = [...segment.attempts].sort((a, b) => score(b) - score(a))[0]
+          const best = [...segment.attempts].sort((a, b) => syncConfidence(b.qc) - syncConfidence(a.qc))[0]
           segment.status = 'flagged'
           segment.file = best.file
         }
         update({ segments: state.segments })
       }
-      await comfy.free()
+      await engines.release()
     }
     checkCancel()
 
@@ -252,14 +328,23 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
       segments: state.segments.map((s) => ({
         index: s.index, startS: s.startS, endS: s.startS + s.durationS, frames: s.frames, renderFrames: s.renderFrames,
         seed: s.attempts.find((a) => a.file === s.file)?.seed, lora: spec.lora, steps: SPEED_LORAS[spec.lora].steps,
-        status: s.status, qc: s.attempts.find((a) => a.file === s.file)?.qc,
+        // the bundle leaves this machine: no local file paths in it
+        status: s.status, qc: { ...s.attempts.find((a) => a.file === s.file)?.qc, video: undefined },
       })),
       models: { ...H3_MODELS, speedLora: SPEED_LORAS[spec.lora].file },
     }, null, 1))
+    // the QC report sits next to the bundle (the bundle's files are fixed by §6.6)
+    const qcJson = join(dir, 'out', 'qc.json')
+    const qcHtml = join(dir, 'out', 'qc.html')
+    writeFileSync(qcJson, JSON.stringify(state.segments.map((s) => ({
+      index: s.index, status: s.status, takes: s.attempts.length,
+      qc: { ...s.attempts.find((a) => a.file === s.file)?.qc, video: undefined },
+    })), null, 1))
+    writeFileSync(qcHtml, qcReportHtml({ ...state, updatedAt: new Date().toISOString() }))
     update({
       status: 'done', step: 'done', progress: 1,
       message: state.segments.some((s) => s.status === 'flagged') ? 'Done — some segments need a look' : 'Done',
-      outputs: { dir: outDir, video, captions, words: wordsFile, project: projectFile, poster },
+      outputs: { dir: outDir, video, captions, words: wordsFile, project: projectFile, poster, qcJson, qcHtml },
     })
     return state
   } catch (error) {
@@ -279,13 +364,13 @@ export async function joinSegments(files: string[], voiceWav: string, totalFrame
       ? `[${i}:v]crop=iw/1.08:ih/1.08,scale=${size.width}:${size.height}:flags=lanczos,setsar=1[v${i}]`
       : `[${i}:v]setsar=1[v${i}]`
   })
-  const graph = `${parts.join(';')};${files.map((_, i) => `[v${i}]`).join('')}concat=n=${files.length}:v=1:a=0[v]`
+  // the length is cut by filters, never by an output -frames:v (that ends the file before its audio)
+  const graph = `${parts.join(';')};${files.map((_, i) => `[v${i}]`).join('')}concat=n=${files.length}:v=1:a=0,trim=end_frame=${totalFrames}[v]`
   const seconds = (totalFrames / FPS).toFixed(6)
   await run('ffmpeg', [
     '-hide_banner', '-loglevel', 'error', '-y', ...inputs, '-i', voiceWav,
     '-filter_complex', graph, '-map', '[v]', '-map', `${audioIndex}:a:0`,
     '-af', `apad=whole_dur=${seconds},atrim=duration=${seconds}`,
-    '-frames:v', String(totalFrames),
     '-c:v', 'libx264', '-crf', '18', '-preset', 'medium', '-pix_fmt', 'yuv420p',
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000',
     '-metadata', 'comment=AI-generated (Sosie)', '-movflags', '+faststart', out,

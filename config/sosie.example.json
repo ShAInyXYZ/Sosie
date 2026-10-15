@@ -50,6 +50,7 @@
     ]
   },
   "mainComfyUrl": "http://127.0.0.1:8188",
+  "moceanxUrl": "http://127.0.0.1:3001",
   "loras": {
     "$comment": "LoRA file names (from the model store's loras/ folder) offered in the character creator.",
     "qwenImage21": []

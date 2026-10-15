@@ -35,6 +35,7 @@ export const configSchema = z.object({
   }),
   comfy: z.object({ flags: z.array(z.string()) }),
   mainComfyUrl: z.url(),
+  moceanxUrl: z.url().default('http://127.0.0.1:3001'),
   loras: z.object({ qwenImage21: z.array(z.string()) }),
 })
 

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QC · Sosie proof</title>
+<style>
+  :root { --bg: #f4f3ef; --text: #1b1c1e; --dim: #6b6d72; --line: #d9d7d0; --ok: #2f9e5b; --warn: #d08a1a; --idle: #9a9ca1; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #151618; --text: #e8e7e3; --dim: #8d8f94; --line: #2b2d31; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, sans-serif; }
+  main { max-width: 1800px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p { color: var(--dim); margin: 0 0 20px; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--dim); font-weight: 600; font-size: 13px; }
+  td.text { white-space: normal; min-width: 320px; color: var(--dim); }
+  .lamp { display: inline-block; width: 8px; height: 8px; margin-right: 8px; background: var(--idle); }
+  tr.done .lamp { background: var(--ok); }
+  tr.flagged .lamp { background: var(--warn); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sosie proof</h1>
+  <p>8 of 8 segments pass · lip sync by SyncNet: offset (negative = the voice comes after the lips; pass from −120 to +40 ms), LSE-C confidence (pass ≥ 6), LSE-D distance (pass ≤ 9) · 2026-10-15T09:54:18.167Z</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th>#</th><th>Time</th><th>Takes</th><th>Offset</th><th>LSE-C</th><th>LSE-D</th><th>Face</th><th>Frames</th><th>Verdict</th><th>Line</th></tr></thead>
+    <tbody>
+<tr class="done">
+      <td>1</td>
+      <td>0.00–9.71 s</td>
+      <td>1</td>
+      <td>0 ms</td>
+      <td>9.16</td>
+      <td>7.43</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">Hey everyone, welcome back to the channel. Today I want to show you something that sounds like science fiction, but it runs right here on my own machine.</td>
+    </tr>
+<tr class="done">
+      <td>2</td>
+      <td>9.71–19.42 s</td>
+      <td>2</td>
+      <td>-40 ms</td>
+      <td>9.50</td>
+      <td>7.68</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">Everything you're watching right now was made by an app called Sosie. You give it a face, a voice, and a script, and it films a facecam video for you.</td>
+    </tr>
+<tr class="done">
+      <td>3</td>
+      <td>19.42–25.63 s</td>
+      <td>1</td>
+      <td>-40 ms</td>
+      <td>9.40</td>
+      <td>6.70</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">The face is a picture. The voice is a short sample, or one designed from a description.</td>
+    </tr>
+<tr class="done">
+      <td>4</td>
+      <td>25.63–35.25 s</td>
+      <td>2</td>
+      <td>-40 ms</td>
+      <td>9.04</td>
+      <td>7.09</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">Then a video model called MiniMax H3 animates the face, and it follows the voice syllable by syllable.</td>
+    </tr>
+<tr class="done">
+      <td>5</td>
+      <td>35.25–42.75 s</td>
+      <td>2</td>
+      <td>-40 ms</td>
+      <td>9.82</td>
+      <td>7.23</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">The trick is to feed the model the real voice track, so the lips move with the actual words, not with made-up sounds.</td>
+    </tr>
+<tr class="done">
+      <td>6</td>
+      <td>42.75–49.08 s</td>
+      <td>2</td>
+      <td>-40 ms</td>
+      <td>10.04</td>
+      <td>6.77</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">Each sentence becomes a short shot of a few seconds, and the shots are joined back together into one video.</td>
+    </tr>
+<tr class="done">
+      <td>7</td>
+      <td>49.08–55.42 s</td>
+      <td>2</td>
+      <td>0 ms</td>
+      <td>8.68</td>
+      <td>7.77</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">A quality check looks at every shot, and if the mouth drifts out of time, that shot gets filmed again.</td>
+    </tr>
+<tr class="done">
+      <td>8</td>
+      <td>55.42–63.92 s</td>
+      <td>1</td>
+      <td>-40 ms</td>
+      <td>8.79</td>
+      <td>7.38</td>
+      <td>100 %</td>
+      <td>clean</td>
+      <td><span class="lamp"></span>pass</td>
+      <td class="text">So no, I'm not really here. But the explanation is real. Thanks for watching, and I'll see you in the next one.</td>
+    </tr>
+    </tbody>
+  </table>
+  </div>
+</main>
+</body>
+</html>

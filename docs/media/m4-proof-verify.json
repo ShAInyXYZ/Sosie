@@ -1,0 +1,32 @@
+{
+ "lipSync": {
+  "status": "ok",
+  "offset": -1,
+  "minDist": 7.766,
+  "confidence": 8.888,
+  "frames": 1598,
+  "pass": true
+ },
+ "audio": {
+  "voiceSeconds": 63.9,
+  "videoAudioSeconds": 63.936,
+  "start": {
+   "lagMs": 0.0,
+   "correlation": 1.0
+  },
+  "end": {
+   "lagMs": 0.0,
+   "correlation": 1.0
+  },
+  "exact": true
+ },
+ "captions": {
+  "words": 178,
+  "medianMs": 0.0,
+  "firstTenMedianMs": 0.0,
+  "lastTenMedianMs": 0.0,
+  "driftMs": 0.0,
+  "inSync": true
+ },
+ "pass": true
+}

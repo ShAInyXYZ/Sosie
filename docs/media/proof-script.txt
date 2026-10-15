@@ -1,0 +1,11 @@
+Hey everyone, welcome back to the channel.
+Today I want to show you something that sounds like science fiction, but it runs right here on my own machine. [excited]
+Everything you're watching right now was made by an app called Sosie.
+You give it a face, a voice, and a script, and it films a facecam video for you.
+The face is a picture. The voice is a short sample, or one designed from a description.
+Then a video model called MiniMax H3 animates the face, and it follows the voice syllable by syllable. [leaning in, a bit slower]
+The trick is to feed the model the real voice track, so the lips move with the actual words, not with made-up sounds.
+Each sentence becomes a short shot of a few seconds, and the shots are joined back together into one video.
+A quality check looks at every shot, and if the mouth drifts out of time, that shot gets filmed again.
+So no, I'm not really here. But the explanation is real. [smiling, warm]
+Thanks for watching, and I'll see you in the next one.

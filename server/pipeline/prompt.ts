@@ -16,6 +16,8 @@ export type TalkPromptInput = {
   language?: string
   /** Visual style line. */
   style?: string
+  /** Write the spoken words into the prompt (default). Without them H3 can only follow <Audio 1>. */
+  withDialogue?: boolean
 }
 
 /** Characters H3's dialogue markup uses; keep them out of spoken text. */
@@ -50,7 +52,9 @@ export function talkPrompt(input: TalkPromptInput): string {
     'detailed_description:',
     `The target video is in ${style}.`,
     '[Shot 1] A locked-off webcam shot at eye level frames <Subject 1> from the chest up, centred, with <Environment> behind. The camera does not move; single continuous shot, no cuts, no zoom.',
-    `<Subject 1> looks into the lens and speaks${tone}. (S1) <d>[${language}] ${text}</d>`,
+    input.withDialogue === false
+      ? `<Subject 1> looks into the lens and speaks${tone}, saying exactly the words heard in <Audio 1>, in time with it.`
+      : `<Subject 1> looks into the lens and speaks${tone}. (S1) <d>[${language}] ${text}</d>`,
     "Their lips, jaw and cheeks move in exact sync with every syllable of <Audio 1>. Small natural head movements, blinks and eyebrow raises follow the rhythm of the speech; hands stay low and away from the face. When the voice stops, the mouth closes and <Subject 1> keeps looking at the camera.",
     '',
     'overall_soundscape:',

@@ -9,7 +9,7 @@ Living checklist for [MASTER_PROMPT.md](MASTER_PROMPT.md). Each ticked item name
 - [x] M1 Own ComfyUI (+ VEDA R2VA predictor download) — 2026-10-15 · `comfy/setup.sh` built ComfyUI 0.37.1 (3f767e7f) + MultiGPU/VEDA/VHS/KJNodes at the container's pins in 7 m 46 s (`data/run/comfy-setup.log`); running on 8190 with its own I/O dirs and 67 store folders via `extra_model_paths.yaml`; `/object_info` has MiniMaxH3ReferenceToVideo, MiniMaxH3AddGuide, VedaSparseAttention (both predictors), DisTorch2 loaders, TextEncodeQwenImage21; VEDA R2VA predictor archived to NAS (275 415 752 B, logged) and synced to the store (size verified); main container StartedAt unchanged (2026-10-14T11:56:10Z before and after)
 - [x] M2 Lip-sync spike (speed-LoRA A/B, VEDA on) — 2026-10-15 · designed-voice line (8.56 s) + Qwen 2.1 key frame (`docs/media/m2-keyframe.png`, 66 s on GPU 3) → H3 Ref2VA with `<Audio 1>` fully_copy + AddGuide audio anchor; **TaoMate 3-step wins**: 205 s incl. load, QC pass (envelope margin 0.61, pause ratio 1.40, face 100%, no black/frozen/noise frames), framing locked; turbo-4: 254 s, margin 0.54, framing drifted. Media: `docs/media/m2-{taomate,turbo4}.mp4`, `-contact.jpg`, `-qc.json`. Found and fixed: VEDA + int8 VAE need ComfyUI's default device (`--default-device`, VAE on the compute card)
 - [x] M3 Voice — 2026-10-15 · `server/pipeline/voice.ts` + `captions.ts`; `scripts/try-voice.ts`: imported **Me** (consented, from the configured sample), designed **Narrator** (6–10 s sample, then cloned), voiced a 3-line script with a direction note → 10.62 s joined track at −16.3 LUFS (two-pass loudnorm), 35 words aligned per line and shifted onto the track, balanced `captions.srt` (least-squares line split, no orphans); line cache keyed by voice/ref/text/direction/seed; 25 s end to end on GPU 1
-- [ ] M4 Pipeline (CLI first, 60 s proof)
+- [x] M4 Pipeline (CLI first, 60 s proof) — 2026-10-15 · `npm run sosie -- make docs/media/proof-script.txt --face <Alex> --voice <Narrator>` (designed voice, created photo-real character): 11 lines → 63.9 s voice → 8 segments, 13 takes, 36 min of filming; resume, cancel and re-roll covered by `tests/api.test.ts` (fake engines). **All 8 segments pass QC** (SyncNet: offset 0/−1 frame, LSE-C 8.7–10.0). Whole video (`py/verify_bundle.py`): offset −1, LSE-C 8.9; audio = the TTS track (lag 0 ms at start and end); captions re-heard by Whisper match `words.json` at 0 ms from first to last word. Bundle v1 written. Media: `docs/media/m4-proof-60s.mp4` (64 s: the 60 s script ran 6 % long), `m4-proof-contact.jpg`, `m4-proof-qc.html` + `.json`, `m4-proof-verify.json`
 - [ ] M5 Face and look
 - [ ] M6 Studio UI
 - [ ] M7 Script AI
@@ -33,6 +33,12 @@ Mirrors §1 of the master prompt; tick with evidence.
 | 2026-10-15 | `npm test` | 2 files, 17 tests pass |
 | 2026-10-15 | `npm test` | 4 files, 26 tests pass; `tsc --noEmit` clean |
 | 2026-10-15 | `nash backup` → `git ls-remote nas` | NAS `main` = local HEAD `8b7e6b0` |
+| 2026-10-15 | M4 proof job (CLI, real engines) | done; 13 takes; old QC flagged 5 of 8 segments |
+| 2026-10-15 | Lip-sync A/B on segment 4 (same seed): as-is, no audio anchor, no dialogue, no VEDA, turbo 4-step | generated audio = input voice (corr 0.998, lag 0); SyncNet LSE-C 8.7 / 5.1 / 9.7 / 9.4 / 9.2 |
+| 2026-10-15 | SyncNet calibration: 13 takes + controls (reversed voice, voice 333 ms late) | takes offset 0/−1, LSE-C 8.1–10.0; reversed 0.8; late → offset −9 |
+| 2026-10-15 | `npm run sosie -- rescore` on the proof, then `py/verify_bundle.py` | 8/8 pass; whole video offset −1, LSE-C 8.9; audio exact; caption drift 0 ms |
+| 2026-10-15 | `npm test` | 6 files, 35 tests pass (API lifecycle with fake engines, media trim/join regression) |
+| 2026-10-15 | `py/test_qc.py` | ok (SyncNet verdicts on the measured scores) |
 
 ## Decisions
 
@@ -48,7 +54,13 @@ Mirrors §1 of the master prompt; tick with evidence.
 - 2026-10-15 — Speed LoRA default: TaoMate 3-step (M2 evidence in master prompt §3.4).
 - 2026-10-15 — Lip-sync QC metric changed from "lag search" to envelope-vs-reversed-voice + pause contrast: the lag search scored a well-synced clip as failing (speech rhythm creates false peaks ~11 frames away). Verified on the M2 clips and on synthetic synced/late signals (`py/test_qc.py`).
 
+- 2026-10-15 — **Lip-sync QC is now SyncNet** (LSE-C / LSE-D / offset; master prompt §6.7). The envelope + pause metric failed 10 of 13 takes that SyncNet and a frame-by-frame look (bilabial closures on "MiniMax", rounded lips on "called") show in sync. SyncNet weights: `ByteDance/LatentSync-1.6` `auxiliary/syncnet_v2.model` (54.6 MB), archived to the NAS (logged) and synced to the store (sha256 match). The H3 audio anchor stays: without it LSE-C drops to 5.1.
+- 2026-10-15 — **Bug fixed: the final video lost its last 2.7 s of voice.** An output `-frames:v` limit ended the MP4 before ffmpeg wrote the buffered audio (also in each segment's trim). The picture is now cut with a `trim` filter; `tests/media.test.ts` failed before the fix (audio 2.3 s short) and passes after.
+- 2026-10-15 — The job runner's engines are injectable (`Engines` in `server/pipeline/job.ts`); `server/testing/fake-engines.ts` makes tiny real media so the API and Studio are tested end to end without GPUs.
+
 ## Awaiting user review
+
+- M4 proof (`docs/media/m4-proof-60s.mp4`): every measure passes; please judge the lip sync, the jump cuts between segments (H3 reframes slightly per segment) and the voice.
 
 - M2 clips (`docs/media/m2-taomate.mp4`): does the lip sync look right to you? QC passes; a human eye is still the real test.
 
