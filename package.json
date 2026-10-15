@@ -10,9 +10,12 @@
     "start": "tsx server/index.ts",
     "test": "vitest run",
     "sosie": "tsx server/cli.ts",
-    "test:ui": "tsx tests/studio.e2e.ts"
+    "mcp": "tsx server/mcp.ts",
+    "test:ui": "tsx tests/studio.e2e.ts",
+    "test:mcp": "tsx tests/mcp.e2e.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
     "express": "^5.2.1",
     "multer": "^2.4.0",
     "neuronkit": "file:vendor/neuronkit",

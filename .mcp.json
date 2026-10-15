@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "sosie": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["node_modules/tsx/dist/cli.mjs", "server/mcp.ts"]
+    }
+  }
+}

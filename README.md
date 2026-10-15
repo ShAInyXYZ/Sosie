@@ -70,6 +70,10 @@ npm run sosie -- rescore <job-id>
 
 Each video is a folder `data/projects/<id>/out/<name>.sosie/` with `facecam.mp4`, `captions.srt`, `words.json`, `project.json` and `poster.jpg` (bundle v1). MOceanX imports it in one step (**File → Import Sosie video…**, or **Send to MOceanX** here). The QC report (`qc.html`, `qc.json`) sits next to it.
 
+## Agents
+
+Claude Code, Codex or any MCP client can make Sosie videos: `server/mcp.ts` exposes faces, voices (with consent-checked photo and voice imports), script writing, videos, their progress, re-rolls and the hand-off to MOceanX. Claude Code finds it in `.mcp.json`; for Codex see [AGENTS.md](AGENTS.md). The **day-recap** skill (`.claude/skills/day-recap/`) turns a day's commits and notes into a video of you explaining them: your face and voice from Sosie over an animated MOceanX explainer.
+
 ## Updates
 
 **System → Check for updates** compares your build with the official repository and lists what is new, one line per change (click a line for details). **Update** fast-forwards to it, reinstalls packages if they changed, rebuilds the app and restarts Sosie; it tells you when a setup script needs a re-run. It never merges or overwrites: with edited files or commits of your own it stops and says so. A fork can point `update.repo` in `config/sosie.local.json` at itself.
@@ -79,6 +83,7 @@ Each video is a folder `data/projects/<id>/out/<name>.sosie/` with `facecam.mp4`
 ```sh
 npm test            # unit + API (job lifecycle with fake engines) + media
 npm run test:ui     # the Studio in Chromium against the real API with fake engines, both themes
+npm run test:mcp    # the MCP over stdio against the real API with fake engines
 py/.venv/bin/python py/test_qc.py
 ```
 

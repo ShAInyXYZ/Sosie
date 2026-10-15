@@ -35,7 +35,8 @@ const isClone = (root: string) => existsSync(join(root, '.git'))
 
 /** This build: package version plus the commit it was built from (no network). */
 export async function buildInfo(root = ROOT): Promise<BuildInfo> {
-  const version = (JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { version: string }).version
+  const manifest = join(root, 'package.json')
+  const version = existsSync(manifest) ? (JSON.parse(readFileSync(manifest, 'utf8')) as { version: string }).version : 'unknown'
   if (!isClone(root)) return { version, commit: 'unknown', date: '' }
   const [commit, date] = (await git(root, ['log', '-1', '--format=%H%x1f%cI'])).split('\x1f')
   return { version, commit, date }

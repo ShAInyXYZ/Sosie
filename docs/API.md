@@ -49,3 +49,22 @@ Base URL `http://127.0.0.1:3190`. JSON in and out unless noted. Requests must be
 | GET | `/api/jobs/:id/files/:name` | `facecam.mp4`, `captions.srt`, `words.json`, `project.json`, `poster.jpg`, `qc.html` |
 
 `script` is plain text: one spoken line per line, an optional `[direction]` at the end of a line.
+
+## MCP
+
+`npm run mcp` (or `.mcp.json` in Claude Code) starts a stdio MCP server that calls this API on the configured port
+(`SOSIE_API_URL` overrides it; loopback origins only). Resources: `sosie://guide`, `sosie://voice-prompting`.
+
+| Tool | Does |
+|---|---|
+| `sosie_status` | services, GPUs, problems, Dots availability, build |
+| `sosie_list_faces`, `sosie_list_voices`, `sosie_list_looks` | the library |
+| `sosie_import_photo_face` | a real person from a photo (`consent: true` required) |
+| `sosie_import_voice` | a cloned voice from a sample and its transcript (`consent: true` required) |
+| `sosie_design_voice` | a voice from a description |
+| `sosie_write_script` | the script AI (local Claude Code or Codex CLI), for an engine |
+| `sosie_make_video` | starts a job; returns at once |
+| `sosie_get_job` | progress, lip-sync per segment, the bundle when done (`waitSeconds` up to 50) |
+| `sosie_list_jobs`, `sosie_cancel_job`, `sosie_resume_job`, `sosie_reroll_segment` | job control |
+| `sosie_send_to_moceanx` | imports a finished video into MOceanX |
+
