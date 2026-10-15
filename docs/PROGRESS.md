@@ -24,14 +24,15 @@ Mirrors §1 of the master prompt; tick with evidence.
 
 | Date | Check | Result |
 |---|---|---|
+| 2026-10-15 | `nash backup` → `git ls-remote nas` | NAS `main` = local HEAD `8b7e6b0` |
 
 ## Decisions
 
 - 2026-10-15 — Name: Sosie (French for a look-alike double). User suggested "CamySama or a better name".
 - 2026-10-15 — Stack chosen from X/Reddit/HF research (master prompt §4).
+- 2026-10-15 — NashGit repos `Sosie` and `MOceanX` created by the user in the web UI; pushes use the stored deploy token.
 
 ## Awaiting user review
 
 ## Blocked
 
-- 2026-10-15 — NashGit repos `Sosie` and `MOceanX` don't exist yet; creating them needs the user's admin login (`nash login`). Remotes are wired; push once they exist.
