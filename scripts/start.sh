@@ -18,7 +18,8 @@ wait_http() { # url, seconds
 
 start_api() {
   if running api; then echo "api: already running"; return; fi
-  nohup npx tsx server/index.ts >"$RUN/api.log" 2>&1 &
+  # one process (node with tsx's loader), so the pid file names the server itself and stop.sh ends it
+  nohup node --import tsx server/index.ts >"$RUN/api.log" 2>&1 &
   echo $! >"$RUN/api.pid"
   local p; p=$(port api)
   wait_http "http://127.0.0.1:$p/api/health" 30 && echo "api: http://127.0.0.1:$p" || { echo "api: failed, see $RUN/api.log"; exit 1; }

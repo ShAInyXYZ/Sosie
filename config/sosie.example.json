@@ -51,6 +51,7 @@
   },
   "mainComfyUrl": "http://127.0.0.1:8188",
   "moceanxUrl": "http://127.0.0.1:3001",
+  "ntfyUrl": "",
   "loras": {
     "$comment": "Qwen Image 2.1 LoRA file names (model store loras/) offered in the character creator. The first is the default; a name with N-step (a step-distilled LoRA) renders in N steps instead of 30.",
     "qwenImage21": []

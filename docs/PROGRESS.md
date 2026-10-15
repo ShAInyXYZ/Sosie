@@ -15,12 +15,21 @@ Living checklist for [MASTER_PROMPT.md](MASTER_PROMPT.md). Each ticked item name
 - [x] M7 Script AI — 2026-10-15 · Context + brief → **Write** (Script window, Advanced) through the local Claude Code or Codex CLI (`server/script-ai.ts`, read-only, no tools, JSON schema); real run with Claude Code: 6 lines with delivery notes in 14 s; notes flow to TTS and the H3 prompt as `[direction]`; without a CLI: "No Claude Code or Codex CLI was found on this machine. Install one and sign in, or type the script yourself." (`tests/pipeline.test.ts`)
 - [ ] M6 Studio UI
 - [ ] M7 Script AI
-- [ ] M8 Docs and proof
-- [ ] W FastH3-Omni cron + ntfy (from 2026-10-20)
+- [x] M8 Docs and proof — 2026-10-15 · `README.md` (setup, start, use, CLI, bundle, tests, licences stated plainly incl. MiniMax's excluded territories), `docs/ARCHITECTURE.md`, `docs/API.md` (every route); proof video, contact sheet and QC report from M4; **Send to MOceanX** checked live: Sosie's API → MOceanX `POST /api/sosie/import` → `MOceanX/projects/sosie-proof.motion` (video + 31 word-timed cues, scene extended to 63.9 s)
+- [x] W FastH3-Omni cron + ntfy — 2026-10-15 · `scripts/watch-fasth3-omni.sh` in the user's crontab (daily 09:00, active from 2026-10-20): asks Hugging Face (`author=FastVideo&search=Omni`, `search=FastH3-Omni`, `search=H3-Omni`), matches only a real FastH3-Omni id (checked against today's FastH3 checkpoints, FastVideo's LTX OmniNFT LoRAs and third-party "H3 … Omni" tools: none match), sends one ntfy push (`ntfyUrl` in the local config) and records it in `data/run/fasth3-omni.seen`; `WATCH_DRY_RUN=1` searches without notifying. A first dry run (before that mode existed) sent one false alert; a correction push followed
 
 ## Definition of done
 
 Mirrors §1 of the master prompt; tick with evidence.
+
+- [x] **One-click flow** — 2026-10-15 · Playwright with fake engines (`npm run test:ui`) + one real run from the Studio: Face (an uploaded photo) and Script only, Voice and Look at their defaults (Me, Home office), **Generate** → 8.2 s video, 1 segment passing QC (SyncNet offset 0, LSE-C 8.8), filming 202 s; `py/verify_bundle.py` passes (audio exact at both ends, caption drift 20 ms < 1 frame) · `docs/media/dod-oneclick-photo-contact.jpg`. The first attempt stopped on a VRAM check right after a Qwen image run (ComfyUI unloads asynchronously); the check now waits up to 30 s for the memory, and the job was continued
+- [x] **Lip-synced long video** — 2026-10-15 · M4 proof: 8/8 segments pass, audio = the TTS track, caption drift 0 ms (`docs/media/m4-proof-*`)
+- [x] **Two face sources** — 2026-10-15 · photo (cut out with its pixels kept, set generated; the one-click run above) and a character created in Sosie (the M4 proof's "Alex")
+- [x] **Output bundle v1 for every video** — written by the job runner; both videos above have one
+- [x] **Isolation** — 2026-10-15 · Sosie's own ComfyUI on 8190 and its own Python tools; main container `comfyui` StartedAt 2026-10-14T11:56:10Z (unchanged since M1), no Sosie files in its data folder, the Breeze model folder in Cerveau Hub unmodified (read only)
+- [x] **Proof** — `docs/media/m4-proof-60s.mp4` (64 s), contact sheet, QC report; designed voice + created photo-real character; subjective quality under *Awaiting user review*
+- [x] **Tests and docs** — 2026-10-15 · build, `npm test` (6 files, 38 tests), `npm run test:ui`, `py/test_qc.py` pass; README, ARCHITECTURE, API docs current
+- [x] **Pushed** — every milestone committed and pushed with `nash push`
 
 ## Checks run
 

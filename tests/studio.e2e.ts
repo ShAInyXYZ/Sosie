@@ -32,7 +32,7 @@ for (const [kind, id, meta] of [
   mkdirSync(join(root, 'data', kind, id), { recursive: true })
   writeFileSync(join(root, 'data', kind, id, kind === 'faces' ? 'face.json' : 'voice.json'), JSON.stringify(meta))
 }
-execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'color=c=0x5a6b7c:s=512x512', '-frames:v', '1', join(root, 'data', 'faces', 'face-alex', 'keyframe.png')])
+execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-f', 'lavfi', '-i', 'color=c=0x5a6b7c:s=1024x1024', '-frames:v', '1', join(root, 'data', 'faces', 'face-alex', 'keyframe.png')])
 
 const [webPort, apiPort] = [await freePort(), await freePort()]
 const config = configSchema.parse({ ...JSON.parse(readFileSync(join(ROOT, 'config', 'sosie.example.json'), 'utf8')), ports: { web: webPort, api: apiPort, comfy: 8190 } })

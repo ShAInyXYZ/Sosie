@@ -274,6 +274,13 @@ body {
   pointer-events: none;
 }
 
+/* inside the frame the image fills it exactly: its own size never stretches the stage */
+.studio-frame > .zoom-image,
+.studio-frame > .zoom-image img {
+  position: absolute;
+  inset: 0;
+}
+
 .stage-progress {
   position: absolute;
   inset: auto var(--sp-6) var(--sp-6);

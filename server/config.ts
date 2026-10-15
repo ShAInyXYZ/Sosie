@@ -36,6 +36,8 @@ export const configSchema = z.object({
   comfy: z.object({ flags: z.array(z.string()) }),
   mainComfyUrl: z.url(),
   moceanxUrl: z.url().default('http://127.0.0.1:3001'),
+  /** ntfy topic URL for the release watcher (scripts/watch-fasth3-omni.sh); empty = no push. */
+  ntfyUrl: z.string().default(''),
   loras: z.object({ qwenImage21: z.array(z.string()) }),
 })
 

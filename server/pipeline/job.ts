@@ -127,12 +127,22 @@ export async function rescoreJob(id: string, engines: Pick<Engines, 'qc'>, root 
   return state
 }
 
-async function assertVram(config: SosieConfig) {
-  const gpus = await readGpus()
-  if (!gpus) return // unknown: let ComfyUI try
-  const short = Object.entries(h3VramNeeds(config))
-    .map(([gpu, need]) => ({ gpu: Number(gpu), need, free: gpus.find((g) => g.index === Number(gpu))?.freeMb ?? 0 }))
-    .filter((x) => x.free < x.need)
+/**
+ * Wait for the video model's memory to be free. ComfyUI's /free only flags models for unloading (its
+ * worker does it when idle), so the memory comes back a moment later; another program's memory never does.
+ */
+async function assertVram(config: SosieConfig, waitMs = 30_000) {
+  const shortfall = async () => {
+    const gpus = await readGpus()
+    if (!gpus) return [] // unknown: let ComfyUI try
+    return Object.entries(h3VramNeeds(config))
+      .map(([gpu, need]) => ({ gpu: Number(gpu), need, free: gpus.find((g) => g.index === Number(gpu))?.freeMb ?? 0 }))
+      .filter((x) => x.free < x.need)
+  }
+  let short = await shortfall()
+  for (const started = Date.now(); short.length && Date.now() - started < waitMs; short = await shortfall()) {
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
   if (short.length) {
     throw new Error(`Not enough free GPU memory for the video model: ${short.map((x) => `GPU ${x.gpu} has ${(x.free / 1024).toFixed(1)} GB, needs ${(x.need / 1024).toFixed(1)} GB`).join('; ')}. Free the main ComfyUI's VRAM or stop other GPU jobs.`)
   }

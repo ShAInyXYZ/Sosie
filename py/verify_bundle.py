@@ -55,7 +55,7 @@ def run(req: dict) -> dict:
                                                        "landmarker": req["landmarker"], "device": "cpu"}))
 
     final, voice = pcm(video), pcm(req["voice"])
-    ten = 10 * RATE
+    ten = min(10 * RATE, len(voice) // 2)  # windows at both ends, never overlapping on a short video
     window = int(0.02 * RATE)
     start = lag_and_corr(voice[:ten], final[:ten], window)
     end_v, end_f = voice[len(voice) - ten:], final[len(voice) - ten:len(voice)]
