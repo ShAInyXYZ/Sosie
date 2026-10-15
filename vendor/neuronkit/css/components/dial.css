@@ -1,0 +1,107 @@
+/* Dial — a service's round instrument in a rail slot: a recess, a mark, a
+   lamp for its state, a ring when it matters (breathing when crit, an arc
+   while busy). A busy dial with data-progress="42" draws its arc and prints
+   the slot's empty .nk-readout ("42%"); data-progress="none" spins. */
+.nk-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.nk-dial {
+  position: relative;
+  display: block;
+  flex: none;
+  width: var(--dial);
+  height: var(--dial);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  color: var(--muted);
+  cursor: default;
+  font: inherit;
+}
+/* A cherry ring around a 40px dial reads as the crit ring: focus is ink. */
+.nk-dial:focus-visible, .nk-dial.is-focus { outline: 2px solid var(--text); outline-offset: 2px; }
+.nk-dial:hover, .nk-dial.is-hover { color: var(--text); }
+/* Not running: the mark steps back. */
+.nk-dial[data-state="idle"], .nk-dial.is-stale { color: var(--dim); }
+.nk-dial[data-state="idle"]:hover { color: var(--muted); }
+
+.nk-dial-recess {
+  position: absolute;
+  inset: calc(var(--rim) - 1px);
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: var(--well);
+}
+
+.nk-dial-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--mark) * var(--mark-scale, 1));
+  height: calc(var(--mark) * var(--mark-scale, 1));
+  transform: translate(-50%, -50%);
+  fill: currentColor;
+  transition: color var(--t-fast) var(--ease-mech);
+}
+
+/* The lamp sits on the 45° radius, pulled in until its outer corner is 1px
+   inside the outline; the dark gasket sets it into the bezel. */
+.nk-dial > .nk-led {
+  position: absolute;
+  top: calc(var(--dial) / 2 - (var(--dial) / 2 - 1px - var(--led) * .7071) * .7071 - var(--led) / 2);
+  right: calc(var(--dial) / 2 - (var(--dial) / 2 - 1px - var(--led) * .7071) * .7071 - var(--led) / 2);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.55);
+}
+
+/* Rings: 2px on the outer edge of the rim. Arcs start at 12 o'clock. */
+.nk-dial-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transform: rotate(-90deg);
+}
+.nk-dial-ring circle { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; } /* 2px at 32, 40 and 48 */
+.nk-dial[data-state="crit"] .nk-dial-ring circle {
+  stroke: var(--err);
+  animation: breathe 2.4s var(--ease-mech) infinite;
+}
+.nk-dial[data-state="busy"] .nk-dial-ring circle {
+  stroke: var(--info);
+  stroke-linecap: butt;
+  stroke-dasharray: var(--progress, 25) 100;
+  transition: stroke-dasharray var(--t-slow) var(--ease-out);
+}
+.nk-dial[data-state="busy"][data-progress="none"] .nk-dial-ring { animation: spin 1.2s linear infinite; }
+@keyframes breathe { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+@keyframes spin { from { transform: rotate(-90deg); } to { transform: rotate(270deg); } }
+
+/* Open: the recess one step darker, the mark lit, and the rail's only
+   accent — an index tick on the rail wall facing the panel, off the rim. */
+.nk-dial.is-open { color: var(--text); }
+.nk-dial.is-open .nk-dial-recess { background: var(--well-open); }
+.nk-dial-index {
+  position: absolute;
+  display: none;
+  background: var(--accent);
+  border-radius: 1px;
+}
+.nk-dial.is-open .nk-dial-index { display: block; }
+.nk-dial[data-side="right"]  .nk-dial-index { width: 2px; height: 10px; top: calc(50% - 5px); right: -6px; }
+.nk-dial[data-side="left"]   .nk-dial-index { width: 2px; height: 10px; top: calc(50% - 5px); left: -6px; }
+.nk-dial[data-side="top"]    .nk-dial-index { width: 10px; height: 2px; left: calc(50% - 5px); top: -6px; }
+.nk-dial[data-side="bottom"] .nk-dial-index { width: 10px; height: 2px; left: calc(50% - 5px); bottom: -6px; }
+
+/* Reduced motion: the crit ring stays, static; the arc stops. */
+@media (prefers-reduced-motion: reduce) {
+  .nk-dial[data-state="crit"] .nk-dial-ring circle { animation: none; opacity: 1; }
+  .nk-dial[data-state="busy"][data-progress="none"] .nk-dial-ring { animation: none; }
+}

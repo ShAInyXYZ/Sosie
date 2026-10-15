@@ -1,0 +1,34 @@
+{
+  "$comment": "Copy to config/sosie.local.json (gitignored) and fill in this machine's paths. Keys left out of the local file keep these defaults.",
+  "ports": {
+    "$comment": "web = Vite dev server, api = Sosie API, comfy = Sosie's own ComfyUI. Never 8188 (the main ComfyUI).",
+    "web": 5190,
+    "api": 3190,
+    "comfy": 8190
+  },
+  "paths": {
+    "$comment": "Absolute paths on this machine. Empty = not configured; the System panel lists what is missing.",
+    "modelStore": "",
+    "nasModels": "",
+    "nasTts": "",
+    "breezeModel": "",
+    "whisperModel": "",
+    "importVoiceSample": "",
+    "importVoiceTranscript": ""
+  },
+  "gpus": {
+    "$comment": "Physical indices (CUDA_DEVICE_ORDER=PCI_BUS_ID). H3 is split across four cards; image and TTS pick from the list by free memory.",
+    "h3": { "dit": 2, "ditDonor": 3, "ditDonorGb": 15, "textEncoder": 0, "textEncoderGb": 11, "vae": 1 },
+    "image": [1, 3, 2, 0],
+    "tts": [4, 1, 3, 2, 0],
+    "ttsMinFreeGb": 10
+  },
+  "comfy": {
+    "flags": ["--disable-dynamic-vram", "--fast", "fp16_accumulation"]
+  },
+  "mainComfyUrl": "http://127.0.0.1:8188",
+  "loras": {
+    "$comment": "LoRA file names (from the model store's loras/ folder) offered in the character creator.",
+    "qwenImage21": []
+  }
+}

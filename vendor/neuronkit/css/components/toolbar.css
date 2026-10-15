@@ -1,0 +1,19 @@
+/* Toolbar — a row of tools over a canvas or an editor. Groups of icon
+   buttons, segmented modes and dual pills, divided by vertical rules; one
+   Tab stop for the whole bar, arrows move inside it (role="toolbar",
+   kept by neuronkit.js). .is-floating lifts it onto the canvas as a raised
+   face whose corners are concentric with the keys inside it. */
+.nk-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--line);
+  background: var(--s1);
+}
+.nk-toolbar.is-floating { display: inline-flex; align-self: flex-start; width: max-content; min-height: 0; padding: 4px; border: 1px solid transparent; border-radius: calc(4.5px * var(--corner-k, 1) + 5px); corner-shape: var(--corner, round); background: var(--face); box-shadow: var(--float-sm); }
+.nk-toolbar-group { display: flex; align-items: center; gap: 2px; }
+.nk-toolbar > .nk-rule.is-vertical { margin: 6px 4px; }
+.nk-toolbar-spacer { flex: 1; }
+.nk-toolbar .nk-icon-button[aria-pressed="true"] { color: var(--accent); }

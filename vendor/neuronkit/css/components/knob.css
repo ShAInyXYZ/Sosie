@@ -1,0 +1,102 @@
+/* Knob — a rotary control, machined. A recessed
+   bezel (the dial's well) carries one lamp per detent; the raised cap is a
+   shell that turns to the chosen detent, its glyph in that choice's colour. Drag up/down, scroll, or use the arrow keys
+   to turn it; click opens its menu when it has one, and steps to the next
+   detent when it has none. Without options it is a
+   plain round control (the attach knob); data-count shows how many files
+   are attached, and nothing when there are none. 54px. */
+.nk-knob {
+  position: relative;
+  flex: none;
+  width: var(--knob-size, 54px);
+  height: var(--knob-size, 54px);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--well);
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+.nk-knob.is-turning { cursor: grabbing; }
+.nk-knob:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.nk-knob-detent {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 1px;
+  background: var(--c, var(--faint));
+  opacity: .3;
+  transform: rotate(var(--a)) translateY(calc(var(--knob-size, 54px) * -.39));
+  transition: opacity var(--t-fast);
+}
+.nk-knob-detent.is-on { opacity: 1; box-shadow: 0 0 0 1px rgba(0, 0, 0, .55); }
+.nk-knob-cap {
+  position: absolute;
+  inset: 20%;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  box-shadow: var(--drop-cap);
+}
+.nk-knob-glyph { width: 15px; height: 15px; color: var(--c, var(--muted)); transition: color var(--t-fast); }
+/* The detent spring: on each click the glyph swings the way you turned,
+   overshoots back, and settles upright. */
+.nk-knob.is-turn-up .nk-knob-glyph { animation: nk-recoil-up 380ms var(--ease-out); }
+.nk-knob.is-turn-down .nk-knob-glyph { animation: nk-recoil-down 380ms var(--ease-out); }
+@keyframes nk-recoil-up { 0% { transform: rotate(0); } 35% { transform: rotate(18deg); } 70% { transform: rotate(-5deg); } 100% { transform: rotate(0); } }
+@keyframes nk-recoil-down { 0% { transform: rotate(0); } 35% { transform: rotate(-18deg); } 70% { transform: rotate(5deg); } 100% { transform: rotate(0); } }
+.nk-knob:not([data-options]) { cursor: pointer; }
+.nk-knob:hover .nk-knob-cap { background: var(--shell-hover); }
+.nk-knob-count {              /* how many attachments are ready — only when there are some */
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--shell);
+  color: var(--text);
+  font: 500 var(--fs-micro)/15px var(--font-mono);
+  text-align: center;
+  box-shadow: var(--drop);
+}
+@media (prefers-reduced-motion: reduce) { .nk-knob .nk-knob-glyph { animation: none !important; } }
+
+/* ---- Continuous knob: data-min / data-max / data-value. The bezel carries
+   a ring of lamps over a 270° sweep that light up to the value (from the
+   top for a bipolar knob). The cap stays still; the ring is the reading.
+   Drag, scroll or arrows to turn (Shift for fine steps); double-click
+   returns to data-default. ---- */
+.nk-knob.is-range { cursor: ns-resize; }
+.nk-knob-seg {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: calc(var(--knob-size, 54px) * .075);
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--lamp-off-dim);
+  transform-origin: 50% 0;
+  transform: rotate(var(--a)) translateY(calc(var(--knob-size, 54px) * .33));
+}
+.nk-knob-seg.is-on { background: var(--c, var(--accent)); }
+.nk-knob.is-range .nk-knob-cap { inset: 24%; }
+.nk-knob-text { color: var(--text); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: -.02em; }
+.nk-knob.is-range:focus-visible .nk-knob-cap, .nk-knob.is-turning .nk-knob-cap { background: var(--shell-hover); }
+
+/* A knob with its label above and reading below. */
+.nk-knob-unit { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; }
+.nk-knob-unit > span { color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; }
+.nk-knob-unit output { color: var(--muted); font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-knob.is-lg { --knob-size: 76px; }
+.nk-knob.is-sm { --knob-size: 36px; }
+.nk-knob.is-sm .nk-knob-glyph { width: 12px; height: 12px; }

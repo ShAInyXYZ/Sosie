@@ -1,0 +1,56 @@
+/* Calendar and date picker — a month of days on a face. Today carries a lamp
+   under its number; the chosen day is raised and lit in the accent; a range
+   fills the days between. Arrows move by day and week, Page Up/Down by
+   month, Home/End to the week's ends, Enter chooses. The date picker is an
+   input group that opens one in a popover; the value is always ISO
+   (2026-09-27), so it is never ambiguous.
+
+   <div class="nk-calendar" data-value="2026-09-27"></div>
+   <div class="nk-calendar" data-mode="range" data-from="2026-09-08" data-to="2026-09-15"></div>
+   <label class="nk-input nk-datepicker"><input value="2026-09-27" aria-label="Day"></label> */
+.nk-calendar {
+  display: inline-grid;
+  gap: 8px;
+  width: 260px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: calc(12px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--face);
+  color: var(--text);
+  user-select: none;
+}
+.nk-cal-head { display: flex; align-items: center; gap: 4px; }
+.nk-cal-title { flex: 1; padding-inline-start: 6px; font: 600 var(--fs-body)/1 var(--font-sans); }
+.nk-cal-nav { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--r); corner-shape: var(--corner, round); background: transparent; color: var(--dim); cursor: pointer; }
+.nk-cal-nav:hover { background: var(--s3); color: var(--text); }
+.nk-cal-nav::before { content: ''; width: 6px; height: 6px; border-left: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateX(1px) rotate(45deg); }
+.nk-cal-nav.is-next::before { transform: translateX(-1px) rotate(-135deg); }
+.nk-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.nk-cal-wd { padding: 4px 0; color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); text-align: center; text-transform: uppercase; letter-spacing: .08em; }
+.nk-cal-day {
+  position: relative;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: transparent;
+  color: var(--muted);
+  font: 500 var(--fs-small)/1 var(--font-sans);
+  cursor: pointer;
+}
+.nk-cal-day:hover { background: var(--s3); color: var(--text); }
+.nk-cal-day.is-other { color: var(--faint); }
+.nk-cal-day:disabled { color: var(--faint); opacity: var(--disabled); cursor: default; background: none; }
+.nk-cal-day.is-today::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 4px; height: 4px; margin-left: -2px; border-radius: 1px; background: var(--accent); }
+.nk-cal-day.is-in { background: var(--s2); color: var(--text); border-radius: 0; }
+.nk-cal-day[aria-selected="true"] { background: var(--shell); color: var(--accent); }
+.nk-cal-day[aria-selected="true"].is-today::after { background: var(--accent); }
+.nk-cal-day:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 0; z-index: 1; }
+.nk-cal-foot { display: flex; justify-content: space-between; padding-top: 4px; border-top: 1px solid var(--line); }
+.nk-cal-foot button { padding: 6px 8px; border: 0; border-radius: var(--r); corner-shape: var(--corner, round); background: transparent; color: var(--dim); font: 500 var(--fs-small)/1 var(--font-sans); cursor: pointer; }
+.nk-cal-foot button:hover { background: var(--s3); color: var(--text); }
+.nk-datepicker input { font-family: var(--font-mono); font-weight: 400; }
+.nk-datepicker-btn { flex: none; display: grid; place-items: center; width: 24px; height: 24px; margin-inline-end: -6px; padding: 0; border: 0; border-radius: var(--r); corner-shape: var(--corner, round); background: transparent; color: var(--dim); cursor: pointer; }
+.nk-datepicker-btn:hover { background: var(--s3); color: var(--text); }
+.nk-datepicker-btn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.nk-datepicker-pop { position: fixed; inset: auto; margin: 0; padding: 0; border: 0; background: none; z-index: var(--z-popover); box-shadow: var(--float); border-radius: calc(12px * var(--corner-k, 1)); corner-shape: var(--corner, round); }

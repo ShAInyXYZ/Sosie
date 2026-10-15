@@ -1,0 +1,4 @@
+/* INVARIANT — tabular figures. Last on purpose: the `font:` shorthand every
+   component uses resets font-variant-numeric, so it is re-asserted here.
+   neuronkit.css imports it after every component. */
+:is(body, body *) { font-variant-numeric: tabular-nums !important; }

@@ -1,0 +1,105 @@
+/* Button — the pill control, sentence-case label, mechanical press.
+   Variants: default · primary (accent fill) · ghost · quiet · danger.
+   Sizes: md (34px) · sm (30px). For inline row actions use nk-pill-button. */
+.nk-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r-control);
+  background: var(--shell);
+  color: var(--muted);
+  font: 500 var(--fs-small)/1 var(--font-sans);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast), transform .04s;
+}
+.nk-button.is-sm { min-height: 30px; padding: 0 11px; }
+.nk-button:hover:not(:disabled) { color: var(--text); background: var(--shell-hover); }
+.nk-button:active:not(:disabled) { transform: translateY(1px); }
+.nk-button:disabled { opacity: var(--disabled); cursor: default; }
+/* Pressed (pinned, on): sunk into the panel like the icon button — inset face,
+   faint accent tint, accent rim, lit label. */
+.nk-button[aria-pressed="true"], .nk-button[aria-pressed="true"]:hover:not(:disabled) {
+  color: var(--accent);
+  background: linear-gradient(color-mix(in srgb, var(--accent) 12%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)) padding-box, var(--inset);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 42%, transparent), inset 0 2px 3px rgba(0, 0, 0, .25);
+}
+
+.nk-button.is-primary { background: var(--accent); color: var(--on-accent); }
+.nk-button.is-primary:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); filter: brightness(1.08); }
+/* On a filled accent, the focus ring must not be the accent itself. */
+.nk-button.is-primary:focus-visible { outline-color: var(--text); }
+
+.nk-button.is-ghost { background: transparent; }
+.nk-button.is-ghost:hover:not(:disabled) { background: var(--shell); }
+
+.nk-button.is-quiet { background: transparent; padding: 0 4px; }
+.nk-button.is-quiet:hover:not(:disabled) { background: transparent; }
+
+/* ---- Dynamic buttons: a button can say what it will do before you press
+   it. Two independent parts, both opt-in:
+
+   data-tone="crit|ok|warn|info|accent"  on hover the face takes a faint tint
+     of that colour, a rim inside its edge and a tinted label (.is-danger is
+     the crit tone);
+   data-icon="trash"                     any icon from the set — neuronkit.js
+     adds it; it slides in on hover with a motion that suits it (the bin
+     shakes, refresh spins, arrows nudge, plus pops, download drops).
+     data-motion="shake|spin|nudge|pop|drop|lift|none" overrides the motion,
+     data-icon-show="always" keeps the icon out.
+
+   <button class="nk-button is-danger">Remove</button>
+   <button class="nk-button" data-tone="ok" data-icon="check">Save</button>
+   <button class="nk-button is-primary" data-icon="arrow-right">Deploy</button> ---- */
+.nk-button.is-danger { --tone: var(--err); }
+.nk-button[data-tone="accent"] { --tone: var(--accent); }
+.nk-button:is([data-tone], .is-danger):not(.is-primary):hover:not(:disabled),
+.nk-button:is([data-tone], .is-danger):not(.is-primary):focus-visible {
+  color: var(--tone);
+  background: linear-gradient(color-mix(in srgb, var(--tone) 14%, transparent), color-mix(in srgb, var(--tone) 7%, transparent)) padding-box, var(--shell);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 45%, transparent);
+}
+.nk-button-icon {
+  flex: none;
+  width: 0;
+  height: 15px;
+  margin-inline-end: -6px;          /* cancels the gap while the icon is folded away */
+  opacity: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+  transition: width var(--t-med) var(--ease-out), margin var(--t-med) var(--ease-out), opacity var(--t-fast);
+}
+.nk-button.is-sm .nk-button-icon { height: 13px; }
+.nk-button:hover:not(:disabled) .nk-button-icon, .nk-button:focus-visible .nk-button-icon, .nk-button[data-icon-show="always"] .nk-button-icon {
+  width: 15px;
+  margin-inline-end: 0;
+  opacity: 1;
+}
+.nk-button.is-sm:hover:not(:disabled) .nk-button-icon, .nk-button.is-sm:focus-visible .nk-button-icon, .nk-button.is-sm[data-icon-show="always"] .nk-button-icon { width: 13px; }
+.nk-button:hover:not(:disabled) .nk-button-icon, .nk-button:focus-visible .nk-button-icon { animation: var(--nk-motion, none) 460ms var(--ease-out) 110ms; }
+.nk-button[data-motion="shake"] { --nk-motion: nk-motion-shake; }
+.nk-button[data-motion="spin"]  { --nk-motion: nk-motion-spin; }
+.nk-button[data-motion="nudge"] { --nk-motion: nk-motion-nudge; }
+.nk-button[data-motion="pop"]   { --nk-motion: nk-motion-pop; }
+.nk-button[data-motion="drop"]  { --nk-motion: nk-motion-drop; }
+.nk-button[data-motion="lift"]  { --nk-motion: nk-motion-lift; }
+@keyframes nk-motion-shake { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 55% { transform: rotate(9deg); } 80% { transform: rotate(-4deg); } }
+@keyframes nk-motion-spin  { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes nk-motion-nudge { 0%, 100% { transform: translateX(0); } 45% { transform: translateX(3px); } 75% { transform: translateX(-1px); } }
+@keyframes nk-motion-pop   { 0% { transform: scale(.6); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes nk-motion-drop  { 0% { transform: translateY(-4px); } 60% { transform: translateY(2px); } 100% { transform: translateY(0); } }
+@keyframes nk-motion-lift  { 0% { transform: translateY(4px); } 60% { transform: translateY(-2px); } 100% { transform: translateY(0); } }
+[dir="rtl"] .nk-button[data-motion="nudge"] .nk-button-icon { scale: -1 1; }
+@media (prefers-reduced-motion: reduce) { .nk-button-icon { transition: none; animation: none !important; } }
+
+.nk-button svg:not(.nk-button-icon) { width: 14px; height: 14px; flex: none; }   /* the dynamic icon sizes itself */

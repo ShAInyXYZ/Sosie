@@ -1,0 +1,27 @@
+/* Limit — a quota: label, segments, percentage, and when it resets. As with
+   the meter, data-frac on the .nk-seg is the only number; an empty
+   .nk-limit-pct is printed from it.
+
+   <div class="nk-limit"><span class="nk-limit-label">Session</span><div class="nk-seg" data-frac="0.46"></div><span class="nk-limit-pct"></span><span class="nk-limit-resets">resets 18:30</span></div> */
+.nk-limit { display: contents; }
+.nk-limit-label, .nk-limit-pct, .nk-limit-resets {
+  display: block;
+  height: 28px;
+  line-height: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nk-limit-label {
+  min-width: 0;
+  font: 500 var(--fs-body)/28px var(--font-sans);
+  color: var(--muted);
+}
+.nk-limit-pct {
+  text-align: end;
+  font: 400 var(--fs-small)/28px var(--font-mono);
+  color: var(--text);
+}
+.nk-limit-pct[data-tone="warn"] { color: var(--warn); }
+.nk-limit-pct[data-tone="crit"] { color: var(--err); }
+.nk-limit-resets { font: 400 var(--fs-small)/28px var(--font-mono); color: var(--dim); }

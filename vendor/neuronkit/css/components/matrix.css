@@ -1,0 +1,7 @@
+/* Dot matrix — an LED scoreboard readout: a short string drawn as a
+   grid of dots, lit in the accent, unlit dots faint. Drawn by neuronkit.js
+   from data-text. */
+.nk-matrix { display: inline-block; color: var(--accent); }
+.nk-matrix svg { display: block; }
+.nk-matrix circle { fill: color-mix(in srgb, currentColor 14%, transparent); }
+.nk-matrix circle.on { fill: currentColor; }

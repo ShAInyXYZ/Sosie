@@ -1,0 +1,14 @@
+/* Split pane — two panes with a divider you can drag (or move with the
+   arrow keys once focused). The divider is a hairline with a grip that
+   appears on hover; it never takes more than 1px of the layout. */
+.nk-splitpane { display: grid; grid-template-columns: var(--split, 50%) 1px minmax(0, 1fr); min-height: 0; }
+.nk-splitpane.is-vertical { grid-template-columns: none; grid-template-rows: var(--split, 50%) 1px minmax(0, 1fr); }
+.nk-splitpane > .nk-pane { min-width: 0; min-height: 0; overflow: auto; }
+.nk-divider { position: relative; background: var(--line); cursor: col-resize; outline: none; }
+.nk-splitpane.is-vertical .nk-divider { cursor: row-resize; }
+.nk-divider::before { content: ''; position: absolute; inset: 0 -5px; }
+.nk-splitpane.is-vertical .nk-divider::before { inset: -5px 0; }
+.nk-divider::after { content: ''; position: absolute; top: 50%; left: 50%; width: 4px; height: 28px; margin: -14px 0 0 -2px; border-radius: 2px; background: var(--line2); opacity: 0; transition: opacity var(--t-fast), background var(--t-fast); }
+.nk-splitpane.is-vertical .nk-divider::after { width: 28px; height: 4px; margin: -2px 0 0 -14px; }
+.nk-divider:hover::after, .nk-divider:focus-visible::after, .nk-divider.is-dragging::after { opacity: 1; }
+.nk-divider:focus-visible::after, .nk-divider.is-dragging::after { background: var(--accent); }

@@ -1,0 +1,170 @@
+/* Colour picker — an instrument, not a gradient box. Hue is a dial: a
+   recessed bezel carrying a ring of square lamps, one per hue, with a
+   machined thumb riding it (a shell carrying a lamp in the pure hue, like
+   the switch). The lamps near the chosen hue light up; the rest stay dim
+   tinted lenses. Saturation and brightness are a recessed window cut into
+   the raised centre cap, with its own machined thumb carrying the chosen
+   colour. Beside the dial, the readings: was / now lenses (press "was" to go
+   back), the hex, HSB | RGB and three scrub fields, each with a track under
+   it showing what that channel does. Drag the ring or the window, scroll the
+   dial, or focus either and use the arrows (Shift for bigger steps). Only
+   the hex leaves the component, as nk:change.
+
+   <div class="nk-colour" data-value="#e54866"></div>
+   <div class="nk-colour" data-value="#91c9ff" data-was="#79d7b5" data-mode="rgb"></div>
+   <div class="nk-colour is-compact" data-value="#e54866"></div>   readings under the dial, for popovers
+
+   --colour-w is the dial's diameter (232px); in .is-compact, the whole
+   width. The hues and the field's black and white are colour data, the only
+   literal colours here. */
+.nk-colour {
+  --colour-w: 232px;
+  display: grid;
+  grid-template-columns: var(--colour-w) minmax(196px, 1fr);
+  align-items: center;
+  gap: 18px;
+  width: max-content;
+}
+.nk-colour.is-compact { grid-template-columns: var(--colour-w); gap: 14px; }
+
+/* ---- the dial ---- */
+.nk-colour-dial {
+  position: relative;
+  width: var(--colour-w);
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--well);
+  cursor: grab;
+  touch-action: none;
+}
+.nk-colour-dial.is-turning { cursor: grabbing; }
+.nk-colour-dial:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-colour-lamp {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--colour-w) * .028);
+  height: calc(var(--colour-w) * .028);
+  margin: calc(var(--colour-w) * -.014);
+  border-radius: 1.5px;
+  background: color-mix(in srgb, hsl(var(--lh) 92% 56%) calc(22% + var(--lit, 0) * 78%), var(--lamp-off-dim));
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45);
+  transform: rotate(var(--a)) translateY(calc(var(--colour-w) * -.418));
+  pointer-events: none;
+}
+.nk-colour-ring-thumb {   /* rides the ring: a machined shell carrying the pure hue */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: calc(var(--colour-w) * .085);
+  height: calc(var(--colour-w) * .085);
+  margin: calc(var(--colour-w) * -.0425);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  box-shadow: var(--drop);
+  transform: rotate(var(--hue-a)) translateY(calc(var(--colour-w) * -.418)) rotate(calc(var(--hue-a) * -1));
+  pointer-events: none;
+}
+.nk-colour-ring-thumb::after, .nk-colour-thumb::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 1.5px;
+  background: var(--c);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .55);
+}
+.nk-colour-dial:hover .nk-colour-ring-thumb, .nk-colour-dial.is-turning .nk-colour-ring-thumb { background: var(--shell-hover); }
+.nk-colour-cap {   /* the raised centre, with the window cut into it */
+  position: absolute;
+  inset: 15%;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  box-shadow: var(--drop-cap);
+  cursor: default;
+}
+.nk-colour-area {
+  position: relative;
+  width: 68%;
+  aspect-ratio: 1;
+  border-radius: calc(7px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, hsl(var(--h, 0) 100% 50%));
+  cursor: crosshair;
+  touch-action: none;
+}
+.nk-colour-area::before {   /* the window's depth, over the colour */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit; corner-shape: inherit;
+  box-shadow: var(--recess-shade), inset 0 0 0 1px rgba(0, 0, 0, .35);
+  pointer-events: none;
+}
+.nk-colour-area:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-colour-thumb {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  box-shadow: var(--drop);
+  pointer-events: none;
+}
+
+/* ---- the readings ---- */
+.nk-colour-readings { display: grid; gap: 8px; min-width: 0; }
+.nk-colour-lenses { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; border: 1px solid transparent; border-radius: calc(6px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--inset); }
+.nk-colour-lens {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  height: 34px;
+  padding: 0 7px 5px;
+  border: 0;
+  border-radius: calc(4px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--lens-glass), var(--c);
+  box-shadow: var(--lens-shade);
+  font: 500 var(--fs-micro)/1 var(--font-mono);
+  letter-spacing: .18em;
+  text-align: start;
+}
+.nk-colour-lens > span {   /* the printed label sits on a small plate so it reads on any colour */
+  padding: 2px 4px 2px 5px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  color: var(--muted);
+}
+button.nk-colour-lens { cursor: pointer; }
+button.nk-colour-lens:hover > span { color: var(--text); }
+button.nk-colour-lens:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-colour-row { display: flex; align-items: center; gap: 6px; }
+.nk-colour-row .nk-input { flex: 1; min-width: 0; }
+.nk-colour-row .nk-input input { font-family: var(--font-mono); font-weight: 400; text-transform: lowercase; }
+.nk-colour-readings .nk-choice { justify-self: start; }
+.nk-colour-scrubs { display: grid; gap: 4px; }
+.nk-colour-scrubs[hidden] { display: none; }
+.nk-colour-track {   /* what the channel does, under its number */
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 3px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--track-c, var(--line2));
+  opacity: .9;
+  pointer-events: none;
+}

@@ -1,0 +1,18 @@
+/* Progress — a thin recessed track that fills (determinate: data-value,
+   of data-max = 100, which also sets what assistive tech hears; --v works
+   too) or sweeps (indeterminate, no value). Work in progress is --info, like the
+   dial's busy arc. The spinner is that arc on its own. */
+.nk-progress { position: relative; height: 6px; overflow: hidden; border: 1px solid transparent; border-radius: 999px; background: var(--inset); }
+.nk-progress::before {
+  content: ''; position: absolute; inset: 0 auto 0 0;
+  width: calc(var(--v, 0) * 1%);
+  border-radius: 999px;
+  background: var(--tone, var(--info));
+  transition: width var(--t-med) var(--ease-out);
+}
+.nk-progress.is-indeterminate::before { width: 34%; animation: nk-sweep 1.3s var(--ease-mech) infinite; }
+@keyframes nk-sweep { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+.nk-spinner { display: inline-block; flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--lamp-off-dim); border-top-color: var(--tone, var(--info)); animation: nk-spin .9s linear infinite; }
+.nk-spinner.is-sm { width: 12px; height: 12px; border-width: 1.5px; }
+@keyframes nk-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .nk-progress.is-indeterminate::before { animation: none; width: 100%; opacity: .35; } .nk-spinner { animation-duration: 3s; } }

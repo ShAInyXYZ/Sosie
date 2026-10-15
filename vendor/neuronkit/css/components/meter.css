@@ -1,0 +1,40 @@
+/* Meter — a segmented level with its label and reading on one row. The
+   fraction is the only number: <div class="nk-seg" data-frac="0.22"> draws
+   the segments, and an empty .nk-meter-value is printed from it ("22%",
+   toned like the segments). An amount instead: data-value="22.1"
+   data-max="24" data-unit="G" fills 92% and prints "22.1/24G". Write your
+   own words there to replace the printed reading.
+
+   <div class="nk-meter"><span class="nk-meter-label">CPU</span><div class="nk-seg" data-frac="0.22"></div><span class="nk-meter-value"></span></div> */
+.nk-meter { display: contents; }
+.nk-meter-label, .nk-meter-value {
+  display: block;
+  height: 28px;
+  line-height: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nk-meter-label {
+  min-width: 0;
+  font: 500 var(--fs-body)/28px var(--font-sans);
+  color: var(--muted);
+}
+.nk-meter-label.is-mono { font: 400 var(--fs-small)/28px var(--font-mono); }
+.nk-meter-value {
+  text-align: end;
+  font: 400 var(--fs-small)/28px var(--font-mono);
+  color: var(--text);
+}
+.nk-meter-value[data-tone="warn"] { color: var(--warn); }
+.nk-meter-value[data-tone="crit"] { color: var(--err); }
+.nk-meter-note {
+  grid-column: 2 / -1;
+  margin-top: -4px;
+  padding-bottom: 4px;
+  font: 400 var(--fs-micro)/16px var(--font-mono);
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

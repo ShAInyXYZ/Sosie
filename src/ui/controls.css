@@ -1,0 +1,78 @@
+.nk-react-select,
+.nk-react-colour {
+  min-width: 0;
+  width: 100%;
+}
+
+.nk-react-select > .nk-select-source {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nk-react-colour-trigger {
+  width: 100%;
+  justify-content: flex-start;
+  padding-inline: var(--sp-3) var(--sp-4);
+  gap: var(--sp-4);
+  border-radius: var(--r);
+  corner-shape: var(--corner, round);
+}
+
+.nk-react-colour-lens {
+  flex: none;
+  width: var(--sp-7);
+  height: var(--sp-7);
+  border: 1px solid var(--line2);
+  border-radius: var(--r-sm);
+  background: var(--c);
+}
+
+.nk-react-colour-value {
+  color: var(--muted);
+  font: 400 var(--fs-small)/1 var(--font-mono);
+}
+
+.nk-react-colour-popover {
+  width: max-content;
+  max-width: calc(100vw - var(--sp-8));
+  padding: var(--sp-5);
+}
+
+.nk-react-colour-popover .nk-colour {
+  --colour-w: min(232px, calc(100vw - var(--sp-9) - var(--sp-8)));
+}
+
+/* A field labels the whole control. Its generic input surface must not turn
+   the kit's native ranges and checkboxes into text boxes. */
+.nk-field input.nk-slider {
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.nk-field input.nk-slider:hover {
+  background: transparent;
+}
+
+.nk-field .nk-checkbox input {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: calc(5px * var(--corner-k, 1));
+  corner-shape: var(--corner, round);
+  background: var(--box-well);
+}
+
+.nk-field .nk-checkbox:hover input {
+  background: var(--box-well-hover);
+}

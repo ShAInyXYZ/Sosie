@@ -1,0 +1,15 @@
+/* Radio — native input, drawn as a small well; the chosen one lights a
+   round lamp in the accent. For picking one of a few with words beside. */
+.nk-radio { display: flex; align-items: flex-start; gap: 10px; color: var(--muted); font: 500 var(--fs-body)/18px var(--font-sans); cursor: pointer; }
+.nk-radio input {
+  appearance: none; display: grid; place-content: center; flex: none;
+  width: 16px; height: 16px; margin: 1px 0 0;
+  border: 1px solid transparent; border-radius: 50%;
+  background: var(--well); cursor: pointer;
+}
+.nk-radio input::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: transparent; transition: background var(--t-fast); }
+.nk-radio input:checked::after { background: var(--accent); }
+.nk-radio:has(input:checked) { color: var(--text); }
+.nk-radio small { display: block; color: var(--dim); font-size: var(--fs-small); font-weight: 400; }
+.nk-radio-group { display: grid; gap: 12px; }
+@media (forced-colors: active) { .nk-radio input { appearance: auto; } }

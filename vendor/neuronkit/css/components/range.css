@@ -1,0 +1,37 @@
+/* Range slider — a low and a high on one track: two native range inputs laid
+   on top of each other (so keyboard, forms and screen readers get the real
+   thing), the travel between them lit. neuronkit.js keeps them from
+   crossing and paints the fill.
+
+   <div class="nk-range" data-unit=" GB">
+     <input type="range" min="0" max="128" value="16" aria-label="Minimum VRAM">
+     <input type="range" min="0" max="128" value="96" aria-label="Maximum VRAM">
+   </div>
+   <output> siblings inside a .nk-slider-row show "16–96 GB". */
+.nk-range { position: relative; height: 22px; --lo: 0; --hi: 100; }
+.nk-range::before, .nk-range::after { content: ''; position: absolute; top: 8px; height: 6px; border-radius: 999px; }
+.nk-range::before { left: 0; right: 0; border: 1px solid transparent; background: var(--inset); }
+.nk-range::after { left: calc(8px + (100% - 16px) * var(--lo) / 100); right: calc(8px + (100% - 16px) * (100 - var(--hi)) / 100); background: var(--accent); }
+.nk-range input {
+  position: absolute; inset: 0;
+  width: 100%; height: 22px; margin: 0;
+  -webkit-appearance: none; appearance: none;
+  background: none;
+  pointer-events: none;      /* only the thumbs take the pointer */
+}
+.nk-range input::-webkit-slider-runnable-track { height: 6px; background: none; border: 0; }
+.nk-range input::-moz-range-track { background: none; border: 0; }
+.nk-range input::-webkit-slider-thumb {
+  -webkit-appearance: none; pointer-events: auto;
+  position: relative; z-index: 2;
+  width: 16px; height: 16px; margin-top: -5px;
+  border: 1px solid transparent; border-radius: 50%;
+  background: var(--shell); box-shadow: var(--drop);
+  cursor: grab;
+}
+.nk-range input::-moz-range-thumb { pointer-events: auto; width: 14px; height: 14px; border: 1px solid transparent; border-radius: 50%; background: var(--shell); box-shadow: var(--drop); cursor: grab; }
+.nk-range input:hover::-webkit-slider-thumb { background: var(--shell-hover); }
+.nk-range input:focus-visible { outline: none; }
+.nk-range input:focus-visible::-webkit-slider-thumb { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-range input:focus-visible::-moz-range-thumb { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-range:has(input:disabled) { opacity: var(--disabled); }

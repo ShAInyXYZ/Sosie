@@ -1,0 +1,34 @@
+/* Checkbox — native input semantics in the machined language: a small
+   recessed well; checked lights a check in the accent inside it, like the
+   switch's lamp. Forced-colors falls back to the native box. */
+.nk-checkbox { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font: 500 var(--fs-body)/18px var(--font-sans); cursor: pointer; }
+.nk-checkbox input {
+  appearance: none;
+  display: grid;
+  place-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: calc(5px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background:
+    var(--box-well);
+  cursor: pointer;
+}
+.nk-checkbox input::after {
+  content: '';
+  width: 8px;
+  height: 4.5px;
+  border: 2px solid var(--accent);
+  border-top: 0;
+  border-right: 0;
+  transform: translateY(-1px) rotate(-45deg) scale(0);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.nk-checkbox input:checked::after { transform: translateY(-1px) rotate(-45deg) scale(1); }
+.nk-checkbox input:indeterminate::after { width: 8px; height: 0; border: 0; border-top: 2px solid var(--accent); transform: none; }
+.nk-checkbox:hover input { background: var(--box-well-hover); }
+.nk-checkbox:has(input:checked) { color: var(--text); }
+.nk-checkbox input:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+@media (forced-colors: active) { .nk-checkbox input { appearance: auto; } }

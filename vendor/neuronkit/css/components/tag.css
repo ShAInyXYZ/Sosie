@@ -1,0 +1,8 @@
+/* Tag, badge, kbd — the printed marks. A tag is a mono label in a hairline
+   box (a version, a model id); a badge is a count or a state in a pill,
+   toned only when it is a problem; kbd is a keycap, machined. */
+.nk-tag { display: inline-flex; align-items: center; gap: 5px; height: 18px; padding: 0 6px; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--line2); color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); letter-spacing: .04em; white-space: nowrap; }
+.nk-tag[data-tone] { color: var(--tone); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 40%, transparent); }
+.nk-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 6px; border-radius: 999px; background: var(--s3); color: var(--muted); font: 500 var(--fs-micro)/1 var(--font-mono); }
+.nk-badge[data-tone] { background: color-mix(in srgb, var(--tone) 16%, transparent); color: var(--tone); }
+.nk-kbd, kbd.nk-kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border: 1px solid transparent; border-radius: calc(5px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--shell); box-shadow: 0 1px 0 rgba(0, 0, 0, .5); color: var(--muted); font: 500 var(--fs-micro)/1 var(--font-mono); }

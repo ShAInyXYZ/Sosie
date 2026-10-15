@@ -1,0 +1,24 @@
+.nk-chips {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 4px 0 6px;
+}
+.nk-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 24px;
+  font: 500 var(--fs-small)/1 var(--font-sans);
+  color: var(--muted);
+}
+.nk-chip-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 16px; }
+.nk-chip-value {
+  margin-inline-start: auto;
+  font: 400 var(--fs-small)/1 var(--font-mono);
+  color: var(--text);
+  white-space: nowrap;
+}

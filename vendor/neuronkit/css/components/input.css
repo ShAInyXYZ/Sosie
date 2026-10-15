@@ -1,0 +1,133 @@
+/* Input group — one recessed field with things set into it: a prefix (an
+   icon or a unit like "https://"), a suffix ("ms", "°", a kbd), and for a
+   search a clear button that appears only once there is text. The field
+   is the group, so the focus ring wraps all of it.
+
+   <label class="nk-input"><svg class="nk-icon">…</svg><input type="search" placeholder="Search"><button class="nk-input-clear" aria-label="Clear"></button></label>
+   <label class="nk-input"><input inputmode="decimal" value="250"><span class="nk-input-affix">ms</span></label>
+   .is-small is 32px, for toolbars and dense settings. */
+.nk-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: var(--inset);
+  color: var(--text);
+  font: 500 var(--fs-body)/1 var(--font-sans);
+  cursor: text;
+}
+.nk-input.is-small { height: 32px; padding: 0 10px; gap: 6px; font-size: var(--fs-small); }
+.nk-input:hover { background: var(--inset-hover); }
+.nk-input:focus-within { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-input:has(input:disabled) { opacity: var(--disabled); cursor: default; }
+/* .nk-field styles its own bare inputs; inside a group the field is the
+   group, so the input underneath is reset whatever wraps it. */
+.nk-input input, .nk-field .nk-input input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  caret-color: var(--accent);
+  outline: none;
+}
+.nk-input input:focus-visible, .nk-field .nk-input input:focus-visible { outline: none; }
+.nk-input input::placeholder, .nk-field .nk-input input::placeholder { color: var(--faint); }
+.nk-input input::-webkit-search-cancel-button, .nk-input input::-webkit-search-decoration { -webkit-appearance: none; }
+.nk-input input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+.nk-input input::-webkit-inner-spin-button, .nk-input input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.nk-input > svg { flex: none; width: 15px; height: 15px; fill: none; stroke: var(--dim); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.nk-input-affix { flex: none; color: var(--dim); font: 400 var(--fs-small)/1 var(--font-mono); white-space: nowrap; }
+.nk-input.has-error { box-shadow: 0 0 0 1px color-mix(in srgb, var(--err) 70%, transparent); }
+/* the clear button: an × that exists only while there is something to clear */
+.nk-input-clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px; height: 20px;
+  margin-inline-end: -4px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+}
+.nk-input-clear::before { content: ''; width: 10px; height: 10px; background: currentColor; clip-path: polygon(15% 0, 50% 35%, 85% 0, 100% 15%, 65% 50%, 100% 85%, 85% 100%, 50% 65%, 15% 100%, 0 85%, 35% 50%, 0 15%); }
+.nk-input-clear:hover { background: var(--s3); color: var(--text); }
+.nk-input:has(input:placeholder-shown) .nk-input-clear { visibility: hidden; }
+
+/* Scrub field — a number you set by dragging its label, as in a 3D app:
+   press the label and drag sideways (Shift fine, Ctrl coarse), or click
+   the number and type. Arrows step it. The field shows how far along its
+   range it is with a faint fill, so a column of them reads at a glance.
+
+   <label class="nk-scrub" data-min="0" data-max="1" data-step="0.01">
+     <span class="nk-scrub-label">Roughness</span><input value="0.45">
+   </label> */
+.nk-scrub {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 30px;
+  min-width: 0;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--text) 7%, transparent) calc(var(--f, 0) * 100%), transparent 0) padding-box,
+    var(--inset);
+  font: 500 var(--fs-small)/1 var(--font-sans);
+  overflow: hidden;
+  --f: 0;
+}
+.nk-scrub:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--text) 9%, transparent) calc(var(--f, 0) * 100%), transparent 0) padding-box, var(--inset-hover); }
+.nk-scrub:focus-within { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-scrub-label {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 10px;
+  overflow: hidden;
+  color: var(--muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+}
+.nk-scrub.is-scrubbing .nk-scrub-label { color: var(--text); }
+.nk-scrub input {
+  width: 7ch;
+  height: 100%;
+  padding: 0 10px 0 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: 400 var(--fs-small)/1 var(--font-mono);
+  text-align: end;
+  caret-color: var(--accent);
+  outline: none;
+}
+.nk-scrub:has(input:disabled) { opacity: var(--disabled); }
+.nk-scrub:has(input:disabled) .nk-scrub-label { cursor: default; }
+body.nk-scrubbing, body.nk-scrubbing * { cursor: ew-resize !important; user-select: none; }
+
+/* Password reveal: an eye that shows the password while pressed, struck
+   through again when it hides it. */
+.nk-input-reveal { flex: none; display: grid; place-items: center; width: 24px; height: 24px; margin-inline-end: -6px; padding: 0; border: 0; border-radius: var(--r); corner-shape: var(--corner, round); background: transparent; color: var(--dim); cursor: pointer; }
+.nk-input-reveal:hover { background: var(--s3); color: var(--text); }
+.nk-input-reveal svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.nk-input-reveal[aria-pressed="true"] .nk-reveal-slash { display: none; }
+.nk-input-reveal[aria-pressed="true"] { color: var(--text); }

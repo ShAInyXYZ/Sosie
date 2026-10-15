@@ -1,0 +1,386 @@
+/* ============================================================================
+   NEURONKIT — design tokens
+   The aesthetic: TP-7 / Japanese old-school-modern · minimalist
+   industrial · Scandinavian. Monochrome surfaces, ONE signal accent,
+   hairlines, mono labels, generous negative space, mechanical precision.
+
+   Tokens only. Components reference these and never retype a value.
+   ============================================================================ */
+
+/* ---- corners — continuous curvature (a squircle), like milled metal: the
+   edge starts to bend while it still looks straight, tightens into the
+   corner and eases out, instead of a quarter circle glued to a line. Every
+   shaped corner in the kit uses corner-shape: var(--corner, round). A squircle at
+   the same radius hugs the corner tighter, so where it is supported radii
+   grow by --corner-k to keep the same softness. Circles, pills and 1–2px
+   lamp corners are not shaped. Browsers without corner-shape keep the
+   classic round corner at the classic radius. To opt out, set
+   --corner: round; --corner-k: 1 on :root. ---- */
+:root { --corner: round; --corner-k: 1; }
+@supports (corner-shape: squircle) { :root { --corner: squircle; --corner-k: 2.1; } }
+
+:root {
+  --font-sans: "Manrope Variable", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root, [data-theme="dark"] {
+  color-scheme: dark;
+  /* ---- surfaces: flat 4-step ladder, near-black, never pure black.
+     The upper steps are deliberately neutral gray rather than hue-240:
+     a blue-tinted surface reads visibly cool over large areas like the
+     tree rail, so panels stay truly neutral. ---- */
+  /* Surface ladder. Rebased on #161616 (2026-08-22): the old base was
+     #09090B, nearly black with a blue cast. Each step must stay LIGHTER than
+     the one below or depth inverts — panels would read as darker than the
+     canvas they sit on. Luminance steps match the previous ladder's. */
+  --bg:    #161616;   /* app base */
+  --s1:    #1C1C1C;   /* panel / tree */
+  --s2:    #242424;   /* raised / input */
+  --s3:    #2B2B2B;   /* control / hover */
+
+  /* ---- hairlines ---- */
+  /* ONE rule, so edges stop competing:
+       --line   STRUCTURE — separates regions of the app shell (header from
+                body, rail from chat). Used sparingly; two structural lines
+                should never meet.
+       --line2  CONTROLS — the edge of a thing you can interact with: an
+                input, a menu, a focusable card. Slightly brighter so a
+                control reads as raised rather than as another divider.
+     Anything else that needs an edge is a SURFACE change, not a line. */
+  --line:  #2E2E2E;   /* structure — quieter than a control edge */
+  --line2: #3D3D3D;   /* control edge */
+
+  /* ---- ink ---- */
+  --text:  #FAFAFA;   /* primary */
+  --muted: #A1A1AA;   /* secondary */
+  --dim:   #71717A;   /* tertiary / labels active */
+  --faint: #52525B;   /* label rest / disabled ink */
+
+  /* ---- one signal accent — interactive/semantic ONLY.
+     Cherry, lifted one step off its base tone (hsl(348 70% 51%) = #D92B4E)
+     so it keeps text-contrast against the near-black background. ---- */
+  --accent:      #E54866;
+  --accent-ink:  #FFFFFF;
+  /* Text ON a filled accent surface. Dark, not white: measured against
+     #E54866 it is 5.10:1 versus white's 3.85:1. Several buttons had this
+     value hardcoded as #0B0B0D. */
+  --on-accent:   #0B0B0D;
+  --accent-soft: rgba(229,72,102,.12);
+  --accent-line: rgba(229,72,102,.42);
+
+  /* ---- semantic status — used as dots/labels, not fills ---- */
+  --ok:   #4bb894;
+  --err:  #e6533f;
+  --warn: #cf9f2e;
+  --info: #5aa0d6;
+  /* memory kinds — moved off pink so they never read as the accent */
+  --semantic: #b48ad6;  /* memory: semantic (violet) */
+  --episodic: #5bb7c9;  /* memory: episodic (cyan) */
+
+  /* ---- depth: hairline ring + top-light bump ----
+     A control is lit from above: a bright top edge, a dark bottom edge, and
+     a ring to separate it from the surface behind. That is the whole depth
+     language. Floating menus add a tinted blurred backdrop; the chat/dock
+     transition deliberately stays a plain opacity gradient. ---- */
+  --ring:        rgba(255,255,255,.08);
+  --ring-strong: rgba(255,255,255,.12);
+  --lift:        rgba(255,255,255,.09);   /* top-edge highlight */
+  --lift-strong: rgba(255,255,255,.14);   /* raised / focused */
+  --shade:       rgba(0,0,0,.38);         /* bottom-edge shade */
+
+  /* ---- code / syntax tokens (markdown + highlight.js) ----
+     Cool-leaning so they never compete with the rose accent. ---- */
+  --code-inline:  #E8A9B6;
+  --code-keyword: #C99BD6;
+  --code-string:  #8FBF9E;
+  --code-number:  #D9A88C;
+  --code-title:   #7FB3D9;
+  --code-type:    #6BB7C9;
+
+  /* ---- geometry: tight data cells, rounded frames, pill controls ---- */
+  --r-sm: 2px;                              /* lamps and tiny insets: too small to shape */
+  --r:    calc(3px * var(--corner-k, 1));
+  --r-lg: calc(4px * var(--corner-k, 1));
+  --r-panel: calc(14px * var(--corner-k, 1));
+  --r-control: 999px;
+  --floating-surface: var(--s2);
+  --floating-blur: none;
+
+  /* ---- rhythm ---- */
+  /* SPACING SCALE — snap to these.
+     Audited 2026-08-21: every integer from 1px to 14px was in use, including
+     11 and 13, which is not a scale but an accumulation. Four-based, with 2px
+     kept for hairline gaps inside controls. */
+  --sp-1:  2px;
+  --sp-2:  4px;
+  --sp-3:  6px;
+  --sp-4:  8px;
+  --sp-5:  12px;
+  --sp-6:  16px;
+  --sp-7:  20px;
+  --sp-8:  24px;
+  --sp-9:  32px;
+
+  /* TYPE SCALE — 17 distinct sizes were in use (8 → 34px). Five roles instead.
+     MICRO is for text nobody reads unless something went wrong. */
+  --fs-micro:   9.5px;
+  --fs-small:   11.5px;
+  --fs-body:    13px;
+  --fs-title:   15px;
+  --fs-display: 21px;
+
+  --gap:   8px;
+  --pad:   14px;
+  --rail-w: 280px;
+  --bar-h:  46px;   /* header height — popovers pin below it */
+
+  /* ---- shared control geometry — components must reference these, never
+     retype the numbers (the plan strip once hardcoded a 66px inset to mirror
+     a 54px knob it couldn't see) ---- */
+  --knob:        54px;                      /* round mode/attach controls */
+  --dock-gap:    12px;
+  --dock-inset:  calc(var(--knob) + var(--dock-gap));  /* knob + gap */
+  --composer-w:  760px;                     /* chat column max width */
+
+  /* ---- drop shadows — things that sit above the surface. Faces and wells
+     use the edge tokens; only what floats or is picked up casts a shadow. ---- */
+  --drop:     0 1px 2px rgba(0,0,0,.6);      /* a thumb, a small shell on its track */
+  --drop-cap: 0 2px 4px rgba(0,0,0,.55);     /* a knob or dial cap */
+  --float-sm: 0 8px 24px rgba(0,0,0,.4);     /* a floating toolbar, banner, a lifted row */
+  --float:    0 12px 32px rgba(0,0,0,.45);   /* menus, selects, popovers, pickers */
+  --float-lg: 0 24px 64px rgba(0,0,0,.5);    /* dialogs, drawers, the command palette */
+
+  /* ---- interaction states — one focus ring and one disabled look, so every
+     control agrees. Dials and knobs draw their ring in --text (a cherry ring
+     reads as a crit ring at that size). ---- */
+  --focus:        var(--accent);
+  --focus-w:      2px;
+  --focus-offset: 2px;
+  --disabled:     .42;                      /* opacity of anything :disabled */
+
+  /* ---- z scale — the only allowed z-index values ---- */
+  --z-raised:   10;   /* pinned strips, hud chips */
+  --z-dropdown: 40;   /* menus, knob popovers */
+  --z-overlay:  60;   /* rail drawer, docks */
+  --z-popover:  70;   /* status/hardware panels — must clear the rail toggle */
+  --z-modal:    80;   /* dialogs */
+  --z-toast:    90;
+
+  /* ---- motion — every animation derives from these ---- */
+  --t-fast:  120ms;
+  --t-med:   180ms;
+  --t-slow:  320ms;
+  --ease-out:  cubic-bezier(.16, 1, .3, 1);
+  --ease-mech: cubic-bezier(.4, 0, .2, 1);
+
+  /* ---- breakpoints (for reference in @media, which cannot read vars):
+     narrow < 640px · compact < 900px · full ≥ 900px ---- */
+}
+
+@supports (backdrop-filter: blur(24px)) {
+  :root, [data-theme="dark"] {
+    --floating-surface: color-mix(in srgb, var(--s2) 94%, transparent);
+    --floating-blur: blur(24px);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root, [data-theme="dark"] { --floating-surface: var(--s2); --floating-blur: none; }
+}
+
+/* ---- depth: the one elevation language ---- */
+:root {
+  /* resting card */
+  --elev-1:
+    0 0 0 1px var(--ring),
+    0 1px 0 0 var(--lift) inset,
+    0 -1px 0 0 var(--shade) inset;
+  /* floating element (dock, popover, menu) — same language, firmer edge */
+  --elev-2:
+    0 0 0 1px var(--ring-strong),
+    0 1px 0 0 var(--lift-strong) inset,
+    0 -1px 0 0 var(--shade) inset;
+  /* subtle top-light gradient for a card surface */
+  --surface: linear-gradient(180deg, color-mix(in srgb, var(--lift) 55%, var(--s1)) 0%, var(--s1) 46%);
+  --surface-raised: linear-gradient(180deg, color-mix(in srgb, var(--lift) 60%, var(--s2)) 0%, var(--s2) 50%);
+}
+
+/* ============================================================================
+   MACHINED FACES — the surface language
+   Everything is lit from above. A surface has a vertical fill and an edge
+   that is lighter at the top; a raised control is brighter; a recess inverts
+   it — a cut that is dark at the top and catches light on its lower lip.
+   Use each with `border: 1px solid transparent` (the edge is the border box).
+   ============================================================================ */
+:root, [data-theme="dark"] {
+  /* panels, rails, toasts, menus */
+  --face: linear-gradient(#262626, #212121) padding-box, linear-gradient(#333333, #292929) border-box;
+  /* raised: dials, keys, buttons */
+  --shell: linear-gradient(#303030, #252525 48%, #1e1e1e) padding-box, linear-gradient(#414141, #292929) border-box;
+  --shell-hover: linear-gradient(#383838, #2b2b2b 48%, #222222) padding-box, linear-gradient(#4b4b4b, #2e2e2e) border-box;
+  /* round recess: the dial's well */
+  --well: radial-gradient(82% 82% at 50% 80%, #222222 0%, #1b1b1b 72%, #121212 90%, #090909 100%) padding-box, linear-gradient(#090909, #191919 50%, #303030) border-box;
+  --well-open: radial-gradient(82% 82% at 50% 80%, #1a1a1a 0%, #141414 72%, #0c0c0c 90%, #050505 100%) padding-box, linear-gradient(#050505, #121212 50%, #2a2a2a) border-box;
+  /* flat recess: fields, tracks, toggle banks */
+  --inset: linear-gradient(#171717, #1c1c1c) padding-box, linear-gradient(#0c0c0c, #1c1c1c 50%, #2e2e2e) border-box;
+  --inset-hover: linear-gradient(#191919, #1e1e1e) padding-box, linear-gradient(#101010, #242424 50%, #3a3a3a) border-box;
+}
+
+/* ---- voice: blue marks an active voice conversation; warm red marks
+   recording. Signal colours, never decoration. ---- */
+:root, [data-theme="dark"] {
+  --voice: #91c9ff;
+  --rec: #cf6a5e;
+}
+
+/* ---- port types (graphs): data-type semantics, ComfyUI-style — a
+   desaturated palette. Always paired with a socket SHAPE, so a
+   type is never told by colour alone. ---- */
+:root {
+  --port-any: #8a8f98;
+  --port-text: #e4c36a;
+  --port-json: #f0736c;
+  --port-image: #6f9cef;
+  --port-video: #52c4bf;
+  --port-audio: #c58be3;
+  --port-file: #7dcb8f;
+  --port-model: #d99a6c;
+  --port-control: #e36a9e;
+}
+
+/* ============================================================================
+   INSTRUMENT GEOMETRY — dials, panels, toasts
+   ============================================================================ */
+:root, [data-theme="dark"] {
+  /* dial geometry at normal density; compact and large override in base.css */
+  --dial: 40px;            /* outer diameter */
+  --rim: 4px;              /* machined rim; recess = dial - 2 * rim */
+  --led: 6px;              /* square channel lamp */
+  --mark: 18px;            /* mark box, 45 % of the dial */
+  --slot-gap: 8px;         /* between one dial slot and the next */
+  --readout-h: 12px;       /* readout line under a dial */
+
+  /* the quiet healthy lamp: --ok at 70 % */
+  --ok-led: color-mix(in srgb, var(--ok) 70%, transparent);
+
+  /* recess depth: an inset shade from above, a catch-light on the lower lip */
+  --recess-shade: inset 0 2px 4px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,255,255,.04);
+  /* the open dial's recess, one step below --bg */
+  --recess-open: #111111;
+
+  /* ---- smaller parts that have their own colour, so a theme can move them ---- */
+  --lamp-off: #3a3a3a;             /* an unlit lamp (switch, stage) */
+  --lamp-off-dim: #2a2a2a;
+  --control-ring: #3a3a3a;         /* the ring round a chosen segment */
+  --edge-stroke: #3a3a3a;          /* graph wires */
+  --text-soft: #dcdcde;            /* long reading text: answers, markdown */
+  --tint: rgba(255,255,255,.04);   /* a faint lift on a surface */
+  --tint-dark: rgba(0,0,0,.22);    /* a faint well on a surface */
+  --lens-glass: linear-gradient(170deg, rgba(255,255,255,.26), rgba(255,255,255,.06) 42%, transparent 60%);   /* the glint on a colour lens */
+  --lens-shade: inset 0 1px 2px rgba(0,0,0,.55), inset 0 0 0 1px rgba(0,0,0,.4);                               /* the lens sits in a recess */
+  --scroll-thumb: linear-gradient(#3d3d3d, #2f2f2f);
+  --scroll-thumb-hover: linear-gradient(#4a4a4a, #3a3a3a);
+  --scroll-thumb-active: linear-gradient(#575757, #454545);
+  --minimap-mask: rgba(0,0,0,.5);          /* graph minimap: what lies outside the view */
+  --track: radial-gradient(120% 150% at 50% 90%, #1f1f1f 0%, #171717 62%, #0d0d0d 100%) padding-box, linear-gradient(#060606, #151515 50%, #2f2f2f) border-box;
+  --box-well: radial-gradient(120% 120% at 50% 85%, #1f1f1f 0%, #161616 65%, #0c0c0c 100%) padding-box, linear-gradient(#060606, #151515 50%, #2f2f2f) border-box;
+  --box-well-hover: radial-gradient(120% 120% at 50% 85%, #242424 0%, #1a1a1a 65%, #0f0f0f 100%) padding-box, linear-gradient(#080808, #1a1a1a 50%, #3a3a3a) border-box;
+  --code-bg: linear-gradient(#141414, #171717) padding-box, linear-gradient(#0c0c0c, #1f1f1f 60%, #2a2a2a) border-box;
+  --voice-face: linear-gradient(#232323, #1f1f1f) padding-box, linear-gradient(#444443, #333332) border-box;
+  /* the thumbwheel: the slot (rim, ledge, cavity, notch) and the ribbed drum in it */
+  --wheel-rim: #2a2a2a; --wheel-rim-edge: rgba(0,0,0,.6); --wheel-inner-shade: rgba(0,0,0,.7); --wheel-notch: #5a5a5a;
+  --wheel-cavity: linear-gradient(#070707, #101010 45%, #171717);
+  --drum-body: linear-gradient(#272727, #1c1c1c 55%, #111111); --drum-body-v: linear-gradient(90deg, #272727, #1c1c1c 55%, #111111);
+  --drum-rib: rgba(255,255,255,.1); --drum-rib-shade: rgba(0,0,0,.55); --drum-ends: rgba(0,0,0,.55); --drum-shine: rgba(255,255,255,.06); --drum-drop: rgba(0,0,0,.6);
+
+  /* The floating surfaces' edge, drawn inside them. The same look as
+     --elev-2, but no translucent pixel ever sits over the transparent
+     window around a rail, panel or toast: WebKitGTK composites those
+     without premultiplying and the ring came out near-white. */
+  --edge-2:
+    inset 0 0 0 1px var(--ring-strong),
+    0 1px 0 0 var(--lift-strong) inset,
+    0 -1px 0 0 var(--shade) inset;
+
+  /* panel rhythm */
+  --body-inset: 16px;      /* body inset: header, sections and rows align to it */
+  --row-h: 32px;           /* single-line row; a row with a sub line is 40px */
+  --panel-w: 360px;        /* default panel width */
+  --r-toast: calc(10px * var(--corner-k, 1));
+}
+
+/* ============================================================================
+   ACCENTS — one per product, interaction only: Cherry (the default), Mint
+   and Lapis. Set data-accent="mint" or "lapis" on <html> to pick one.
+   ============================================================================ */
+[data-accent="mint"] {   /* Mint */
+  --accent: #79D7B5;
+  --accent-soft: rgba(121,215,181,.12);
+  --accent-line: rgba(121,215,181,.42);
+}
+[data-accent="lapis"], [data-accent="blue"] {   /* Lapis ("blue" is its old name, kept for existing pages) */
+  --accent: #5B9CF6;
+  --accent-soft: rgba(91,156,246,.12);
+  --accent-line: rgba(91,156,246,.42);
+}
+
+/* ============================================================================
+   LIGHT THEME — <html data-theme="light">. Dark is the default. The same
+   instrument, lit the same way: surfaces are lit from above (a lighter top
+   edge, a darker lower one), recesses are cut into them (dark under the top
+   lip, a bright catch on the lower one). Ink and signals are deepened to
+   hold their contrast on white; shadows are lighter because white shows
+   them more.
+   ============================================================================ */
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #EDEDED;  --s1: #F6F6F6;  --s2: #FFFFFF;  --s3: #E6E6E6;
+  --line: #DCDCDC;  --line2: #CACACA;
+  --text: #161616;  --muted: #4B4B52;  --dim: #6E6E76;  --faint: #A6A6AD;
+  --text-soft: #26262a;
+
+  --accent: #D02F57;  --accent-ink: #FFFFFF;  --on-accent: #FFFFFF;
+  --accent-soft: rgba(208,47,87,.10);  --accent-line: rgba(208,47,87,.38);
+  --ok: #23946e;  --err: #d13f2b;  --warn: #b0800e;  --info: #2f7fc2;
+  --semantic: #8a5cbd;  --episodic: #25909f;
+  --voice: #3b86d6;  --rec: #c24a3a;
+
+  --ring: rgba(0,0,0,.08);  --ring-strong: rgba(0,0,0,.13);
+  --lift: rgba(255,255,255,.9);  --lift-strong: #FFFFFF;  --shade: rgba(0,0,0,.08);
+
+  --code-inline: #b3395a;  --code-keyword: #8248a3;  --code-string: #2f7e4b;
+  --code-number: #a65a24;  --code-title: #2a67a3;  --code-type: #1f7f90;
+
+  --face: linear-gradient(#FFFFFF, #F4F4F4) padding-box, linear-gradient(#E4E4E4, #CDCDCD) border-box;
+  --shell: linear-gradient(#FFFFFF, #F4F4F4 48%, #EAEAEA) padding-box, linear-gradient(#DADADA, #BDBDBD) border-box;
+  --shell-hover: linear-gradient(#FFFFFF, #F8F8F8 48%, #EFEFEF) padding-box, linear-gradient(#CFCFCF, #B0B0B0) border-box;
+  --well: radial-gradient(82% 82% at 50% 80%, #F4F4F4 0%, #EBEBEB 72%, #DEDEDE 90%, #D0D0D0 100%) padding-box, linear-gradient(#B8B8B8, #DADADA 50%, #FFFFFF) border-box;
+  --well-open: radial-gradient(82% 82% at 50% 80%, #EAEAEA 0%, #E0E0E0 72%, #D4D4D4 90%, #C6C6C6 100%) padding-box, linear-gradient(#AFAFAF, #D2D2D2 50%, #FFFFFF) border-box;
+  --inset: linear-gradient(#E9E9E9, #F2F2F2) padding-box, linear-gradient(#C4C4C4, #DEDEDE 50%, #FFFFFF) border-box;
+  --inset-hover: linear-gradient(#E4E4E4, #EEEEEE) padding-box, linear-gradient(#B8B8B8, #D6D6D6 50%, #FFFFFF) border-box;
+  --recess-shade: inset 0 2px 4px rgba(0,0,0,.12), inset 0 -1px 0 rgba(255,255,255,.8);
+  --recess-open: #E2E2E2;
+
+  --lamp-off: #C9C9C9;  --lamp-off-dim: #D6D6D6;  --control-ring: #C4C4C4;  --edge-stroke: #BDBDBD;
+  --tint: rgba(0,0,0,.025);  --tint-dark: rgba(0,0,0,.05);
+  --lens-glass: linear-gradient(170deg, rgba(255,255,255,.5), rgba(255,255,255,.12) 42%, transparent 60%);
+  --lens-shade: inset 0 1px 2px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.2);
+  --scroll-thumb: linear-gradient(#C8C8C8, #BCBCBC);
+  --scroll-thumb-hover: linear-gradient(#B4B4B4, #A8A8A8);
+  --scroll-thumb-active: linear-gradient(#9C9C9C, #909090);
+  --track: radial-gradient(120% 150% at 50% 90%, #EDEDED 0%, #E2E2E2 62%, #D2D2D2 100%) padding-box, linear-gradient(#B4B4B4, #D4D4D4 50%, #FFFFFF) border-box;
+  --box-well: radial-gradient(120% 120% at 50% 85%, #F4F4F4 0%, #E8E8E8 65%, #D8D8D8 100%) padding-box, linear-gradient(#B4B4B4, #D4D4D4 50%, #FFFFFF) border-box;
+  --box-well-hover: radial-gradient(120% 120% at 50% 85%, #F0F0F0 0%, #E2E2E2 65%, #D0D0D0 100%) padding-box, linear-gradient(#A8A8A8, #CCCCCC 50%, #FFFFFF) border-box;
+  --code-bg: linear-gradient(#F3F3F3, #F7F7F7) padding-box, linear-gradient(#D0D0D0, #E2E2E2 60%, #F2F2F2) border-box;
+  --minimap-mask: rgba(0,0,0,.07);
+  --voice-face: linear-gradient(#FFFFFF, #F5F5F5) padding-box, linear-gradient(#DADADA, #C6C6C6) border-box;
+  --wheel-rim: #FFFFFF; --wheel-rim-edge: rgba(0,0,0,.08); --wheel-inner-shade: rgba(0,0,0,.18); --wheel-notch: #4A4A4A;
+  --wheel-cavity: linear-gradient(#C4C4C4, #D6D6D6 45%, #E4E4E4);
+  --drum-body: linear-gradient(#FFFFFF, #F4F4F4 50%, #DADADA); --drum-body-v: linear-gradient(90deg, #FFFFFF, #F4F4F4 50%, #DADADA);
+  --drum-rib: #FFFFFF; --drum-rib-shade: rgba(0,0,0,.12); --drum-ends: rgba(0,0,0,.2); --drum-shine: rgba(255,255,255,.7); --drum-drop: rgba(0,0,0,.2);
+
+  --drop: 0 1px 2px rgba(0,0,0,.2);  --drop-cap: 0 2px 4px rgba(0,0,0,.18);
+  --float-sm: 0 8px 24px rgba(0,0,0,.1);  --float: 0 12px 32px rgba(0,0,0,.14);  --float-lg: 0 24px 64px rgba(0,0,0,.18);
+}
+[data-theme="light"][data-accent="mint"] { --accent: #1f9a72; --accent-soft: rgba(31,154,114,.10); --accent-line: rgba(31,154,114,.38); }
+[data-theme="light"][data-accent="lapis"], [data-theme="light"][data-accent="blue"] { --accent: #2f73d6; --accent-soft: rgba(47,115,214,.10); --accent-line: rgba(47,115,214,.38); }

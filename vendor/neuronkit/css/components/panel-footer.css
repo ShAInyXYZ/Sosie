@@ -1,0 +1,17 @@
+.nk-panel-footer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 28px;
+  padding: 0 var(--body-inset);
+  border-top: 1px solid var(--line);
+  font: 400 var(--fs-micro)/1 var(--font-mono);
+  letter-spacing: .04em;
+  color: var(--dim);
+}
+.nk-panel-footer-about { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 16px; }
+.nk-panel-footer .fresh { flex: none; color: var(--faint); white-space: nowrap; }
+.nk-panel-footer[data-tone="crit"], .nk-panel-footer[data-tone="crit"] .fresh { color: var(--err); }
+.nk-panel-footer[data-tone="warn"], .nk-panel-footer[data-tone="warn"] .fresh { color: var(--warn); }

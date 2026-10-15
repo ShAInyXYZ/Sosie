@@ -1,0 +1,61 @@
+{
+  "name": "neuronkit",
+  "version": "0.3.0",
+  "description": "An instrument-panel UI kit: plain CSS tokens and components, and one small ES module.",
+  "license": "Apache-2.0",
+  "author": "Shiny-Studio OÜ <info@shinystudio.xyz>",
+  "homepage": "https://shainyxyz.github.io/NeuronKit/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ShAInyXYZ/NeuronKit.git"
+  },
+  "type": "module",
+  "files": [
+    "DESIGN.md",
+    "LICENSE",
+    "NOTICE",
+    "README.md",
+    "css",
+    "fonts",
+    "icons",
+    "js",
+    "skills",
+    "svelte"
+  ],
+  "exports": {
+    ".": "./js/neuronkit.js",
+    "./css": "./css/neuronkit.css",
+    "./css/*": "./css/*",
+    "./js/*": "./js/*",
+    "./fonts/*": "./fonts/*",
+    "./svelte/*": "./svelte/*",
+    "./icons/*": "./icons/*",
+    "./svelte": {
+      "svelte": "./svelte/index.js",
+      "default": "./svelte/index.js"
+    }
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "keywords": [
+    "ui-kit",
+    "css",
+    "design-system",
+    "dark",
+    "dashboard",
+    "cerveau"
+  ],
+  "peerDependenciesMeta": {
+    "svelte": {
+      "optional": true
+    },
+    "@xyflow/svelte": {
+      "optional": true
+    }
+  },
+  "peerDependencies": {
+    "svelte": "^5",
+    "@xyflow/svelte": "^1"
+  }
+}

@@ -1,0 +1,27 @@
+/* Tag input — values typed into a field become tags inside it. Enter or a
+   comma adds one, Backspace in an empty field takes the last one back, each
+   tag has its own remove. A hidden input (name from data-name) carries the
+   list to a form, comma-separated.
+
+   <div class="nk-taginput" data-name="labels" data-value='["gpu","render"]'><input placeholder="Add a label"></div> */
+.nk-taginput {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: var(--inset);
+  cursor: text;
+}
+.nk-taginput:hover { background: var(--inset-hover); }
+.nk-taginput:focus-within { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-taginput > input { flex: 1; min-width: 80px; height: 26px; padding: 0 4px; border: 0; background: transparent; color: var(--text); font: 500 var(--fs-body)/1 var(--font-sans); caret-color: var(--accent); outline: none; }
+.nk-taginput > input::placeholder { color: var(--faint); }
+.nk-taginput-tag { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 4px 0 9px; border: 1px solid transparent; border-radius: var(--r-sm); background: var(--shell); color: var(--text); font: 500 var(--fs-small)/1 var(--font-sans); }
+.nk-taginput-tag button { display: grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; border-radius: calc(3px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: transparent; color: var(--dim); cursor: pointer; }
+.nk-taginput-tag button::before { content: ''; width: 8px; height: 8px; background: currentColor; clip-path: polygon(15% 0, 50% 35%, 85% 0, 100% 15%, 65% 50%, 100% 85%, 85% 100%, 50% 65%, 15% 100%, 0 85%, 35% 50%, 0 15%); }
+.nk-taginput-tag button:hover { background: var(--s3); color: var(--text); }
+.nk-taginput-tag.is-armed { box-shadow: 0 0 0 1px var(--accent-line); }

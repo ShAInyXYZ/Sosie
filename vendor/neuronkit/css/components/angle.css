@@ -1,0 +1,59 @@
+/* Angle dial — sets a direction, 0–359°. A recessed well with a notch every
+   45° (a longer one at 0°), and a raised pointer cap that you grab and turn
+   to face where you want; the angle reads beside it. Drag anywhere on the
+   dial, scroll, or use the arrows (Shift for 1°, else 15° steps, which
+   snap). Double-click returns to data-default.
+
+   <div class="nk-angle-unit">
+     <span class="nk-angle" data-value="120" aria-label="Light direction"></span>
+     <output></output>
+   </div> */
+.nk-angle-unit { display: inline-flex; align-items: center; gap: 10px; }
+.nk-angle-unit output { min-width: 4ch; color: var(--muted); font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-angle {
+  position: relative;
+  flex: none;
+  display: block;
+  width: var(--angle-size, 44px);
+  height: var(--angle-size, 44px);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--well);
+  cursor: grab;
+  touch-action: none;
+  --a: 0deg;
+}
+.nk-angle.is-turning { cursor: grabbing; }
+.nk-angle-notch {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 2px; height: 3px;
+  margin: -1.5px 0 0 -1px;
+  border-radius: 1px;
+  background: var(--faint);
+  transform: rotate(var(--n)) translateY(calc(var(--angle-size, 44px) * -.4));
+}
+.nk-angle-notch.is-zero { height: 5px; margin-top: -2.5px; background: var(--dim); }
+.nk-angle-cap {
+  position: absolute;
+  inset: 26%;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  box-shadow: var(--drop-cap);
+  transform: rotate(var(--a));
+}
+/* the pointer: a slot cut into the cap's rim, lit in the accent */
+.nk-angle-cap::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 2px;
+  width: 2px; height: 30%;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+.nk-angle:hover .nk-angle-cap { background: var(--shell-hover); }
+.nk-angle:focus-visible { outline: var(--focus-w) solid var(--text); outline-offset: var(--focus-offset); }
+.nk-angle[aria-disabled="true"] { opacity: var(--disabled); cursor: default; }
+.nk-angle[aria-disabled="true"] .nk-angle-cap::after { background: var(--dim); }

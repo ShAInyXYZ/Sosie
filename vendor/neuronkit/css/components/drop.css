@@ -1,0 +1,32 @@
+/* Drop zone — a recess you can drop files into (or click to browse): a
+   quiet icon and one sentence; while a file hovers it the edge lights in the
+   accent. Added files list below as rows with their size and a remove
+   control. Attachments are always explicit, never silently captured. */
+.nk-drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 20px;
+  border: 1px solid transparent;
+  border-radius: var(--r-panel); corner-shape: var(--corner, round);
+  background: var(--inset);
+  color: var(--muted);
+  font: 500 var(--fs-body)/1.4 var(--font-sans);
+  text-align: center;
+  cursor: pointer;
+  transition: box-shadow var(--t-fast);
+}
+.nk-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.nk-drop .nk-icon { width: 22px; height: 22px; color: var(--dim); }
+.nk-drop small { color: var(--dim); font: 400 var(--fs-small)/1.3 var(--font-mono); }
+.nk-drop:hover { background: var(--inset-hover); }
+.nk-drop.is-over { box-shadow: 0 0 0 1px var(--accent-line), inset 0 0 0 1px var(--accent-line); color: var(--text); }
+.nk-drop:focus-within { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-files { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+.nk-file { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 6px 8px 6px 12px; border: 1px solid transparent; border-radius: calc(8px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--face); font: 500 var(--fs-small)/1.3 var(--font-sans); }
+.nk-file span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nk-file small { color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }

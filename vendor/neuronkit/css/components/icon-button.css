@@ -1,0 +1,33 @@
+/* Icon button — the square TP-7 module control. Always carries an
+   aria-label (and data-tooltip for sighted users). */
+.nk-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;           /* a flex row must never squeeze the square */
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: calc(4.5px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--shell);
+  color: var(--dim);
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast), transform .04s;
+}
+.nk-icon-button:hover:not(:disabled) { color: var(--text); background: var(--shell-hover); }
+.nk-icon-button:active:not(:disabled) { transform: translateY(1px); }
+.nk-icon-button:disabled { opacity: var(--disabled); cursor: default; }
+/* Pressed (a toggle that is on): the key sinks into the panel — the recessed
+   inset face with a faint accent tint, an accent rim inside its edge, the
+   icon lit. A flat accent tile would read as a badge, not as a key held down. */
+.nk-icon-button[aria-pressed="true"] {
+  color: var(--accent);
+  background: linear-gradient(color-mix(in srgb, var(--accent) 12%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)) padding-box, var(--inset);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 42%, transparent), inset 0 2px 3px rgba(0, 0, 0, .25);
+}
+.nk-icon-button[aria-pressed="true"]:hover:not(:disabled) { background: linear-gradient(color-mix(in srgb, var(--accent) 16%, transparent), color-mix(in srgb, var(--accent) 9%, transparent)) padding-box, var(--inset-hover); }
+.nk-icon-button.is-ghost { background: transparent; }
+.nk-icon-button svg { width: 16px; height: 16px; }
+/* Line icons (no fill attribute) are stroked; filled marks set fill themselves. */
+.nk-icon-button svg:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }

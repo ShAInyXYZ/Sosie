@@ -1,0 +1,9 @@
+/* Skeleton — the shape of content that is on its way: quiet blocks with a
+   slow sheen. Never used for things that failed — those get words. */
+.nk-skeleton { display: block; height: 12px; border-radius: var(--r); corner-shape: var(--corner, round); background: linear-gradient(90deg, var(--s2) 0%, var(--s3) 40%, var(--s2) 80%) 0 0 / 300% 100%; animation: nk-sheen 1.6s linear infinite; }
+.nk-skeleton.is-line { height: 10px; }
+.nk-skeleton.is-title { height: 16px; width: 45%; }
+.nk-skeleton.is-block { height: 108px; border-radius: calc(14px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+.nk-skeleton.is-circle { width: 36px; height: 36px; border-radius: 50%; }
+@keyframes nk-sheen { from { background-position: 100% 0; } to { background-position: -50% 0; } }
+@media (prefers-reduced-motion: reduce) { .nk-skeleton { animation: none; } }

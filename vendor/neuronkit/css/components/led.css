@@ -1,0 +1,9 @@
+.nk-led {
+  display: inline-block;
+  flex: none;
+  width: var(--led);
+  height: var(--led);
+  border-radius: 1px;
+  background: var(--tone, var(--faint));
+}
+.nk-led[data-tone="ok"] { background: var(--ok-led); }

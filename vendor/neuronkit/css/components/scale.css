@@ -1,0 +1,53 @@
+/* Scale — the notches under a slider, and around a knob. A slider scale is a
+   row of ticks (data-ticks of them; the ends and the centre longer) with
+   labels spread evenly under it; tied to a slider (data-for) the ticks up
+   to its value light, and a slider whose step matches lands on them. The knob frame puts numbered notches and end
+   labels around a range knob so its travel reads before you touch it.
+
+   <input class="nk-slider" id="gain" type="range" min="0" max="10" step="1">
+   (inside a .nk-slider-row it takes the slider's column by itself)
+   <div class="nk-scale" data-for="gain" data-ticks="11" data-labels='["0","5","10"]'></div>
+   <div class="nk-knob-frame" data-ticks="11" data-from="0" data-to="10"><button class="nk-knob" data-min="0" data-max="10" …></button></div> */
+.nk-scale {
+  position: relative;
+  height: 20px;
+  /* the thumb is 16px: the first and last tick sit under its centre */
+  margin: 2px 8px 0;
+  color: var(--dim);
+  font: 400 var(--fs-micro)/1 var(--font-mono);
+}
+.nk-scale-tick { position: absolute; top: 0; left: var(--x); width: 1px; height: 4px; margin-left: -.5px; background: var(--faint); }
+.nk-scale-tick.is-major { height: 7px; background: var(--dim); }
+.nk-scale-tick.is-on { background: color-mix(in srgb, var(--accent) 75%, transparent); }
+.nk-slider-row > .nk-scale { grid-column: 2; margin-top: -6px; }   /* under the track, in the slider's own column */
+.nk-scale-label { position: absolute; top: 10px; left: var(--x); transform: translateX(-50%); white-space: nowrap; }
+.nk-scale-label.is-on { color: var(--text); }
+
+/* Knob frame: notches outside the knob's bezel, drawn by neuronkit.js
+   (data-ticks), labelled at both ends. */
+.nk-knob-frame {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: calc(var(--knob-size, 54px) + 22px);
+  height: calc(var(--knob-size, 54px) + 22px);
+  flex: none;
+}
+.nk-knob-notch {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 1px; height: 4px;
+  margin: -2px 0 0 -.5px;
+  background: var(--faint);
+  transform: rotate(var(--a)) translateY(calc((var(--knob-size, 54px) + 14px) * -.5));
+}
+.nk-knob-notch.is-major { height: 6px; margin-top: -3px; background: var(--dim); }
+.nk-knob-notch.is-on { background: var(--muted); }
+.nk-knob-end {
+  position: absolute;
+  bottom: -2px;
+  color: var(--dim);
+  font: 400 var(--fs-micro)/1 var(--font-mono);
+}
+.nk-knob-end.is-from { left: 6px; }
+.nk-knob-end.is-to { right: 6px; }

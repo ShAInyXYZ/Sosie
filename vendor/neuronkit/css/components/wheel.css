@@ -1,0 +1,74 @@
+/* Thumbwheel — a ridged drum set edge-on into the panel, like the wheel on
+   a camera. You roll it: drag along it (Shift for fine), scroll over it,
+   or use the arrows; Home and End jump to the ends, double-click returns to
+   data-default. The ridges travel with the value and the drum is shaded
+   round, so it reads as turning, not sliding. It never shows its position
+   as a bar — the reading beside it does. From Gouache's light controls.
+
+   <div class="nk-wheel-unit">
+     <span class="nk-wheel" data-min="0" data-max="359" data-value="120" data-unit="°" aria-label="Light rotation"></span>
+     <output></output>
+   </div>
+   .is-vertical stands it up (roll up and down). */
+.nk-wheel-unit { display: inline-flex; align-items: center; gap: 10px; }
+.nk-wheel-unit.is-vertical { flex-direction: column; gap: 6px; }
+.nk-wheel-unit output { min-width: 4ch; color: var(--muted); font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-wheel {
+  position: relative;
+  flex: none;
+  display: block;
+  width: var(--wheel-w, 88px);
+  height: var(--wheel-h, 28px);
+  border-radius: calc(7px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  /* the slot: a cavity darkest under its lip, in a thick raised rim (the
+     frame, which carries the index notch) */
+  background: var(--wheel-cavity);
+  box-shadow: 0 0 0 2.5px var(--wheel-rim), 0 0 0 3.5px var(--wheel-rim-edge), inset 0 2px 3px var(--wheel-inner-shade);
+  cursor: ew-resize;
+  touch-action: none;
+  --pos: 0px;
+}
+.nk-wheel.is-vertical, .nk-wheel-unit.is-vertical .nk-wheel {
+  --wheel-w: 28px; --wheel-h: 88px;
+  cursor: ns-resize;
+}
+/* the drum: a ribbed capsule filling the slot, centred. Its ribs travel
+   with the value; its ends darken where it curves away; it casts a soft
+   shadow onto the cavity floor. */
+.nk-wheel::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: calc(5.5px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background:
+    linear-gradient(90deg, var(--drum-ends), transparent 18%, transparent 82%, var(--drum-ends)),
+    repeating-linear-gradient(90deg, transparent 0 1.5px, var(--drum-rib) 1.5px 2.5px, var(--drum-rib-shade) 2.5px 3.2px, transparent 3.2px 4px) var(--pos) 0 / 4px 100%,
+    var(--drum-body);
+  box-shadow: 0 1px 2px var(--drum-drop), inset 0 1px 0 var(--drum-shine);
+}
+.nk-wheel.is-vertical::before, .nk-wheel-unit.is-vertical .nk-wheel::before {
+  background:
+    linear-gradient(180deg, var(--drum-ends), transparent 18%, transparent 82%, var(--drum-ends)),
+    repeating-linear-gradient(180deg, transparent 0 1.5px, var(--drum-rib) 1.5px 2.5px, var(--drum-rib-shade) 2.5px 3.2px, transparent 3.2px 4px) 0 var(--pos) / 100% 4px,
+    var(--drum-body-v);
+}
+/* the index: a short notch cut into the frame above the drum, lit while turning */
+.nk-wheel::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -3.5px;
+  width: 2px;
+  height: 3.5px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--wheel-notch);
+  transition: background var(--t-fast);
+}
+.nk-wheel.is-vertical::after, .nk-wheel-unit.is-vertical .nk-wheel::after { left: -3.5px; top: 50%; width: 3.5px; height: 2px; margin: -1px 0 0; }
+.nk-wheel:hover::after { background: var(--muted); }
+.nk-wheel.is-turning::after { background: var(--accent); }
+.nk-wheel:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-wheel[aria-disabled="true"] { opacity: var(--disabled); cursor: default; }
+/* at an end stop the drum can't roll further: the index says so */
+.nk-wheel[data-at="min"]::after, .nk-wheel[data-at="max"]::after { background: var(--dim); }

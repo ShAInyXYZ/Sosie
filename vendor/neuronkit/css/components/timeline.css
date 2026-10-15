@@ -1,0 +1,39 @@
+/* Timeline — what happened, newest first: the time in mono, a lamp on a rail
+   (toned when the event matters), a title and an optional line of detail.
+   Quiet events stay unlit, so the ones that went wrong stand out.
+
+   <ol class="nk-timeline">
+     <li data-tone="crit"><time>12:41</time><b>ledger-api unhealthy</b><p>GET /healthz 503</p></li>
+     <li><time>12:02</time><b>Deployed v2.4.1</b></li>
+   </ol> */
+.nk-timeline { display: flex; flex-direction: column; }
+.nk-timeline > li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 32px;
+  padding-bottom: 16px;
+}
+.nk-timeline > li::before {          /* the lamp */
+  content: '';
+  position: absolute;
+  top: 4px;
+  inset-inline-start: 64px;
+  width: 7px; height: 7px;
+  border-radius: 1.5px;
+  background: var(--tone, var(--lamp-off-dim));
+  box-shadow: 0 0 0 1px rgba(0,0,0,.55);
+}
+.nk-timeline > li:not(:last-child)::after {   /* the rail */
+  content: '';
+  position: absolute;
+  top: 16px; bottom: 2px;
+  inset-inline-start: 67px;
+  width: 1px;
+  background: var(--line);
+}
+.nk-timeline time { grid-row: span 2; color: var(--dim); font: 400 var(--fs-micro)/15px var(--font-mono); text-align: end; }
+.nk-timeline b { color: var(--muted); font: 500 var(--fs-small)/15px var(--font-sans); }
+.nk-timeline > li[data-tone] b { color: var(--text); }
+.nk-timeline p { margin-top: 3px; color: var(--dim); font: 400 var(--fs-small)/1.45 var(--font-sans); }
+.nk-timeline p code { font: 400 var(--fs-micro)/1 var(--font-mono); color: var(--muted); }

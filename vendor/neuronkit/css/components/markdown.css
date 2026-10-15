@@ -1,0 +1,29 @@
+/* Markdown — prose for answers and docs. Manrope for text, Plex Mono for
+   code; headings are quiet steps, not banners; code blocks sit in a recess
+   with the language as a printed label; quotes are indented, not coloured. */
+.nk-md { color: var(--text-soft); font: 400 13.5px/1.7 var(--font-sans); }
+.nk-md > * + * { margin-top: 12px; }
+.nk-md h1, .nk-md h2, .nk-md h3 { color: var(--text); font-family: var(--font-sans); letter-spacing: -.01em; }
+.nk-md h1 { font-size: var(--fs-display); font-weight: 600; line-height: 1.25; }
+.nk-md h2 { margin-top: 22px; font-size: var(--fs-title); font-weight: 600; }
+.nk-md h3 { margin-top: 18px; font-size: var(--fs-body); font-weight: 650; }
+.nk-md a { color: var(--text); text-decoration: underline; text-decoration-color: var(--accent-line); text-underline-offset: 3px; }
+.nk-md a:hover { text-decoration-color: var(--accent); }
+.nk-md strong { color: var(--text); font-weight: 650; }
+.nk-md ul, .nk-md ol { padding-left: 20px; }
+.nk-md ul { list-style: none; }
+.nk-md ul li { position: relative; }
+.nk-md ul li::before { content: ''; position: absolute; left: -14px; top: .78em; width: 5px; height: 5px; border-radius: 1px; background: var(--faint); }
+.nk-md ol { list-style: decimal; }
+.nk-md ol li::marker { color: var(--dim); font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-md li + li { margin-top: 4px; }
+.nk-md :not(pre) > code { padding: 1px 5px; border-radius: var(--r); corner-shape: var(--corner, round); background: var(--s2); color: var(--text); font: 400 .88em/1 var(--font-mono); }
+.nk-md blockquote { padding-left: 14px; border-left: 2px solid var(--line2); color: var(--muted); }
+.nk-md hr { height: 1px; border: 0; background: var(--line); }
+.nk-md table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.nk-md th { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .18em; text-align: start; text-transform: uppercase; }
+.nk-md td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); }
+.nk-code { position: relative; overflow: hidden; border: 1px solid transparent; border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--code-bg); }
+.nk-code-head { display: flex; align-items: center; justify-content: space-between; height: 32px; padding: 0 8px 0 14px; border-bottom: 1px solid var(--line); color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .22em; text-transform: uppercase; }
+.nk-code pre { margin: 0; padding: 12px 14px; overflow-x: auto; color: var(--text-soft); font: 400 var(--fs-small)/1.65 var(--font-mono); }
+.nk-code .k { color: var(--code-keyword); } .nk-code .s { color: var(--code-string); } .nk-code .n { color: var(--code-number); } .nk-code .t { color: var(--code-title); } .nk-code .c { color: var(--dim); }

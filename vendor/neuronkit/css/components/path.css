@@ -1,0 +1,8 @@
+/* Path — where you are: segments in mono, separators faint, the current
+   segment in ink. A long path truncates from the left, never the end. */
+.nk-path { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--dim); font: 400 var(--fs-small)/1.2 var(--font-mono); }
+.nk-path a { color: var(--dim); text-decoration: none; white-space: nowrap; }
+.nk-path a:hover { color: var(--muted); }
+.nk-path > span[aria-hidden] { color: var(--faint); }
+.nk-path [aria-current] { overflow: hidden; color: var(--text); text-overflow: ellipsis; white-space: nowrap; }
+.nk-path.is-file { direction: rtl; justify-content: flex-end; }

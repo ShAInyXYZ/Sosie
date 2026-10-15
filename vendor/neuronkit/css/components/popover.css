@@ -1,0 +1,16 @@
+/* Popover — detail on demand, anchored beside its trigger: a small face
+   with a printed strip and free content. Open on click, or on hover with
+   data-hover (reading never needs a click). */
+.nk-popover {
+  position: fixed; inset: auto; margin: 0;
+  width: min(320px, calc(100vw - 24px));
+  padding: 6px 14px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r-panel); corner-shape: var(--corner, round);
+  background: var(--face);
+  color: var(--text);
+  box-shadow: var(--float);
+}
+.nk-popover:popover-open { animation: nk-pop-in var(--t-fast) var(--ease-out); }
+@keyframes nk-pop-in { from { opacity: 0; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .nk-popover:popover-open { animation: none; } }

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dial-face" viewBox="0 0 76 76" aria-hidden="true" data-state="idle">
+  <defs>
+    <linearGradient id="dial-shell" x2="0" y2="1">
+      <stop stop-color="#303030" />
+      <stop offset="0.48" stop-color="#252525" />
+      <stop offset="1" stop-color="#1e1e1e" />
+    </linearGradient>
+    <linearGradient id="dial-edge" x2="0" y2="1">
+      <stop stop-color="#414141" />
+      <stop offset="1" stop-color="#292929" />
+    </linearGradient>
+    <linearGradient id="dial-cut" x2="0" y2="1">
+      <stop stop-color="#090909" />
+      <stop offset="0.5" stop-color="#191919" />
+      <stop offset="1" stop-color="#303030" />
+    </linearGradient>
+    <radialGradient id="dial-well" cx="0.5" cy="0.8" r="0.82">
+      <stop stop-color="#222222" />
+      <stop offset="0.72" stop-color="#1b1b1b" />
+      <stop offset="0.9" stop-color="#121212" />
+      <stop offset="1" stop-color="#090909" />
+    </radialGradient>
+    <!-- A static, sub-pixel feather softens only the outer contour. Everything
+         through radius 37 stays opaque, including both animated state rings. -->
+    <radialGradient id="dial-contour-alpha" gradientUnits="userSpaceOnUse" cx="38" cy="38" r="37.75">
+      <stop offset="0.98013245" stop-color="white" />
+      <stop offset="1" stop-color="white" stop-opacity="0" />
+    </radialGradient>
+    <mask id="dial-contour" maskUnits="userSpaceOnUse" x="0" y="0" width="76" height="76">
+      <circle cx="38" cy="38" r="37.75" fill="url(#dial-contour-alpha)" />
+    </mask>
+  </defs>
+  <circle cx="38" cy="38" r="37.25" fill="url(#dial-shell)" stroke="url(#dial-edge)" mask="url(#dial-contour)" />
+  <circle cx="38" cy="38" r="31" fill="url(#dial-cut)" />
+  <circle cx="38" cy="38" r="30" fill="url(#dial-well)" />
+  <!-- Keep animated paint inside the opaque face. The outer antialiasing
+       pixels must keep the same alpha in every state on transparent X11. -->
+</svg>

@@ -1,0 +1,9 @@
+.nk-note {
+  padding: 6px 0;
+  font: 400 var(--fs-small)/16px var(--font-sans);
+  color: var(--dim);
+  overflow-wrap: anywhere;
+}
+.nk-note.is-mono { font-family: var(--font-mono); }
+.nk-note[data-tone="warn"] { color: var(--warn); }
+.nk-note[data-tone="crit"] { color: var(--err); }

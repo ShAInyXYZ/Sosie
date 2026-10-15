@@ -1,0 +1,25 @@
+/* App shell — a workbench: a 54px header with the wordmark,
+   a 224px rail of sections, the main pane (content centred, capped at 760px)
+   and an optional pinned side panel (380px). Only structural hairlines: two
+   never meet. */
+.nk-app { display: grid; grid-template: "bar bar bar" 54px "rail main aside" minmax(0, 1fr) / 224px minmax(0, 1fr) auto; height: 100%; min-height: 0; background: var(--bg); }
+.nk-appbar { grid-area: bar; display: flex; align-items: center; gap: 16px; padding: 0 16px 0 20px; border-bottom: 1px solid var(--line); }
+.nk-wordmark { display: inline-flex; align-items: baseline; gap: 8px; color: var(--text); text-decoration: none; font: 600 var(--fs-body)/1 var(--font-mono); letter-spacing: .3em; }
+.nk-wordmark small { color: var(--dim); font-size: var(--fs-micro); letter-spacing: .22em; }
+.nk-wordmark svg { width: 20px; height: 20px; align-self: center; fill: var(--accent); }
+.nk-appbar-end { display: flex; align-items: center; gap: 8px; margin-inline-start: auto; }
+.nk-rail-nav { grid-area: rail; display: flex; flex-direction: column; gap: 2px; min-height: 0; overflow-y: auto; padding: 14px 10px; border-right: 1px solid var(--line); }
+.nk-rail-nav b { margin: 14px 10px 6px; color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .22em; text-transform: uppercase; }
+.nk-rail-nav b:first-child { margin-top: 2px; }
+.nk-nav-item { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: calc(8px * var(--corner-k, 1)); corner-shape: var(--corner, round); color: var(--muted); text-decoration: none; font: 500 var(--fs-body)/1 var(--font-sans); }
+.nk-nav-item svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.nk-nav-item:hover { background: var(--s2); color: var(--text); }
+.nk-nav-item[aria-current="page"] { background: var(--shell); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.nk-nav-item .nk-badge { margin-inline-start: auto; }
+.nk-main { grid-area: main; min-width: 0; min-height: 0; overflow-y: auto; padding: 32px 40px 48px; }
+.nk-main-inner { max-width: 760px; margin: 0 auto; }
+.nk-page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.nk-page-head h1 { font: 600 var(--fs-display)/1.2 var(--font-sans); letter-spacing: -.01em; }
+.nk-page-head p { color: var(--dim); font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-aside { grid-area: aside; width: 380px; min-height: 0; overflow-y: auto; padding: 16px 16px 12px; border-left: 1px solid var(--line); }
+@media (max-width: 900px) { .nk-app { grid-template: "bar" 54px "main" minmax(0, 1fr) / minmax(0, 1fr); } .nk-rail-nav, .nk-aside { display: none; } .nk-main { padding: 20px 16px; } }

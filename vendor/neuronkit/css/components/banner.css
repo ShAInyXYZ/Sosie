@@ -1,0 +1,28 @@
+/* Banner — one message for the whole page, above everything: a maintenance
+   window, a licence about to lapse, an update ready. A lamp says how much it
+   matters, one action at most, and it can be dismissed unless it can't be
+   ignored. Never more than one at a time.
+
+   <div class="nk-banner" data-tone="warn" role="status">
+     <span class="nk-led" data-tone="warn"></span><p>Maintenance tonight 22:00–23:00 UTC.</p>
+     <a href="#">Details</a><button class="nk-banner-close" aria-label="Dismiss"></button>
+   </div> */
+.nk-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 6px 12px 6px 16px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--tone, var(--faint)) 8%, var(--s1));
+  color: var(--text);
+  font: 500 var(--fs-small)/1.4 var(--font-sans);
+}
+.nk-banner[hidden] { display: none; }
+.nk-banner.is-floating { border: 1px solid transparent; border-radius: var(--r-panel); corner-shape: var(--corner, round); background: var(--face); box-shadow: var(--float-sm); }
+.nk-banner p { flex: 1; min-width: 0; }
+.nk-banner a { color: var(--text); text-decoration: underline; text-decoration-color: var(--line2); text-underline-offset: 3px; white-space: nowrap; }
+.nk-banner a:hover { text-decoration-color: var(--text); }
+.nk-banner-close { flex: none; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: var(--r); corner-shape: var(--corner, round); background: transparent; color: var(--dim); cursor: pointer; }
+.nk-banner-close::before { content: ''; width: 10px; height: 10px; background: currentColor; clip-path: polygon(15% 0, 50% 35%, 85% 0, 100% 15%, 65% 50%, 100% 85%, 85% 100%, 50% 65%, 15% 100%, 0 85%, 35% 50%, 0 15%); }
+.nk-banner-close:hover { background: var(--s3); color: var(--text); }

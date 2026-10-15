@@ -1,0 +1,6 @@
+.nk-seg { height: 10px; min-width: 0; overflow: hidden; }
+.nk-seg svg { display: block; }
+.nk-seg rect { fill: var(--line2); }
+.nk-seg rect.on { fill: var(--muted); }
+.nk-seg[data-tone="warn"] rect.on { fill: var(--warn); }
+.nk-seg[data-tone="crit"] rect.on { fill: var(--err); }

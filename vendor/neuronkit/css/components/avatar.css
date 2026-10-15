@@ -1,0 +1,30 @@
+/* Avatar — a person or an agent. A machined shell holding a picture or two
+   initials; a square lamp at the corner says whether they are here. Agents
+   (anything that isn't a person) are rounded squares, people are round,
+   so the two never get confused in a chat or a member list. A stack
+   overlaps them, the last one counting the rest. */
+.nk-avatar {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: var(--avatar, 32px);
+  height: var(--avatar, 32px);
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  color: var(--muted);
+  font: 600 calc(var(--avatar, 32px) * .36)/1 var(--font-sans);
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+.nk-avatar.is-agent { border-radius: calc(28% * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+.nk-avatar img { width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-fit: cover; }
+.nk-avatar svg { width: 50%; height: 50%; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.nk-avatar.is-small { --avatar: 24px; }
+.nk-avatar.is-large { --avatar: 44px; }
+.nk-avatar > .nk-led { position: absolute; right: -1px; bottom: -1px; --led: 7px; box-shadow: 0 0 0 2px var(--bg); }
+.nk-avatars { display: inline-flex; align-items: center; }
+.nk-avatars > .nk-avatar { box-shadow: 0 0 0 2px var(--bg); }
+.nk-avatars > .nk-avatar + .nk-avatar { margin-inline-start: calc(var(--avatar, 32px) * -.28); }
+.nk-avatars > .nk-avatar.is-more { color: var(--dim); font: 400 calc(var(--avatar, 32px) * .34)/1 var(--font-mono); text-transform: none; }

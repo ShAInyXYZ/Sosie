@@ -1,0 +1,77 @@
+/* Graph — nodes and edges for flows (activity views, memory graphs,
+   pipelines). A node is a small face with a printed kind label, a title and a
+   lamp; ports are machined dots on its edges; edges are quiet curves that
+   brighten along an active path and carry --info while work flows. Works on
+   hand-drawn SVG edges and, through flow.css, on SvelteFlow. */
+.nk-edge { fill: none; stroke: var(--edge-stroke); stroke-width: 1.5; }
+.nk-edge.is-active { stroke: var(--muted); }
+.nk-edge.is-flowing { stroke: var(--info); stroke-dasharray: 5 6; animation: nk-flow 1s linear infinite; }
+.nk-edge.is-failed { stroke: var(--err); }
+@keyframes nk-flow { to { stroke-dashoffset: -11; } }
+.nk-node {
+  position: absolute;
+  min-width: 150px;
+  padding: 9px 12px 10px;
+  border: 1px solid transparent;
+  border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--face);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+.nk-node.is-selected { box-shadow: 0 0 0 1px var(--accent-line), 0 6px 18px rgba(0, 0, 0, .35); }
+.nk-node-kind { display: flex; align-items: center; gap: 6px; color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; }
+.nk-node-kind .nk-led { margin-inline-start: auto; }
+.nk-node-title { margin-top: 6px; color: var(--text); font: 600 var(--fs-body)/1.3 var(--font-sans); }
+.nk-node-meta { margin-top: 2px; color: var(--dim); font: 400 var(--fs-micro)/1.3 var(--font-mono); }
+.nk-port { position: absolute; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border: 1px solid transparent; border-radius: 50%; background: var(--shell); }
+.nk-port.is-in { left: -5px; }
+.nk-port.is-out { right: -5px; }
+@media (prefers-reduced-motion: reduce) { .nk-edge.is-flowing { animation: none; } }
+
+/* Outside a canvas (a legend, a gallery, a static diagram cell). */
+.nk-node.is-static { position: relative; }
+
+/* ---- Rich nodes: a header (glyph, printed kind, lamp), the title, a body of
+   settings or results built from kit controls, and an optional foot of
+   actions. Kinds are told apart by glyph and label — never by colour; colour
+   stays the state. Controls inside a SvelteFlow node carry class="nodrag". */
+.nk-node.is-rich { width: 236px; min-width: 0; padding: 0; }
+.nk-node-head { display: flex; align-items: center; gap: 7px; padding: 9px 12px 0; color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; }
+.nk-node-head .nk-icon { width: 13px; height: 13px; color: var(--muted); }
+.nk-node-head .nk-led { margin-inline-start: auto; }
+.nk-node.is-rich .nk-node-title { margin: 6px 12px 0; }
+.nk-node.is-rich .nk-node-meta { margin: 2px 12px 0; }
+.nk-node-body { display: grid; gap: 8px; margin-top: 10px; padding: 10px 12px 12px; border-top: 1px solid var(--line); }
+.nk-node-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 8px; min-height: 26px; }
+.nk-node-row > span:first-child { color: var(--dim); font: 500 var(--fs-micro)/1.2 var(--font-mono); letter-spacing: .06em; }
+.nk-node-row > b { overflow: hidden; color: var(--text); font: 400 var(--fs-small)/1.3 var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.nk-node .nk-field input, .nk-node .nk-sel-trigger { height: 28px; font-size: var(--fs-small); }
+.nk-node .nk-field input { padding: 0 8px; }
+.nk-node-foot { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 12px; }
+.nk-node-foot .nk-button { flex: 1; }
+.nk-node-error { color: var(--err); font: 500 var(--fs-small)/1.4 var(--font-sans); }
+.nk-node-note { color: var(--muted); font: 400 var(--fs-small)/1.45 var(--font-sans); }
+.nk-node-note.is-mono { font: 400 var(--fs-micro)/1.5 var(--font-mono); }
+.nk-node-quote { padding: 8px 10px; border-radius: calc(7px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--tint-dark); box-shadow: inset 0 0 0 1px var(--ring); color: var(--text-soft); font: 400 var(--fs-small)/1.5 var(--font-sans); }
+.nk-node-stat { display: flex; justify-content: space-between; color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.nk-node-stat b { color: var(--muted); font-weight: 400; }
+.nk-node-thumb { position: relative; height: 104px; overflow: hidden; border-radius: calc(8px * var(--corner-k, 1)); corner-shape: var(--corner, round); background:
+  linear-gradient(135deg, rgba(145, 201, 255, .14), transparent 55%),
+  repeating-linear-gradient(0deg, #1e1e1e 0 11px, #232323 11px 12px),
+  #1b1b1b; box-shadow: inset 0 0 0 1px var(--ring); }
+.nk-node-thumb small { position: absolute; left: 8px; bottom: 7px; padding: 2px 6px; border-radius: calc(4px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: rgba(0, 0, 0, .55); color: var(--muted); font: 400 var(--fs-micro)/1.3 var(--font-mono); }
+.nk-node-hits { display: grid; gap: 2px; }
+.nk-node-hit { display: flex; align-items: center; gap: 8px; min-height: 26px; padding: 0 6px; border-radius: calc(5px * var(--corner-k, 1)); corner-shape: var(--corner, round); color: var(--muted); font: 500 var(--fs-small)/1.3 var(--font-sans); }
+.nk-node-hit:hover { background: var(--s3); color: var(--text); }
+.nk-node-hit span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nk-node-hit small { color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.nk-node-play { display: flex; align-items: center; gap: 8px; }
+.nk-node-play .nk-level { flex: 1; width: auto; height: 32px; padding: 4px 0; border-radius: calc(16px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+.nk-node-play .nk-level i:first-child { margin-left: 8px; }
+.nk-node-play .nk-level i:last-child { margin-right: 8px; }
+.nk-node-play time { color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.nk-node-branch { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; padding: 0 10px; border-radius: calc(6px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--tint-dark); box-shadow: inset 0 0 0 1px var(--ring); color: var(--muted); font: 500 var(--fs-small)/1.2 var(--font-sans); }
+.nk-node-branch code { color: var(--text); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.nk-node-branch .nk-port { right: -17px; }
+.nk-node.is-rich[data-state="failed"] { box-shadow: 0 0 0 1px color-mix(in srgb, var(--err) 35%, transparent), 0 6px 18px rgba(0, 0, 0, .35); }
+.nk-node.is-rich[data-state="attention"] { box-shadow: 0 0 0 1px color-mix(in srgb, var(--warn) 35%, transparent), 0 6px 18px rgba(0, 0, 0, .35); }
+.nk-node.is-rich .nk-port { top: 22px; margin-top: 0; }

@@ -1,0 +1,66 @@
+.nk-rail {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--slot-gap);
+  padding: 6px;
+  border: 1px solid transparent;
+  background: var(--face);
+  border-radius: var(--r-control);
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* A vertical rail's readouts need room at its trailing end. */
+.nk-rail[data-orient="v"][data-readouts] { padding: 6px 6px 10px; }
+/* Horizontal: the grip runs across the top, centred over the dials, so the
+   capsule stays symmetric left to right. */
+.nk-rail[data-orient="h"] { position: relative; flex-direction: row; align-items: flex-start; padding: 16px 10px 8px; }
+.nk-rail[data-orient="h"]:not([data-readouts]) { padding: 16px 8px 6px; }
+/* With readouts the row of numbers balances the capsule on its own: no grip
+   (the rail body is still the drag handle), numbers tucked under their dials. */
+.nk-rail[data-orient="h"][data-readouts] { padding: 8px 10px 7px; }
+.nk-rail[data-orient="h"][data-readouts] .nk-rail-grip { display: none; }
+.nk-rail[data-orient="h"][data-readouts] .nk-slot { gap: 1px; }
+
+/* The grip: the leading 14px, three engraved 2px dots. */
+.nk-rail-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: var(--dial);
+  height: 14px;
+  margin-bottom: -2px;
+  cursor: grab;
+}
+.nk-rail[data-orient="h"] .nk-rail-grip {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  height: 12px;
+  margin: 0;
+  padding: 0 12px;
+}
+.nk-rail-grip i {
+  width: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--faint);
+  box-shadow: 0 1px 0 rgba(255,255,255,.05);
+}
+
+/* A compact horizontal rail has no readout row to balance: its grip stays
+   on the leading side, a column of dots beside the first dial. */
+.nk-rail[data-orient="h"][data-density="compact"] { padding: 6px 8px 6px 6px; }
+.nk-rail[data-orient="h"][data-density="compact"] .nk-rail-grip {
+  position: static;
+  transform: none;
+  flex-direction: column;
+  width: 14px;
+  height: var(--dial);
+  padding: 0;
+  margin: 0 -2px 0 0;
+  align-self: flex-start;
+}

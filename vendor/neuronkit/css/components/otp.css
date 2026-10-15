@@ -1,0 +1,23 @@
+/* One-time code — a row of recessed cells, one character each. Typing moves
+   on, Backspace moves back, pasting fills them all, arrows walk the row.
+   A separator (.nk-otp-sep) splits long codes into readable groups. When
+   the last cell fills, nk:confirm carries the code.
+
+   <div class="nk-otp" data-length="6" aria-label="Verification code"></div> */
+.nk-otp { display: inline-flex; align-items: center; gap: 8px; }
+.nk-otp input {
+  width: 40px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: var(--inset);
+  color: var(--text);
+  font: 500 20px/1 var(--font-mono);
+  text-align: center;
+  caret-color: var(--accent);
+}
+.nk-otp input:hover { background: var(--inset-hover); }
+.nk-otp input:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-otp.has-error input { box-shadow: 0 0 0 1px color-mix(in srgb, var(--err) 70%, transparent); }
+.nk-otp-sep { width: 8px; height: 1.5px; background: var(--faint); }

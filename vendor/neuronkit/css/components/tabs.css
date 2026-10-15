@@ -1,0 +1,66 @@
+/* Tabs — for switching between views of the same thing, with their panels.
+   (The segmented control switches a small mode on hover; tabs are clicked,
+   because a whole view changing under a passing pointer is hostile.) The
+   chosen tab is ink with a short accent bar under it — a lamp, not an
+   underline across the whole row. Arrows move between tabs, Home and End
+   jump to the ends; a tab can carry a count or a lamp.
+
+   <div class="nk-tabs">
+     <div class="nk-tabs-list" role="tablist">
+       <button class="nk-tab" role="tab" aria-selected="true" aria-controls="t1">Overview</button>
+       <button class="nk-tab" role="tab" aria-controls="t2">Logs <span class="nk-tab-count">12</span></button>
+     </div>
+     <div class="nk-tab-panel" role="tabpanel" id="t1">…</div>
+     <div class="nk-tab-panel" role="tabpanel" id="t2" hidden>…</div>
+   </div>
+
+   Navigation between pages wears the same look but stays links: no
+   tablist, no panels, no arrow keys, and the current page is marked with
+   aria-current (a screen reader then says "current page", not "tab").
+
+   <nav class="nk-tabs-list" aria-label="Sections">
+     <a class="nk-tab" href="overview.html">Overview</a>
+     <a class="nk-tab" href="components.html" aria-current="page">Components</a>
+   </nav> */
+.nk-tabs-list {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  box-shadow: inset 0 -1px 0 var(--line);
+}
+.nk-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--dim);
+  font: 500 var(--fs-small)/1 var(--font-sans);
+  white-space: nowrap;
+  cursor: pointer;
+}
+a.nk-tab { text-decoration: none; }
+.nk-tab:hover { color: var(--muted); }
+.nk-tab[aria-selected="true"], .nk-tab[aria-current="page"] { color: var(--text); }
+.nk-tab[aria-selected="true"]::after, .nk-tab[aria-current="page"]::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 18px; height: 2px;
+  margin-left: -9px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+.nk-tab:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: -4px; border-radius: var(--r); corner-shape: var(--corner, round); }
+.nk-tab:disabled { opacity: var(--disabled); cursor: default; }
+.nk-tab-count { min-width: 18px; padding: 2px 5px; border-radius: 999px; background: var(--s3); color: var(--muted); font: 400 var(--fs-micro)/1 var(--font-mono); text-align: center; }
+.nk-tab .nk-led { --led: 5px; }
+.nk-tab-panel { padding-top: 16px; }
+.nk-tab-panel:focus-visible { outline: none; }
+/* In a panel header the list sits flush with the panel's inset. */
+.nk-tabs.is-compact .nk-tab { height: 32px; padding: 0 10px; }

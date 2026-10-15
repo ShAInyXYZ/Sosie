@@ -1,0 +1,84 @@
+/* Socket — a node's connection point, machined like everything else: a 12px
+   bezel (the shell) around a core that carries the data type twice — its
+   colour and its SHAPE (circle: text, any · square: image, video, audio, file,
+   model · diamond: json · triangle: control · capsule: a list that takes
+   many wires). Empty sockets show a hollow core; a connected socket's core
+   is filled. Works on a plain <span class="nk-socket"> and on a SvelteFlow
+   <Handle class="nk-socket …">. */
+.nk-socket { --port: var(--port-any); }   /* the default type, weaker than every .is-<type> */
+.nk-socket, .svelte-flow .svelte-flow__handle.nk-socket {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--shell);
+  box-shadow: var(--drop);
+  transition: scale var(--t-fast) var(--ease-out), box-shadow var(--t-fast), opacity var(--t-fast);
+}
+.nk-socket::before {           /* the core */
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--port);
+}
+.nk-socket::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; }   /* easier to hit */
+.nk-socket.is-connected::before { background: var(--port); box-shadow: none; }
+
+/* types: colour … */
+.nk-socket.is-text { --port: var(--port-text); }
+.nk-socket.is-json { --port: var(--port-json); }
+.nk-socket.is-image { --port: var(--port-image); }
+.nk-socket.is-video { --port: var(--port-video); }
+.nk-socket.is-audio { --port: var(--port-audio); }
+.nk-socket.is-file { --port: var(--port-file); }
+.nk-socket.is-model { --port: var(--port-model); }
+.nk-socket.is-control { --port: var(--port-control); }
+/* … and shape */
+.nk-socket:is(.is-image, .is-video, .is-audio, .is-file, .is-model)::before { border-radius: 1.5px; }
+.nk-socket.is-json::before { width: 5.5px; height: 5.5px; border-radius: 1px; transform: rotate(45deg); }
+.nk-socket.is-control { border-radius: calc(3px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+.nk-socket.is-control::before { width: 0; height: 0; border-radius: 0; background: none; box-shadow: none; border-left: 3.5px solid transparent; border-right: 3.5px solid transparent; border-top: 5px solid var(--port); opacity: .45; }
+.nk-socket.is-control.is-connected::before { opacity: 1; }
+.nk-socket.is-list { width: 18px; border-radius: calc(6px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+.nk-socket.is-list::before { width: 10px; border-radius: calc(3px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+
+/* states */
+.nk-socket:hover, .nk-socket.is-hover { scale: 1.25; }
+.nk-socket.is-required:not(.is-connected) { box-shadow: 0 0 0 2px color-mix(in srgb, var(--warn) 55%, transparent), 0 1px 2px rgba(0, 0, 0, .55); }
+.nk-socket.is-valid, .svelte-flow .svelte-flow__handle.nk-socket.connectingto.valid { scale: 1.35; box-shadow: 0 0 0 2px color-mix(in srgb, var(--ok) 60%, transparent), 0 1px 2px rgba(0, 0, 0, .55); }
+.nk-socket.is-invalid, .svelte-flow .svelte-flow__handle.nk-socket.connectingto:not(.valid) { opacity: .35; }
+.nk-socket.is-focus { box-shadow: 0 0 0 2px var(--accent-line), 0 1px 2px rgba(0, 0, 0, .55); }
+
+/* placement on a node's edge: left for inputs, right for outputs, top and
+   bottom for control flow */
+.nk-socket.is-in, .svelte-flow .svelte-flow__handle.nk-socket.svelte-flow__handle-left { left: -19px; top: 50%; transform: translate(0, -50%); right: auto; }
+.nk-socket.is-out, .svelte-flow .svelte-flow__handle.nk-socket.svelte-flow__handle-right { right: -19px; top: 50%; transform: translate(0, -50%); left: auto; }
+.nk-socket.is-top, .svelte-flow .svelte-flow__handle.nk-socket.svelte-flow__handle-top { top: -7px; left: 50%; transform: translate(-50%, 0); }
+.nk-socket.is-bottom, .svelte-flow .svelte-flow__handle.nk-socket.svelte-flow__handle-bottom { top: auto; bottom: -7px; left: 50%; transform: translate(-50%, 0); }
+.nk-socket.is-list.is-in, .svelte-flow .svelte-flow__handle.nk-socket.is-list.svelte-flow__handle-left { left: -22px; }
+
+/* ---- port rows: inputs first (socket on the left edge), then outputs
+   (socket on the right edge). An input that is a parameter shows its value
+   until a wire connects, then says where the value comes from. ---- */
+.nk-ports { display: grid; gap: 2px; }
+.nk-port-row { position: relative; display: flex; align-items: center; gap: 8px; min-height: 26px; }
+.nk-port-row.is-out { justify-content: flex-end; text-align: end; }
+.nk-port-label { color: var(--muted); font: 500 var(--fs-small)/1.2 var(--font-sans); white-space: nowrap; }
+.nk-port-row.is-connected .nk-port-label { color: var(--text); }
+.nk-port-type { color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.nk-port-row .nk-port-value { margin-inline-start: auto; max-width: 96px; overflow: hidden; color: var(--muted); font: 400 var(--fs-micro)/1 var(--font-mono); text-overflow: ellipsis; white-space: nowrap; }
+.nk-port-row .nk-port-from { margin-inline-start: auto; color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.nk-port-row.is-optional .nk-port-label::after { content: ' · optional'; color: var(--dim); font-size: var(--fs-micro); }
+.nk-port-row.is-required:not(.is-connected) .nk-port-label { color: var(--warn); }
+.nk-ports-sep { height: 1px; margin: 4px 0; background: var(--line); }
+/* A single in or out sits on the card edge at the header line. */
+.nk-socket.is-head.is-in, .svelte-flow .svelte-flow__handle.nk-socket.is-head.svelte-flow__handle-left { left: -7px; top: 22px; }
+.nk-socket.is-head.is-out, .svelte-flow .svelte-flow__handle.nk-socket.is-head.svelte-flow__handle-right { right: -7px; top: 22px; }

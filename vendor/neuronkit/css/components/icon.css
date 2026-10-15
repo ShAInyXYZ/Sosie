@@ -1,0 +1,7 @@
+/* Icon — the NeuronKit set: one 24-unit grid, 1.7 strokes, round caps and
+   joins, drawn to one hand. <svg class="nk-icon"><use href="icons/icons.svg#mic"/></svg>.
+   Icons take the text colour; size follows the type they sit beside. */
+.nk-icon { display: inline-block; flex: none; width: 16px; height: 16px; vertical-align: -3px; color: inherit; }
+.nk-icon.is-sm { width: 14px; height: 14px; }
+.nk-icon.is-lg { width: 20px; height: 20px; }
+.nk-icon.is-xl { width: 24px; height: 24px; }

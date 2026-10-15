@@ -1,0 +1,68 @@
+.nk-table { width: 100%; border-collapse: collapse; }
+.nk-table th {
+  height: 32px;
+  padding: 0 0 0 12px;
+  text-align: end;
+  vertical-align: middle;
+  font: 500 var(--fs-micro)/1 var(--font-mono);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.nk-table td {
+  height: 28px;
+  padding: 0 0 0 12px;
+  vertical-align: middle;
+  text-align: end;
+  font: 400 var(--fs-small)/1 var(--font-mono);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.nk-table th:first-child, .nk-table td:first-child { padding-left: 0; }
+.nk-table th.id, .nk-table th.name, .nk-table td.id, .nk-table td.name { text-align: start; }
+.nk-table /* One width for identifiers, .nk-table so the tables of one panel line up. */
+th.id, .nk-table td.id { width: 48px; }
+.nk-table td.id {
+  font: 500 var(--fs-micro)/1 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.nk-table /* The name takes whatever the numbers leave, .nk-table and ellipsises in it. */
+td.name {
+  width: 100%;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 500 var(--fs-body)/1 var(--font-sans);
+  color: var(--text);
+}
+.nk-table-sub { color: var(--dim); font-weight: 400; }
+.nk-table td[data-tone="warn"] { color: var(--warn); }
+.nk-table td[data-tone="crit"] { color: var(--err); }
+.nk-table td > .nk-led { margin-right: 8px; vertical-align: middle; }
+.nk-table /* A group's strip is a Section inside the table. */
+.nk-table-group td { height: auto; padding: 0; }
+.nk-table-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 32px;
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.nk-table-title {
+  font: 500 var(--fs-micro)/1 var(--font-mono);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.nk-table-meta {
+  font: 400 var(--fs-micro)/1 var(--font-mono);
+  letter-spacing: .04em;
+  color: var(--dim);
+  white-space: nowrap;
+}

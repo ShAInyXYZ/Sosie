@@ -1,0 +1,58 @@
+/* Tooltip — one shared popover, placed by neuronkit.js for any element with
+   data-tooltip (a title attribute is migrated automatically).
+
+   A small machined face that says one fact: a label in ink, and, when the text
+   has a " — " or a line break in it, a hint under it in dim ink. A shortcut
+   (data-tooltip-key) stands at the right as keycaps. It floats, so it is the
+   one place that casts a shadow here; it is never tinted — a tooltip informs,
+   it does not signal. It stands over the target, centred, and on a wide row
+   over the pointer; it flips when there is no room.
+
+   <div class="nk-tooltip" popover="manual">
+     <span class="nk-tooltip-text"><span class="nk-tooltip-label">Mode</span><span class="nk-tooltip-hint">drag to switch</span></span>
+     <span class="nk-tooltip-keys"><kbd class="nk-kbd">Ctrl</kbd><kbd class="nk-kbd">K</kbd></span>
+   </div> */
+.nk-tooltip {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: max-content;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: calc(7px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--face);
+  box-shadow: var(--float-sm);
+  color: var(--text);
+  overflow: visible;
+  pointer-events: none;
+  /* it leaves the way it came: from the side it stands on */
+  --nk-tip-x: 0px;
+  --nk-tip-y: 3px;
+}
+/* a popover is display:none until it opens; only then does it lay out as a row */
+.nk-tooltip:popover-open { display: flex; align-items: flex-start; gap: 10px; }
+.nk-tooltip[data-side="bottom"] { --nk-tip-y: -3px; }
+.nk-tooltip[data-side="left"]   { --nk-tip-x: 3px;  --nk-tip-y: 0px; }
+.nk-tooltip[data-side="right"]  { --nk-tip-x: -3px; --nk-tip-y: 0px; }
+
+.nk-tooltip-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.nk-tooltip-label { font: 500 var(--fs-small)/16px var(--font-sans); color: var(--text); overflow-wrap: break-word; }
+/* a path or an id: mono, and it breaks anywhere rather than run off the screen */
+.nk-tooltip-label.is-mono { font: 400 var(--fs-small)/16px var(--font-mono); overflow-wrap: anywhere; }
+.nk-tooltip-hint { font: 400 var(--fs-small)/15px var(--font-sans); color: var(--dim); overflow-wrap: break-word; }
+.nk-tooltip-keys { display: inline-flex; gap: 3px; flex: none; align-self: center; }
+.nk-tooltip-keys .nk-kbd { min-width: 18px; height: 18px; padding: 0 5px; }
+
+/* the entrance: a few pixels in from the side it stands on, quick and mechanical */
+.nk-tooltip:popover-open {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--t-fast) var(--ease-mech), transform var(--t-fast) var(--ease-out);
+}
+@starting-style {
+  .nk-tooltip:popover-open { opacity: 0; transform: translate(var(--nk-tip-x), var(--nk-tip-y)); }
+}
+
+/* a tooltip shown as a specimen on a page (the catalogue), not as a popover */
+.nk-tooltip.is-static { position: relative; display: flex; align-items: flex-start; gap: 10px; width: max-content; opacity: 1; transform: none; }

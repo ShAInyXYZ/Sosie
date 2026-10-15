@@ -1,0 +1,19 @@
+.nk-panel {
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-w);
+  max-height: var(--panel-max-h, none);
+  border: 1px solid transparent;
+  background: var(--face);
+  border-radius: var(--r-panel); corner-shape: var(--corner, round);
+  color: var(--text);
+  overflow: hidden;
+}
+.nk-panel-head { flex: none; border-bottom: 1px solid var(--line); }
+.nk-panel-tabs { padding: 0 var(--body-inset) 12px; }
+.nk-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px var(--body-inset) 12px;
+}

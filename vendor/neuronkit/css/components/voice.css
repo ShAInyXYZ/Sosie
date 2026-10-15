@@ -1,0 +1,116 @@
+/* Voice pill — a floating voice assistant. A charcoal capsule with a fine
+   film grain; on its left the recessed dial holding the Orion orb, then a
+   title with a status line, the live waveform and one icon control. An
+   expanded pill grows a body on the same surface: no second window, no
+   dashboard. Blue (--voice) marks an active voice conversation. */
+.nk-voice {
+  position: relative;
+  width: 100%;
+  max-width: 470px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: calc(42px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--voice-face);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .11);
+  color: var(--text);
+}
+.nk-voice.is-expanded { border-radius: calc(35px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+.nk-voice::before {            /* film grain, just visible */
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: .035;
+  background-image: url("../../assets/grain.png");
+  pointer-events: none;
+}
+.nk-voice-bar { position: relative; display: flex; align-items: center; gap: 12px; min-height: 82px; padding: 10px 17px 10px 11px; }
+
+/* The dial: a recessed face, the orb inside its well. */
+.nk-orb-button {
+  position: relative;
+  flex: none;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: url("../../assets/dial.svg") center / 100% no-repeat;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+.nk-orb-button:hover { transform: scale(1.035); }
+.nk-orb-button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.nk-orb-button .nk-orb { display: block; width: 100%; height: 100%; }
+canvas.nk-orb { pointer-events: none; }
+
+.nk-voice-copy { flex: 1; min-width: 0; }
+.nk-voice-title { margin: 0 0 3px; font: 600 var(--fs-title)/1.35 var(--font-sans); letter-spacing: -.015em; }
+.nk-voice-status { display: flex; align-items: center; gap: 6px; margin: 0; color: var(--muted); font: 500 var(--fs-small)/1.4 var(--font-sans); }
+.nk-voice-status::before { content: ''; width: 5px; height: 5px; border-radius: 1px; background: var(--tone, var(--faint)); flex: none; }
+.nk-voice[data-state="listening"] .nk-voice-status::before,
+.nk-voice[data-state="speaking"] .nk-voice-status::before { background: var(--voice); }
+.nk-voice[data-state="working"] .nk-voice-status::before { background: var(--info); animation: nk-soft-blink 1.2s ease-in-out infinite alternate; }
+.nk-voice[data-state="attention"] .nk-voice-status::before { background: var(--warn); }
+.nk-voice[data-state="error"] .nk-voice-status::before { background: var(--err); }
+
+.nk-voice-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.nk-voice-icon:hover { background: var(--s3); color: var(--text); }
+.nk-voice-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
+
+/* The live waveform (voice activity), five soft bars. */
+.nk-wave { display: flex; align-items: center; gap: 3px; height: 26px; margin-right: 4px; color: var(--voice); }
+.nk-wave i { width: 3px; height: var(--h, 16px); border-radius: calc(4px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: currentColor; animation: nk-wave .7s ease-in-out infinite alternate; animation-delay: var(--d, 0s); }
+@keyframes nk-wave { to { transform: scaleY(.35); } }
+@keyframes nk-soft-blink { to { opacity: .3; } }
+
+/* Expanded body */
+.nk-voice-hairline { height: 1px; margin: 0 24px 16px; background: var(--line2); }
+.nk-voice-body { position: relative; padding: 0 24px 20px; }
+.nk-voice-body > p { margin: 8px 0 16px; font: 400 var(--fs-body)/1.8 var(--font-sans); color: var(--muted); }
+.nk-voice-quote { margin: 4px 0 18px; font: 500 17px/1.65 var(--font-sans); letter-spacing: -.02em; color: var(--text-soft); }
+.nk-voice-result { margin: 4px 0 16px; font: 500 19px/1.5 var(--font-sans); letter-spacing: -.025em; }
+.nk-voice-result strong { font-weight: 650; color: var(--voice); }
+.nk-voice-label { margin: 14px 0 8px; color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .22em; text-transform: uppercase; }
+.nk-voice-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.nk-voice-foot { margin: 14px 0 0; color: var(--dim); font: 400 var(--fs-micro)/1.5 var(--font-mono); }
+
+/* Steps of work in progress: done, working, pending. */
+.nk-steps { margin: 4px 0 16px; }
+.nk-steps li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); font: 500 12px/1.4 var(--font-sans); }
+.nk-steps li::before { content: ''; flex: none; width: 14px; height: 14px; background: center / 14px no-repeat; }
+.nk-steps li[data-step="done"]::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 4 4L19 6'/%3E%3C/svg%3E"); }
+.nk-steps li[data-step="working"]::before { width: 6px; height: 6px; margin: 4px; border-radius: 50%; background: var(--info); animation: nk-soft-blink 1.2s ease-in-out infinite alternate; }
+.nk-steps li[data-step="pending"] { color: var(--dim); }
+.nk-steps li[data-step="pending"]::before { width: 6px; height: 6px; margin: 4px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--faint); }
+.nk-steps small { margin-inline-start: auto; color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }
+
+.nk-sources { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 18px; }
+.nk-sources a { display: flex; align-items: center; gap: 8px; color: var(--muted); text-decoration: none; font: 500 var(--fs-small)/1.4 var(--font-sans); }
+.nk-sources a:hover { color: var(--text); }
+.nk-sources a::before { content: '↗'; color: var(--dim); font: 400 var(--fs-small)/1 var(--font-mono); }
+
+.nk-attachment { display: flex; align-items: center; gap: 10px; margin: 12px 0; padding: 10px 12px; border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--s3); font: 500 var(--fs-small)/1.4 var(--font-sans); }
+.nk-attachment small { display: block; color: var(--muted); font-size: 10px; }
+.nk-attachment .nk-voice-icon { margin-inline-start: auto; }
+
+.nk-kv { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; margin: 14px 0 18px; font: 500 12px/1.4 var(--font-sans); }
+.nk-kv dt { color: var(--muted); }
+.nk-kv dd { margin: 0; font-family: var(--font-mono); font-size: var(--fs-small); }
+
+.nk-transcript { padding-top: 14px; border-top: 1px solid var(--line); color: var(--text-soft); font: 400 12px/1.8 var(--font-sans); }
+.nk-transcript mark { padding: 1px 3px; border-radius: calc(3px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: color-mix(in srgb, var(--voice) 18%, transparent); color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) { .nk-wave i, .nk-voice-status::before, .nk-steps li::before { animation: none; } }

@@ -1,0 +1,55 @@
+/* Chart — a time series with axes, for monitoring: the reading over the last
+   hour, against its limit. Lines are the ink ladder (the first series in ink,
+   the next ones quieter); the stretch of a line past its limit turns --err,
+   because that stretch is the problem. The limit is a dashed hairline with
+   its value printed on it. Hover, or focus and use the arrows, to read any
+   point in a floating readout; null is a gap, never a zero. Drawn by
+   neuronkit.js at the chart's real size, redrawn when it resizes or its
+   data changes.
+
+   <figure class="nk-chart" data-series='[{"name":"GPU0 junction","values":[71,72,74]}]'
+     data-start="2026-09-28T13:00:00Z" data-step="60" data-unit="°C" data-limit="95"></figure>
+
+   data-min / data-max fix the scale (0–100 for percentages); --chart-h sets
+   the plot height (default 180px). A series with "tone" takes that state
+   colour instead of ink. el.nkPush(v, …) adds one reading per series. */
+.nk-chart { position: relative; margin: 0; color: var(--muted); --chart-h: 180px; }
+.nk-chart > svg { display: block; width: 100%; height: var(--chart-h); overflow: visible; }
+.nk-chart:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); border-radius: var(--r); corner-shape: var(--corner, round); }
+
+.nk-chart-grid line { stroke: var(--line); stroke-width: 1; shape-rendering: crispEdges; }
+.nk-chart-grid line.is-base { stroke: var(--line2); }
+.nk-chart-tick { fill: var(--dim); font: 400 var(--fs-micro) var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.nk-chart-line { fill: none; stroke: var(--series, currentColor); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.nk-chart-line.is-over { stroke: var(--err); stroke-width: 1.75; }
+.nk-chart-area { fill: currentColor; opacity: .07; }
+.nk-chart-end { fill: var(--series, currentColor); }
+
+.nk-chart-limit line { stroke: var(--err); stroke-width: 1; stroke-dasharray: 4 4; opacity: .75; shape-rendering: crispEdges; }
+.nk-chart-limit text { fill: var(--err); font: 500 var(--fs-micro) var(--font-mono); letter-spacing: .04em; }
+
+.nk-chart-cursor line { stroke: var(--line2); stroke-width: 1; shape-rendering: crispEdges; }
+.nk-chart-dot { fill: var(--bg); stroke: var(--series, currentColor); stroke-width: 1.5; }
+
+.nk-chart-readout {
+  position: absolute; top: 0; left: 0; z-index: var(--z-raised);
+  display: grid; gap: 5px; min-width: 132px; padding: 8px 10px;
+  transform: translate(var(--rx, 0), var(--ry, 0)); pointer-events: none;
+  border: 1px solid transparent; border-radius: calc(8px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--face); box-shadow: var(--float);
+  font: 400 var(--fs-small)/1.2 var(--font-sans);
+}
+.nk-chart-readout[hidden] { display: none; }
+.nk-chart-readout time { color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .08em; }
+.nk-chart-readout div { display: flex; align-items: center; gap: 8px; }
+.nk-chart-readout i, .nk-chart-legend i { flex: none; width: 12px; height: 2px; border-radius: 1px; background: var(--series, currentColor); }
+.nk-chart-readout span { flex: 1; color: var(--muted); white-space: nowrap; }
+.nk-chart-readout b { color: var(--text); font: 500 var(--fs-small)/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.nk-chart-readout b[data-tone="crit"] { color: var(--err); }
+
+.nk-chart-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 10px; color: var(--muted); font: 400 var(--fs-small)/1.2 var(--font-sans); }
+.nk-chart-legend > span { display: inline-flex; align-items: center; gap: 8px; }
+.nk-chart-legend b { color: var(--text); font: 500 var(--fs-small)/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.nk-chart-empty { display: grid; place-items: center; height: var(--chart-h); margin: 0; color: var(--dim); font: 400 var(--fs-small)/1 var(--font-sans); }

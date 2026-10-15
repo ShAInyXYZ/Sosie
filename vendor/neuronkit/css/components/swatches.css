@@ -1,0 +1,103 @@
+/* Swatches — choose a colour, in the language of the choice bank and the
+   tabs. Colour lenses (a recessed window with a hint of glass) sit in a
+   recessed tray; the chosen one rises into a machined key with a short
+   accent bar under its lens. The native radios stay underneath, so forms,
+   arrows and screen readers keep working. The hex field sits at the end of
+   the tray behind a hairline. An optional + key opens a compact colour
+   picker in a popover and adds (or updates) one custom swatch.
+
+   <div class="nk-swatches" role="radiogroup" aria-label="Orb colour">
+     <label class="nk-swatch" style="--c:#91c9ff"><input type="radio" name="orb" value="#91c9ff" checked aria-label="Voice blue"><span></span></label>
+     …
+     <button class="nk-swatch-add" type="button" aria-label="Custom colour"></button>   optional
+     <input class="nk-swatch-hex" value="#91c9ff" aria-label="Hex colour">               optional
+   </div>
+
+   .is-labeled prints each key's name (its aria-label) and hex under the
+   lens, for named palettes. */
+.nk-swatches {
+  --bank-r: calc(6px * var(--corner-k, 1));
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid transparent;
+  border-radius: var(--bank-r); corner-shape: var(--corner, round);
+  background: var(--inset);
+}
+.nk-swatch, .nk-swatch-add {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  padding: 5px 6px 9px;
+  border: 0;
+  border-radius: max(var(--r-sm), calc(var(--bank-r) - 3px)); corner-shape: var(--corner, round);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--t-fast), box-shadow var(--t-fast);
+}
+.nk-swatch input { position: absolute; opacity: 0; pointer-events: none; }
+.nk-swatch > span {   /* the lens */
+  width: 22px;
+  height: 22px;
+  border-radius: calc(3.5px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--lens-glass), var(--c);
+  box-shadow: var(--lens-shade);
+}
+.nk-swatch:hover:not(:has(input:checked)), .nk-swatch-add:hover { background: var(--tint); }
+.nk-swatch:has(input:checked) {   /* the chosen one rises into a key */
+  background: var(--shell);
+  box-shadow: 0 0 0 1px var(--control-ring) inset, 0 1px 0 0 rgba(255,255,255,.06) inset;
+}
+.nk-swatch:has(input:checked)::after {   /* and lights a short bar under its lens */
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 12px;
+  height: 2px;
+  margin-left: -6px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+.nk-swatch:has(input:focus-visible), .nk-swatch-add:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 1px; }
+.nk-swatch-add { color: var(--dim); }
+.nk-swatch-add::before {   /* a + in a hollow lens */
+  content: '';
+  width: 22px;
+  height: 22px;
+  border-radius: calc(3.5px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background:
+    linear-gradient(currentColor, currentColor) center / 10px 1.7px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.7px 10px no-repeat;
+  box-shadow: inset 0 0 0 1px var(--line2);
+}
+.nk-swatch-add:hover, .nk-swatch-add[aria-expanded="true"] { color: var(--text); }
+.nk-swatch-hex {
+  align-self: center;
+  width: 92px;
+  height: 30px;
+  margin-left: 4px;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font: 400 var(--fs-small)/1 var(--font-mono);
+  text-transform: lowercase;
+}
+.nk-swatch-hex:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 1px; border-radius: var(--r-sm); }
+
+/* named palettes: a wider lens, the name and the hex printed under it */
+.nk-swatches.is-labeled .nk-swatch { min-width: 84px; padding: 7px 10px 12px; gap: 6px; }
+.nk-swatches.is-labeled .nk-swatch > span { width: 100%; height: 30px; }
+.nk-swatch-name { color: var(--muted); font: 500 var(--fs-small)/1 var(--font-sans); }
+.nk-swatch-code { color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); letter-spacing: .06em; text-transform: lowercase; }
+.nk-swatch:has(input:checked) .nk-swatch-name { color: var(--text); }
+.nk-swatches.is-labeled .nk-swatch:has(input:checked)::after { bottom: 4px; }
+
+/* the custom colour's popover */
+.nk-swatch-pop { width: auto; padding: 14px; }

@@ -1,0 +1,48 @@
+/* Notice — a card for a question the app must ask, or an error it
+   must admit. A faint tone wash at the top, a toned hairline ring, the kind
+   as a printed label, a title and body; then either stacked choices (each a
+   real decision, the escape route quieter) or an inline action row. */
+.nk-notice {
+  --tone: var(--err);
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: calc(12px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tone) 6%, var(--s1)) 0%, var(--s1) 46%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone) 16%, transparent), 0 1px 0 0 rgba(255, 255, 255, .04) inset, 0 -1px 0 0 var(--shade) inset;
+}
+.nk-notice[data-tone="warn"] { --tone: var(--warn); }
+.nk-notice[data-tone="info"] { --tone: var(--info); }
+.nk-notice[data-tone="ask"] { --tone: var(--accent); }
+.nk-notice-main { display: flex; gap: 11px; padding: 15px 16px; }
+.nk-notice-icon { flex: none; width: 17px; height: 17px; margin-top: 2px; fill: none; stroke: var(--tone); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.nk-notice-col { flex: 1; min-width: 0; }
+.nk-notice-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 9px; }
+.nk-notice-kind { flex: none; color: var(--tone); font: 600 var(--fs-micro)/1 var(--font-mono); letter-spacing: .18em; text-transform: uppercase; }
+.nk-notice-title { color: var(--text); font: 600 var(--fs-body)/1.5 var(--font-sans); }
+.nk-notice-body { margin-top: 5px; color: var(--muted); font: 400 var(--fs-body)/1.55 var(--font-sans); }
+.nk-notice-detail {
+  margin: 10px 0 0; padding: 10px 12px;
+  border-radius: calc(7px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--tint-dark); box-shadow: inset 0 0 0 1px var(--ring);
+  color: var(--muted); font: 400 var(--fs-small)/1.55 var(--font-mono);
+  white-space: pre-wrap; overflow-x: auto;
+}
+.nk-notice-choices { display: flex; flex-direction: column; gap: 6px; padding: 4px 10px 12px; }
+.nk-notice-choice {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; padding: 11px 12px 11px 14px;
+  border: 1px solid transparent; border-radius: calc(9px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--shell);
+  color: var(--text); text-align: start; cursor: pointer;
+  transition: transform .05s;
+}
+.nk-notice-choice:hover { background: linear-gradient(color-mix(in srgb, var(--accent) 12%, var(--s2)), color-mix(in srgb, var(--accent) 8%, var(--s1))) padding-box, linear-gradient(var(--accent-line), var(--accent-line)) border-box; }
+.nk-notice-choice:active { transform: translateY(1px); }
+.nk-notice-choice::after { content: '→'; color: var(--dim); transition: transform var(--t-fast), color var(--t-fast); }
+.nk-notice-choice:hover::after { color: var(--accent); transform: translateX(2px); }
+.nk-notice-choice b { display: block; font: 500 var(--fs-body)/1.35 var(--font-sans); }
+.nk-notice-choice small { display: block; margin-top: 1px; color: var(--dim); font: 400 var(--fs-small)/1.3 var(--font-sans); }
+.nk-notice-choice.is-ghost { padding: 8px 12px 8px 14px; border-color: transparent; background: transparent; color: var(--dim); }
+.nk-notice-choice.is-ghost b { font-weight: 450; font-size: var(--fs-small); }
+.nk-notice-choice.is-ghost:hover { background: var(--tint); color: var(--muted); }
+.nk-notice-acts { display: flex; flex-wrap: wrap; gap: 6px; padding: 11px 16px; background: var(--tint-dark); box-shadow: inset 0 1px 0 0 var(--lift); }

@@ -1,0 +1,22 @@
+NeuronKit
+Copyright 2026 Shiny-Studio OÜ
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+"NeuronKit", the NeuronKit mark, and the names Cerveau, Cerveau Hub, BYOK,
+HubVoice, DeadWhispr and NoClickDock are trademarks of Shiny-Studio OÜ. The
+Apache License does not grant permission to use them (section 6): you may
+say your product is "built with NeuronKit", but not name or brand it as
+NeuronKit or as one of those products.
+
+Bundled fonts, each under the SIL Open Font License 1.1:
+  - Manrope (fonts/Manrope-LICENSE.txt)
+  - IBM Plex Mono (fonts/IBMPlexMono-LICENSE.txt)
+
+Some glyphs in the catalogue (site/) are Material Symbols by Google,
+Apache License 2.0.
+
+The catalogue's live graph demo (site/flow-demo.js, built from site/flow-src)
+bundles Svelte (MIT), @xyflow/svelte and @xyflow/system (MIT, © webkid GmbH)
+and d3 modules (ISC, © Mike Bostock). Their full licence texts are in
+site/flow-demo.LICENSES.txt. css/flow.css contains no third-party code.

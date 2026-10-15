@@ -1,0 +1,33 @@
+/* Dialog — a native <dialog class="nk-dialog">, opened modal. One face
+   surface, a toned icon chip beside the title when it matters, the body, and
+   the actions on the right with the safe one first. Escape and the close
+   button always work; a destructive action is never the primary style. */
+.nk-dialog {
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 24px 26px;
+  border: 1px solid transparent;
+  border-radius: calc(18px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--face);
+  color: var(--text);
+  box-shadow: var(--float-lg);
+}
+.nk-dialog::backdrop { background: color-mix(in srgb, #000 58%, transparent); backdrop-filter: blur(3px); }
+.nk-dialog[open] { animation: nk-dialog-in var(--t-slow) var(--ease-out); }
+@keyframes nk-dialog-in { from { opacity: 0; transform: translateY(6px) scale(.99); } }
+.nk-dialog-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-right: 28px; }
+.nk-dialog-icon {
+  display: grid; place-items: center; flex: none;
+  width: 36px; height: 36px; border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  color: var(--tone, var(--muted));
+  background: color-mix(in srgb, var(--tone, var(--muted)) 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone, var(--muted)) 26%, transparent);
+}
+.nk-dialog-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nk-dialog-title { margin: 0; font: 600 var(--fs-title)/1.3 var(--font-sans); letter-spacing: -.01em; }
+.nk-dialog-desc { margin: 3px 0 0; color: var(--muted); font: 400 var(--fs-small)/1.5 var(--font-sans); }
+.nk-dialog-body { color: var(--muted); font: 400 var(--fs-body)/1.6 var(--font-sans); }
+.nk-dialog-body code { color: var(--text); font: 400 var(--fs-small)/1 var(--font-mono); background: var(--s2); padding: 2px 5px; border-radius: var(--r); corner-shape: var(--corner, round); }
+.nk-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+.nk-dialog-close { position: absolute; top: 16px; right: 16px; }
+@media (prefers-reduced-motion: reduce) { .nk-dialog[open] { animation: none; } }

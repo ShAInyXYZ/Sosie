@@ -1,0 +1,23 @@
+/* Combobox — type to narrow a long list, or pick from it. An input.nk-input
+   field with a native <datalist> as the source of truth (so forms, and the
+   value, are the browser's own); neuronkit.js shows the matches in the
+   select's menu, the typed part lit in each. Arrows move, Enter picks,
+   Escape closes and keeps what you typed. data-strict refuses a value
+   that isn't in the list.
+
+   <label class="nk-input nk-combobox"><input list="models" placeholder="Model"></label>
+   <datalist id="models"><option value="qwen3-32b" label="32B · 4-bit">…</datalist> */
+.nk-combobox { position: relative; }
+.nk-combobox::after {
+  content: '';
+  flex: none;
+  width: 6px; height: 6px;
+  margin: -3px 2px 0;
+  border-right: 1.5px solid var(--dim);
+  border-bottom: 1.5px solid var(--dim);
+  transform: rotate(45deg);
+  transition: transform var(--t-fast);
+}
+.nk-combobox[data-state="open"]::after { transform: translateY(3px) rotate(-135deg); }
+.nk-sel-item mark { background: none; color: var(--text); }
+.nk-sel-empty { padding: 9px 10px; color: var(--dim); font: 400 var(--fs-small)/1.3 var(--font-sans); }

@@ -1,0 +1,40 @@
+.nk-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.nk-field-label { font: 500 var(--fs-small)/16px var(--font-sans); color: var(--muted); }
+.nk-field-hint { margin-left: 6px; color: var(--dim); font-weight: 400; }
+.nk-field-error { margin: 0; font: 500 var(--fs-small)/16px var(--font-sans); color: var(--err); }
+.nk-field input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: var(--inset);
+  color: var(--text);
+  font: 500 var(--fs-body)/1 var(--font-sans);
+  caret-color: var(--accent);
+  transition: border-color var(--t-fast);
+}
+.nk-field input.mono { font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-field input::placeholder { color: var(--faint); }
+.nk-field input:hover { background: var(--inset-hover); }
+.nk-field input:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-field.has-error input { box-shadow: 0 0 0 1px color-mix(in srgb, var(--err) 70%, transparent); }
+/* A text area shares the input's surface and grows with its rows. */
+.nk-field textarea {
+  width: 100%;
+  min-height: 76px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: var(--inset);
+  color: var(--text);
+  font: 500 var(--fs-body)/1.5 var(--font-sans);
+  caret-color: var(--accent);
+  resize: vertical;
+  transition: border-color var(--t-fast);
+}
+.nk-field textarea::placeholder { color: var(--faint); }
+.nk-field textarea:hover { background: var(--inset-hover); }
+.nk-field textarea:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-field.has-error textarea { box-shadow: 0 0 0 1px color-mix(in srgb, var(--err) 70%, transparent); }
+.nk-field input:disabled, .nk-field textarea:disabled { opacity: var(--disabled); }

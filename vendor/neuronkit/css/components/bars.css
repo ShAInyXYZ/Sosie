@@ -1,0 +1,8 @@
+.nk-bars { display: flex; flex-direction: column; gap: 4px; padding: 4px 0 8px; min-height: 60px; }
+.nk-bars svg { display: block; }
+.nk-bars rect { fill: var(--faint); }
+.nk-bars rect.now { fill: var(--text); }
+.nk-bars rect.future { fill: var(--line2); }
+.nk-bars-axis { position: relative; height: 10px; font: 400 var(--fs-micro)/10px var(--font-mono); color: var(--dim); }
+.nk-bars-axis span { position: absolute; top: 0; transform: translateX(-1px); }
+.nk-bars-axis .end { right: 0; transform: none; }

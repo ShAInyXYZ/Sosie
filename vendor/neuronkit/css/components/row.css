@@ -1,0 +1,75 @@
+.nk-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: var(--row-h);
+  padding: 4px 0;
+}
+.nk-row-line {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  column-gap: 10px;
+  min-width: 0;
+}
+/* The lamp lives with the name, centred on its 18px line — the same in a
+   single-line row and a row with a sub line. */
+.nk-row-text.has-led { padding-left: 16px; }
+.nk-row-text > .nk-led { position: absolute; left: 0; top: calc((18px - var(--led)) / 2); }
+/* A hover wash that bleeds 8px, so the text stays on the inset. */
+.nk-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 -8px;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: transparent;
+  transition: background var(--t-fast) var(--ease-mech);
+  pointer-events: none;
+}
+.nk-row:hover::before { background: color-mix(in srgb, var(--text) 2.5%, transparent); }
+.nk-row > * { position: relative; }
+/* The name is the row's identity: it keeps a floor while a long value
+   gives way first. */
+.nk-row-text { position: relative; flex: 1; min-width: 30%; }
+.nk-row-name {
+  display: block;
+  font: 500 var(--fs-body)/18px var(--font-sans);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nk-row-name.is-mono { font: 400 var(--fs-small)/18px var(--font-mono); }
+.nk-row-sub {
+  display: block;
+  font: 400 var(--fs-small)/14px var(--font-sans);
+  color: var(--dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nk-row-value {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 400 var(--fs-small)/18px var(--font-mono);
+  color: var(--muted);
+  text-align: end;
+  white-space: nowrap;
+}
+.nk-row-value[data-tone="warn"] { color: var(--warn); }
+.nk-row-value[data-tone="crit"] { color: var(--err); }
+.nk-row-actions { flex: none; display: flex; gap: 4px; }
+.nk-row-error {
+  display: block;
+  min-width: 0;
+  font: 400 var(--fs-small)/16px var(--font-mono);
+  color: var(--err);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* under a row with a lamp, the error lines up with the name, not the lamp */
+.nk-row:has(.nk-row-text.has-led) > .nk-row-error { padding-inline-start: 16px; }

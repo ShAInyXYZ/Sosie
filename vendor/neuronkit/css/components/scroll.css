@@ -1,0 +1,27 @@
+/* Scroll area — a region that scrolls on its own, with the kit's scrollbar
+   and a soft fade at any edge that still has content past it, so a list
+   says "there is more" without a word. neuronkit.js keeps data-more-start /
+   data-more-end in step; without JS the fades simply never show.
+   .is-x scrolls sideways instead. */
+.nk-scroll {
+  position: relative;
+  max-height: var(--scroll-h, 240px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  --fade: 24px;
+  --fade-mask: none;
+  /* two layers: the fade, and a solid strip so the scrollbar never fades */
+  mask-image: var(--fade-mask), linear-gradient(#000, #000);
+  mask-size: 100% 100%, 10px 100%;
+  mask-position: 0 0, 100% 0;
+  mask-repeat: no-repeat;
+}
+.nk-scroll.is-x { max-height: none; overflow: auto hidden; mask-size: 100% 100%, 100% 10px; mask-position: 0 0, 0 100%; }
+.nk-scroll:not([data-more-start], [data-more-end]) { mask-image: none; }
+.nk-scroll[data-more-end] { --fade-mask: linear-gradient(to bottom, #000 calc(100% - var(--fade)), transparent); }
+.nk-scroll[data-more-start] { --fade-mask: linear-gradient(to top, #000 calc(100% - var(--fade)), transparent); }
+.nk-scroll[data-more-start][data-more-end] { --fade-mask: linear-gradient(transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); }
+.nk-scroll.is-x[data-more-end] { --fade-mask: linear-gradient(to right, #000 calc(100% - var(--fade)), transparent); }
+.nk-scroll.is-x[data-more-start] { --fade-mask: linear-gradient(to left, #000 calc(100% - var(--fade)), transparent); }
+.nk-scroll.is-x[data-more-start][data-more-end] { --fade-mask: linear-gradient(to right, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent); }

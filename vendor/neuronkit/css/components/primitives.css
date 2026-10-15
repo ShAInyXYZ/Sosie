@@ -1,0 +1,21 @@
+/* Primitives — the few layout and text helpers every screen needs. They are
+   components like any other (nk- prefix, one job each), not a utility
+   system: there is no margin-4 or text-red, and there will not be.
+
+   .nk-stack     children in a column, --gap apart (default 12px)
+   .nk-cluster   children in a wrapping row, vertically centred
+   .nk-spread    a row pushed to both ends (a title and its actions)
+   .nk-rule      a hairline between groups; .is-vertical inside a row
+   .nk-truncate  one line, ellipsis; .nk-clamp  --lines lines, then ellipsis
+   .nk-sr-only   read by screen readers, never seen
+   .nk-mono / .nk-num  mono text; tabular numbers, right-aligned in a cell */
+.nk-stack { display: flex; flex-direction: column; gap: var(--gap, 12px); min-width: 0; }
+.nk-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap, 8px); min-width: 0; }
+.nk-spread { display: flex; align-items: center; justify-content: space-between; gap: var(--gap, 12px); min-width: 0; }
+.nk-rule { flex: none; height: 1px; margin: var(--rule-space, 8px) 0; border: 0; background: var(--line); }
+.nk-rule.is-vertical { align-self: stretch; width: 1px; height: auto; margin: 0 var(--rule-space, 4px); }
+.nk-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.nk-clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--lines, 2); line-clamp: var(--lines, 2); overflow: hidden; }
+.nk-sr-only { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.nk-mono { font-family: var(--font-mono); }
+.nk-num { font-family: var(--font-mono); text-align: end; white-space: nowrap; }

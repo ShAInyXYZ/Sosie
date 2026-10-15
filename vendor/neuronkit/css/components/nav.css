@@ -1,0 +1,36 @@
+/* Breadcrumb and pagination — where you are, and where the rest is.
+   A breadcrumb is for places in an app (sans, chevrons); a file path uses
+   .nk-path (mono). The last crumb is the current page: ink, not a link.
+   Pagination: previous / next shells and the pages between, the current
+   page raised; long runs collapse to an ellipsis. */
+.nk-breadcrumb { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; min-width: 0; font: 500 var(--fs-small)/1.3 var(--font-sans); }
+.nk-breadcrumb a { padding: 3px 6px; border-radius: var(--r-sm); color: var(--dim); text-decoration: none; white-space: nowrap; }
+.nk-breadcrumb a:hover { background: var(--s2); color: var(--text); }
+.nk-breadcrumb a:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 0; }
+.nk-breadcrumb [aria-current="page"] { padding: 3px 6px; color: var(--text); white-space: nowrap; }
+.nk-breadcrumb-sep { width: 5px; height: 5px; border-right: 1.3px solid var(--faint); border-top: 1.3px solid var(--faint); transform: rotate(45deg); flex: none; margin: 0 2px; }
+[dir="rtl"] .nk-breadcrumb-sep { transform: rotate(-135deg); }
+
+.nk-pagination { display: flex; align-items: center; gap: 4px; font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-page-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: transparent;
+  color: var(--dim);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.nk-page-btn:hover { background: var(--s2); color: var(--text); }
+.nk-page-btn[aria-current="page"] { background: var(--shell); color: var(--text); }
+.nk-page-btn.is-step { background: var(--shell); color: var(--muted); font-family: var(--font-sans); font-weight: 500; }
+.nk-page-btn.is-step:hover { background: var(--shell-hover); color: var(--text); }
+.nk-page-btn:disabled, .nk-page-btn[aria-disabled="true"] { opacity: var(--disabled); pointer-events: none; }
+.nk-page-btn:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-page-gap { min-width: 22px; color: var(--faint); text-align: center; }
+.nk-pagination-meta { margin-inline-start: 10px; color: var(--dim); }

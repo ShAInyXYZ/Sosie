@@ -1,0 +1,34 @@
+/* Disclosure and accordion — detail that is there when asked for. A native
+   <details class="nk-disclosure">: the summary is a row with a chevron that
+   turns, the body is indented to the summary's text. Several sharing a
+   name="…" make an accordion (the browser keeps one open). A count or a
+   lamp at the end of the summary says what is inside without opening it. */
+.nk-disclosure { border-bottom: 1px solid var(--line); }
+.nk-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 4px;
+  color: var(--muted);
+  font: 500 var(--fs-body)/1.3 var(--font-sans);
+  list-style: none;
+  cursor: pointer;
+}
+.nk-disclosure > summary::-webkit-details-marker { display: none; }
+.nk-disclosure > summary::before {
+  content: '';
+  flex: none;
+  width: 6px; height: 6px;
+  margin: 0 3px;
+  border-right: 1.5px solid var(--dim);
+  border-bottom: 1.5px solid var(--dim);
+  transform: rotate(-45deg);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.nk-disclosure[open] > summary::before { transform: rotate(45deg); }
+.nk-disclosure > summary:hover, .nk-disclosure[open] > summary { color: var(--text); }
+.nk-disclosure > summary:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: -2px; border-radius: var(--r); corner-shape: var(--corner, round); }
+.nk-disclosure-meta { margin-inline-start: auto; color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.nk-disclosure-body { padding: 0 4px 16px 26px; color: var(--muted); font: 400 var(--fs-body)/1.6 var(--font-sans); }
+.nk-disclosure:first-of-type { border-top: 1px solid var(--line); }

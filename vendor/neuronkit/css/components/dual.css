@@ -1,0 +1,38 @@
+/* Dual pill — two controls that belong together sharing one pill: a main
+   choice and its setting (a material mode and its resolution, a device and
+   its level). A hairline divides them; either half can be a button, a
+   menu trigger or a readout. With one child it is just a pill. From
+   Gouache's viewport toolbar.
+
+   <div class="nk-dual" role="group" aria-label="Display">
+     <button class="nk-dual-part">Material</button><button class="nk-dual-part is-value">4K</button>
+   </div> */
+.nk-dual {
+  display: inline-flex;
+  align-items: stretch;
+  flex: none;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--inset);
+}
+.nk-dual-part {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: 500 var(--fs-small)/1 var(--font-sans);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.nk-dual-part + .nk-dual-part { box-shadow: inset 1px 0 0 var(--line2); }
+.nk-dual-part:first-child { border-start-start-radius: 999px; border-end-start-radius: 999px; }
+.nk-dual-part:last-child { border-start-end-radius: 999px; border-end-end-radius: 999px; }
+.nk-dual-part.is-value { min-width: 46px; justify-content: center; font-family: var(--font-mono); font-weight: 400; }
+.nk-dual-part:hover, .nk-dual-part[aria-expanded="true"] { background: var(--s3); color: var(--text); }
+.nk-dual-part:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: -3px; }
+.nk-dual-part:disabled { opacity: var(--disabled); cursor: default; }
+.nk-dual-part svg { flex: none; width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }

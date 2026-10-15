@@ -1,0 +1,37 @@
+.nk-segmented {
+  display: inline-flex;
+  max-width: 100%;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid transparent;
+  --bank-r: calc(5px * var(--corner-k, 1));   /* the tray; segments are concentric inside it */
+  border-radius: var(--bank-r); corner-shape: var(--corner, round);
+  background: var(--inset);
+}
+.nk-segmented-btn {
+  --led: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: max(var(--r-sm), calc(var(--bank-r) - 3px)); corner-shape: var(--corner, round);   /* tray radius minus the 2px gap and 1px edge */
+  background: transparent;
+  color: var(--dim);
+  font: 500 var(--fs-micro)/1 var(--font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: default;
+  white-space: nowrap;
+  min-width: 0;
+  transition: color .1s, background .1s;
+}
+.nk-segmented-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; line-height: 14px; }
+.nk-segmented-btn:hover { color: var(--text); }
+.nk-segmented-btn[aria-selected="true"] {
+  color: var(--text);
+  background: var(--shell);
+  box-shadow: 0 0 0 1px var(--control-ring) inset, 0 1px 0 0 rgba(255,255,255,.06) inset;
+}
+.nk-segmented-badge { letter-spacing: 0; color: var(--tone, var(--muted)); }

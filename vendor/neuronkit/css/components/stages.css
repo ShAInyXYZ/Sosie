@@ -1,0 +1,83 @@
+/* Stages — where a multi-step job is: done, current, still to come. Each
+   stage is a square lamp centred over its name, on one continuous rail.
+   Done stages are lit lamps on a filled rail; the current one is a lit
+   accent ring, and the rail after it fills to --progress (0–1) so the track
+   itself shows how far along the job is (data-progress=".62" on the step:
+   the kit fills the rail and prints the percentage); stages ahead are unlit. A stage
+   that failed carries data-state="crit" and says why in its sub-line.
+   .is-vertical stacks them, left-aligned, for a sidebar or a long job.
+
+   <ol class="nk-stages">
+     <li data-state="done"><b>Download</b><span>19 GB</span></li>
+     <li aria-current="step" style="--progress:.62"><b>Quantise</b><span>4-bit · 62%</span></li>
+     <li><b>Load</b></li>
+   </ol> */
+.nk-stages { --lamp: 12px; --rail: 2px; --gap: 8px; display: flex; margin: 0; padding: 0; list-style: none; }
+.nk-stages > li {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  padding: calc(var(--lamp) + 12px) 6px 0;
+  color: var(--dim);
+  text-align: center;
+}
+/* the lamp, centred over the name */
+.nk-stages > li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--lamp); height: var(--lamp);
+  margin-left: calc(var(--lamp) / -2);
+  border-radius: var(--r-sm);
+  background: var(--lamp-off);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.5);
+}
+/* the rail: from this lamp to the next one, with a small gap either side */
+.nk-stages > li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc((var(--lamp) - var(--rail)) / 2);
+  left: calc(50% + var(--lamp) / 2 + var(--gap));
+  right: calc(-50% + var(--lamp) / 2 + var(--gap));
+  height: var(--rail);
+  border-radius: 1px;
+  background: var(--line2);
+}
+.nk-stages b { max-width: 100%; color: var(--muted); font: 500 var(--fs-small)/1.3 var(--font-sans); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nk-stages span { max-width: 100%; font: 400 var(--fs-micro)/1.3 var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.nk-stages > li[data-state="done"]::before { background: var(--ok-led, var(--ok)); }
+.nk-stages > li[data-state="done"]::after { background: color-mix(in srgb, var(--ok) 60%, var(--line2)); }
+.nk-stages > li[data-state="done"] b { color: var(--text); }
+/* current: a lit ring, and the rail after it filling to --progress */
+.nk-stages > li[aria-current="step"]::before { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 2px var(--accent), 0 0 10px color-mix(in srgb, var(--accent) 35%, transparent); }
+.nk-stages > li[aria-current="step"]::after { background: linear-gradient(90deg, var(--accent) calc(var(--progress, 0) * 100%), var(--line2) 0); }
+.nk-stages > li[aria-current="step"] b { color: var(--text); }
+.nk-stages > li[aria-current="step"] span { color: var(--muted); }
+.nk-stages > li[data-state="crit"]::before { background: var(--err); }
+.nk-stages > li[data-state="crit"] span { color: var(--err); }
+[dir="rtl"] .nk-stages > li[aria-current="step"]::after { background: linear-gradient(270deg, var(--accent) calc(var(--progress, 0) * 100%), var(--line2) 0); }
+[dir="rtl"] .nk-stages > li::before { left: auto; right: 50%; margin: 0 calc(var(--lamp) / -2) 0 0; }
+[dir="rtl"] .nk-stages > li:not(:last-child)::after { left: calc(-50% + var(--lamp) / 2 + var(--gap)); right: calc(50% + var(--lamp) / 2 + var(--gap)); }
+
+/* vertical: left-aligned, the rail running down from lamp to lamp */
+.nk-stages.is-vertical { flex-direction: column; }
+.nk-stages.is-vertical > li { align-items: flex-start; padding: 0 0 20px calc(var(--lamp) + 14px); text-align: start; }
+.nk-stages.is-vertical > li::before { top: 2px; left: 0; margin: 0; }
+.nk-stages.is-vertical > li:not(:last-child)::after {
+  top: calc(2px + var(--lamp) + var(--gap) / 2);
+  bottom: calc(var(--gap) / 2 - 2px);
+  left: calc((var(--lamp) - var(--rail)) / 2);
+  right: auto;
+  width: var(--rail);
+  height: auto;
+}
+.nk-stages.is-vertical > li[aria-current="step"]::after { background: linear-gradient(180deg, var(--accent) calc(var(--progress, 0) * 100%), var(--line2) 0); }
+/* the step's progress, printed by the kit from data-progress, after any words you wrote */
+.nk-stages-pct { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.nk-stages-pct[data-sep]::before { content: " · "; }

@@ -1,0 +1,18 @@
+/* Stepper — a number with − and + shells either side of a recessed value.
+   Holds min, max and step from the input; the value stays editable. */
+.nk-stepper { display: inline-flex; align-items: center; gap: 4px; }
+.nk-stepper input {
+  width: 64px; height: 30px; padding: 0 6px;
+  border: 1px solid transparent; border-radius: var(--r); corner-shape: var(--corner, round);
+  background: var(--inset); color: var(--text);
+  font: 400 var(--fs-small)/1 var(--font-mono); text-align: center;
+  -moz-appearance: textfield;
+}
+.nk-stepper input::-webkit-inner-spin-button, .nk-stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.nk-stepper button {
+  display: grid; place-items: center; width: 30px; height: 30px; padding: 0;
+  border: 1px solid transparent; border-radius: var(--r); corner-shape: var(--corner, round);
+  background: var(--shell); color: var(--muted); font: 500 14px/1 var(--font-mono); cursor: pointer;
+}
+.nk-stepper button:hover:not(:disabled) { background: var(--shell-hover); color: var(--text); }
+.nk-stepper button:disabled { opacity: var(--disabled); cursor: default; }

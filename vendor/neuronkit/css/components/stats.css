@@ -1,0 +1,21 @@
+.nk-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  row-gap: 2px;
+  min-height: 28px;
+  padding: 5px 0;
+  font: 400 var(--fs-small)/18px var(--font-mono);
+  /* Every item carries its 16px separator in front. The box is pulled
+     left by one separator, into the panel's inset, and its leftmost 16px
+     are clipped: the separator that starts a line — the first, or one
+     that wrapped — is never seen. */
+  margin-left: -16px;
+  clip-path: inset(0 0 0 16px);
+}
+.nk-stats-item { white-space: nowrap; }
+.nk-stats-item::before { content: '·'; display: inline-block; width: 16px; text-align: center; color: var(--faint); }
+.nk-stats-key { color: var(--dim); margin-right: 6px; }
+.nk-stats-value { color: var(--text); }
+.nk-stats-value[data-tone="warn"] { color: var(--warn); }
+.nk-stats-value[data-tone="crit"] { color: var(--err); }

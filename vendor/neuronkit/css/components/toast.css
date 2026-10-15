@@ -1,0 +1,38 @@
+.nk-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: max-content;
+  max-width: 280px;
+  padding: 9px 14px 9px 12px;
+  border: 1px solid transparent;
+  background: var(--face);
+  border-radius: var(--r-toast); corner-shape: var(--corner, round);
+  font: 500 var(--fs-body)/18px var(--font-sans);
+  color: var(--text);
+}
+.nk-toast > .nk-led { margin-top: 6px; }
+.nk-toast-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* The stack, for pages: bottom-right, newest nearest the corner, 6px apart.
+   Desktop shells place toasts beside the element that raised them instead. */
+.nk-toast-stack {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 6px;
+  align-items: flex-end;
+  width: min(360px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.nk-toast { animation: nk-toast-in var(--t-fast) var(--ease-out); }
+.nk-toast.is-leaving { opacity: 0; transition: opacity 160ms var(--ease-mech); }
+@keyframes nk-toast-in { from { opacity: 0; transform: translateY(3px); } }

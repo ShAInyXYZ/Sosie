@@ -1,0 +1,32 @@
+/* Source cards — an assistant's answer sources: a 108px thumbnail (a page image,
+   or the site's initial when there is none), the domain, a two-line title
+   and a two-line excerpt. A carousel rail snaps card by card. */
+.nk-carousel { min-width: 0; }
+.nk-carousel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; color: var(--muted); font: 500 12px/1 var(--font-sans); }
+.nk-carousel-head small { margin-left: 8px; color: var(--dim); font: 400 var(--fs-small)/1 var(--font-mono); }
+.nk-carousel-nav { display: flex; gap: 4px; }
+.nk-carousel-nav button { min-height: 30px; padding: 6px 10px; border: 0; border-radius: calc(20px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: none; color: var(--muted); cursor: pointer; }
+.nk-carousel-nav button:hover { background: var(--tint); color: var(--text); }
+.nk-carousel-rail { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; scrollbar-width: thin; }
+.nk-carousel-rail::after { content: ''; flex: 0 0 max(0px, calc(100% - 220px)); }
+
+.nk-source-card { flex: 0 0 220px; min-width: 0; scroll-snap-align: start; color: var(--text); text-decoration: none; }
+.nk-source-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 108px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: calc(14px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--face);
+}
+.nk-source-visual img { width: 100%; height: 100%; object-fit: cover; }
+.nk-source-visual > span { color: var(--accent); font: 600 30px/1 var(--font-sans); }
+.nk-source-visual > small { color: var(--muted); font: 400 10px/1 var(--font-mono); }
+.nk-source-domain { display: flex; justify-content: space-between; margin: 9px 0 4px; color: var(--dim); font: 400 10px/1.2 var(--font-mono); }
+.nk-source-card strong { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; font: 600 12px/1.5 var(--font-sans); }
+.nk-source-card p { display: -webkit-box; overflow: hidden; margin-top: 5px; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; color: var(--muted); font: 400 var(--fs-small)/1.5 var(--font-sans); }
+.nk-source-card:hover strong { color: var(--accent); }

@@ -1,0 +1,59 @@
+/* Log view — a service's output, live. A filter field, a level bank (all ·
+   warnings · errors, with the error count on it) and a line count over the
+   lines themselves: mono, one per row, time dimmed, message in muted ink.
+   Only errors and warnings carry a lamp and a faint tone wash, so a healthy
+   log reads as quiet grey and a bad line stands out. ANSI colours map onto
+   the state colours. It follows the newest line until you scroll up; then a
+   pill counts what arrived and takes you back. Only the rows on screen
+   exist (neuronkit.js virtualises), so thousands of lines stay light.
+
+   <div class="nk-log" aria-label="ledger-api"><pre>
+   2026-09-28T13:02:09Z INFO  listening on :8080
+   2026-09-28T13:04:41Z ERROR GET /healthz 503</pre></div>
+
+   log(el, lines) appends; el.nkSet(lines) replaces. --log-h sets the height
+   (default 320px), data-max the lines kept (default 5000). */
+.nk-log { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: var(--sp-5); height: var(--log-h, 320px); --log-row: 20px; }
+.nk-log > pre { display: none; }   /* the initial lines, before the kit reads them */
+
+.nk-log-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap); }
+.nk-log-filter { flex: 1 1 180px; max-width: 280px; }
+.nk-log-count { margin-inline-start: auto; color: var(--dim); font: 400 var(--fs-small)/1 var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.nk-log-body {
+  position: relative; overflow: auto; min-height: 0;
+  border-radius: calc(8px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--code-bg); box-shadow: inset 0 0 0 1px var(--line);
+  font: 400 var(--fs-small)/var(--log-row) var(--font-mono);
+}
+.nk-log-body:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+.nk-log-spacer { width: 1px; }
+.nk-log-rows { position: absolute; top: 0; left: 0; min-width: 100%; padding-block: 4px; }
+
+.nk-log-line { display: flex; align-items: center; gap: 10px; height: var(--log-row); padding-inline: 10px 14px; color: var(--muted); white-space: pre; }
+.nk-log-line:hover { background: var(--tint); }
+.nk-log-lamp { display: grid; place-items: center; flex: none; width: 8px; }
+.nk-log-lamp .nk-led { width: 6px; height: 6px; }
+.nk-log-line time { flex: none; color: var(--dim); font-variant-numeric: tabular-nums; }
+.nk-log-line[data-level="error"] { background: color-mix(in srgb, var(--err) 7%, transparent); color: var(--text); }
+.nk-log-line[data-level="warn"] { background: color-mix(in srgb, var(--warn) 5%, transparent); color: var(--text); }
+.nk-log-line[data-level="debug"] { color: var(--dim); }
+.nk-log-text mark { border-radius: 2px; background: var(--accent-soft); color: var(--text); box-shadow: 0 0 0 1px var(--accent-line); }
+.nk-log-empty { padding: 16px 14px; color: var(--dim); font-family: var(--font-sans); }
+
+.nk-ansi-red { color: var(--err); }
+.nk-ansi-green { color: var(--ok); }
+.nk-ansi-yellow { color: var(--warn); }
+.nk-ansi-blue { color: var(--info); }
+.nk-ansi-magenta { color: var(--accent); }
+.nk-ansi-dim { color: var(--dim); }
+.nk-ansi-bold { font-weight: 600; color: var(--text); }
+
+.nk-log-jump {
+  position: absolute; right: 16px; bottom: 14px;
+  display: inline-flex; align-items: center; height: 28px; padding: 0 14px;
+  border: 1px solid transparent; border-radius: var(--r-control); background: var(--shell); box-shadow: var(--float-sm);
+  color: var(--text); font: 500 var(--fs-small)/1 var(--font-sans); cursor: pointer;
+}
+.nk-log-jump:hover { background: var(--shell-hover); }
+.nk-log-jump[hidden] { display: none; }

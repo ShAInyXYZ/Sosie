@@ -1,0 +1,45 @@
+/* Menu — a popover list of actions anchored to its trigger. Items carry an
+   optional icon, a label and a one-line description; a separator groups
+   them; a danger item keeps plain text with a red icon, so it is readable
+   but unmistakable. Arrow keys move, Enter chooses, Escape closes. */
+.nk-menu {
+  position: fixed; inset: auto; margin: 0;
+  min-width: 208px; max-width: min(300px, calc(100vw - 24px));
+  padding: 5px;
+  --nk-menu-pad-x: 10px;
+  border: 1px solid transparent;
+  border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: var(--face);
+  color: var(--text);
+  box-shadow: var(--float);
+}
+.nk-menu-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; min-height: 34px; padding: 7px var(--nk-menu-pad-x, 10px);
+  border: 0; border-radius: calc(6px * var(--corner-k, 1)); corner-shape: var(--corner, round);
+  background: transparent; color: var(--text);
+  font: 500 var(--fs-small)/1.3 var(--font-sans); text-align: start;
+  cursor: pointer; outline: none;
+}
+.nk-menu-item:hover, .nk-menu-item:focus-visible { background: var(--s3); }
+.nk-menu-item:disabled { opacity: var(--disabled); cursor: default; }
+.nk-menu-item svg { flex: none; width: 15px; height: 15px; fill: none; stroke: var(--muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.nk-menu-item.is-danger svg { stroke: var(--err); }
+.nk-menu-item small { display: block; margin-top: 2px; color: var(--dim); font-size: 10.5px; font-weight: 400; }
+.nk-menu-item kbd { margin-inline-start: auto; }
+.nk-menu-sep { height: 1px; margin: 5px 6px; background: var(--line); }
+.nk-menu-label { padding: 8px var(--nk-menu-pad-x, 10px) 4px; color: var(--dim); font: 500 var(--fs-micro)/1 var(--font-mono); letter-spacing: .22em; text-transform: uppercase; }
+
+/* Two-line item: a label over a one-line description, with the check (or a
+   kbd, or a value) centred against the pair. Opt in with .is-two-line and
+   wrap the text in .nk-menu-item-text; single-line items are untouched. */
+.nk-menu-item.is-two-line { min-height: 46px; padding-block: 7px; }
+.nk-menu-item-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.nk-menu-item-label, .nk-menu-item-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nk-menu-item-label { line-height: 18px; }
+.nk-menu-item-desc { color: var(--dim); font-size: 10.5px; font-weight: 400; line-height: 14px; }
+.nk-menu-item-check { display: grid; place-items: center; flex: none; width: 16px; height: 16px; margin-inline-start: auto; color: var(--accent); }
+.nk-menu-item-check svg { stroke: currentColor; }
+/* A note under the list (a source, a licence) lines up with the item text. */
+.nk-menu-foot { padding: 8px var(--nk-menu-pad-x, 10px) 4px; color: var(--dim); font-size: var(--fs-micro); line-height: 1.4; }
+.nk-menu-foot a { color: inherit; }

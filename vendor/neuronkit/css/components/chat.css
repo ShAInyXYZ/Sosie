@@ -1,0 +1,42 @@
+/* Chat — a quiet composer and the conversation above it. The
+   composer is a one-row pill ("Message the assistant…") that becomes a 16px
+   card when the text grows, with a 42px round send in the accent; Enter
+   sends, Shift+Enter breaks the line. Your messages sit right in a raised
+   bubble; answers are plain prose on the page, never boxed. */
+.nk-chat { display: flex; flex-direction: column; gap: 18px; }
+.nk-msg-user { align-self: flex-end; max-width: 80%; padding: 9px 14px; border: 1px solid transparent; border-radius: calc(16px * var(--corner-k, 1)) calc(16px * var(--corner-k, 1)) calc(4px * var(--corner-k, 1)) calc(16px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--shell); color: var(--text); font: 400 var(--fs-body)/1.55 var(--font-sans); }
+.nk-msg-answer { color: var(--text-soft); font: 400 13.5px/1.7 var(--font-sans); }
+.nk-msg-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: var(--dim); font: 400 var(--fs-micro)/1 var(--font-mono); letter-spacing: .04em; }
+
+.nk-composer {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 6px 6px 18px;
+  border: 1px solid transparent; border-radius: 999px;
+  background: var(--face);
+  transition: box-shadow var(--t-fast);
+}
+.nk-composer:focus-within { box-shadow: 0 0 0 1px var(--accent-line); }
+.nk-composer.is-multiline { flex-direction: column; align-items: stretch; padding: 12px; border-radius: calc(16px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+.nk-composer textarea {
+  flex: 1; min-width: 0; max-height: 160px; padding: 8px 0;
+  border: 0; outline: none; resize: none; background: transparent;
+  color: var(--text); font: 400 14px/1.5 var(--font-sans);
+}
+.nk-composer.is-multiline textarea { padding: 0 2px; }
+.nk-composer textarea::placeholder { color: var(--muted); }
+.nk-composer-actions { display: flex; align-items: center; gap: 6px; flex: none; }
+.nk-composer.is-multiline .nk-composer-actions { align-self: flex-end; }
+.nk-send {
+  display: grid; place-items: center; flex: none;
+  width: 42px; height: 42px; padding: 0;
+  border: 1px solid var(--accent); border-radius: 50%;
+  background: var(--accent); color: var(--on-accent); cursor: pointer;
+  transition: filter var(--t-fast), transform 50ms;
+}
+.nk-send svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nk-send:hover:not(:disabled) { filter: brightness(1.08); }
+.nk-send:active:not(:disabled) { transform: scale(.94); }
+.nk-send:disabled { border-color: transparent; background: var(--shell); color: var(--dim); opacity: .6; cursor: default; }
+.nk-send.is-stop { border-color: transparent; background: var(--shell); color: var(--text); }
+.nk-send.is-stop:hover { color: var(--err); }
+.nk-send:focus-visible { outline-color: var(--text); }

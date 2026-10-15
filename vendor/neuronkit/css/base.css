@@ -1,0 +1,83 @@
+/* NeuronKit base — a minimal reset, the page, and the kit-wide rules.
+   Load after tokens.css. Every visible piece is a component with an nk-
+   prefix, so a kit class never collides with an app's own; the handful of
+   layout helpers live in components/primitives.css and follow the same rule. */
+*, *::before, *::after { box-sizing: border-box; }
+h1, h2, h3, h4, p, figure, blockquote, dl, dd, ul, ol { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+/* kit buttons (and links styled as buttons) carry no browser chrome */
+:where(button[class*="nk-"]) { appearance: none; }
+:where(a[class*="nk-"]) { text-decoration: none; }
+img, svg, canvas { display: block; max-width: 100%; }
+
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--fs-body)/1.5 var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: var(--accent-soft); }
+
+/* Scrollbars — a machined thumb in an unlit slot. Thin until you reach for
+   it: the thumb brightens on hover and while dragged. Firefox gets the same
+   colours through scrollbar-color. .nk-scroll (scroll.css) adds edge fades. */
+* { scrollbar-width: thin; scrollbar-color: var(--lamp-off) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: var(--scroll-thumb) padding-box;
+  min-height: 32px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover) padding-box; border-width: 2px; }
+::-webkit-scrollbar-thumb:active { background: var(--scroll-thumb-active) padding-box; border-width: 2px; }
+::-webkit-scrollbar-corner { background: transparent; }
+
+/* A tone is a word (ok, warn, crit, idle, info, busy); this is the one place
+   it becomes a colour. An element opts in with data-tone and paints with
+   var(--tone). Colour is signal, never decoration. */
+[data-tone]            { --tone: var(--faint); }
+[data-tone="ok"]       { --tone: var(--ok); }
+[data-tone="warn"]     { --tone: var(--warn); }
+[data-tone="crit"]     { --tone: var(--err); }
+[data-tone="info"],
+[data-tone="busy"]     { --tone: var(--info); }
+[data-tone="idle"]     { --tone: var(--faint); }
+
+/* One focus ring, visible on every control. Dials use --text instead
+   (dial.css): a cherry ring reads as a crit ring at 40px. Inputs restate it
+   in their own files on purpose: host apps often reset input outlines, and
+   the more specific rule keeps the ring through that. */
+:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-offset); }
+
+/* Disabled reads the same everywhere: dimmed by one token, and inert. */
+:disabled, [aria-disabled="true"] { cursor: default; }
+
+/* Density sets the dial's geometry for everything inside it. */
+[data-density="compact"] { --dial: 32px; --rim: 3px; --mark: 14px; --slot-gap: 6px; --led: 5px; }
+[data-density="large"]   { --dial: 48px; --rim: 5px; --mark: 22px; --slot-gap: 8px; }
+
+/* Restrained, mechanical motion — and none at all when asked. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Windows high contrast: gradients and shadows vanish, so every machined
+   face gets a real border, lamps keep their colour, and focus stays loud. */
+@media (forced-colors: active) {
+  :is(.nk-button, .nk-icon-button, .nk-pill-button, .nk-switch, .nk-checkbox, .nk-radio, .nk-knob, .nk-dial,
+      .nk-sel-trigger, .nk-field input, .nk-field textarea, .nk-menu, .nk-sel-menu, .nk-popover, .nk-dialog,
+      .nk-panel, .nk-wheel, .nk-angle, .nk-input, .nk-tabs-list, .nk-toolbar, .nk-choice, .nk-segmented, .nk-tooltip) { border: 1px solid CanvasText; }
+  :is(.nk-led, .nk-knob-detent, .nk-knob-seg, .nk-swatch, .nk-colour-area, .nk-colour-hue, .nk-socket) { forced-color-adjust: none; }
+  :focus-visible { outline-color: Highlight; }
+  :is(.nk-menu-item, .nk-sel-item)[data-highlighted], .nk-menu-item:focus-visible { outline: 2px solid Highlight; }
+}

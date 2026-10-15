@@ -1,0 +1,43 @@
+/* NeuronKit theme for SvelteFlow (@xyflow/svelte). Load after the library's
+   own stylesheet and neuronkit.css. Maps nodes, handles, edges, controls and
+   the minimap onto the kit's faces and ink — no new colours. */
+.svelte-flow { --xy-background-color: var(--bg); --xy-edge-stroke: var(--edge-stroke); --xy-edge-stroke-selected: var(--muted); --xy-connectionline-stroke: var(--accent); --xy-node-border-radius: calc(10px * var(--corner-k, 1)); background: var(--bg); }
+.svelte-flow svg { max-width: none; }
+.svelte-flow__background { --xy-background-pattern-color: var(--line); --xy-background-pattern-dots-color-default: var(--line); }
+.nk-flow { overflow: hidden; border-radius: var(--r-panel); corner-shape: var(--corner, round); box-shadow: inset 0 0 0 1px var(--line); }
+.svelte-flow__node { border: 1px solid transparent; border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--face); color: var(--text); font: 500 var(--fs-body)/1.3 var(--font-sans); box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+.svelte-flow__node.selected { box-shadow: 0 0 0 1px var(--accent-line), 0 6px 18px rgba(0, 0, 0, .35); }
+.svelte-flow__handle { width: 9px; height: 9px; border: 1px solid transparent; background: var(--shell); }
+.svelte-flow__edge-path { stroke: var(--edge-stroke); stroke-width: 1.5; }
+.svelte-flow__edge.selected .svelte-flow__edge-path, .svelte-flow__edge:hover .svelte-flow__edge-path { stroke: var(--muted); }
+.svelte-flow__edge.animated .svelte-flow__edge-path { stroke: var(--info); }
+.svelte-flow__edge-label, .svelte-flow__edge-textbg { fill: var(--s1); color: var(--muted); font: 400 var(--fs-micro)/1 var(--font-mono); }
+.svelte-flow__controls { border: 1px solid transparent; border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--face); box-shadow: none; overflow: hidden; }
+.svelte-flow__controls-button { border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--muted); fill: currentColor; }
+.svelte-flow__controls-button:hover { background: var(--s3); color: var(--text); }
+.svelte-flow__minimap { border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--s1); }
+.svelte-flow__minimap-mask { fill: var(--minimap-mask, rgba(0, 0, 0, .5)); }
+.svelte-flow__minimap-node { fill: var(--s3); stroke: none; }
+.svelte-flow__attribution { display: none; }
+
+/* NeuronKit custom nodes (type "nk"): the node body carries the kit's
+   printed kind, title and meta; SvelteFlow only positions it. */
+.svelte-flow__node-nk { min-width: 150px; padding: 9px 12px 10px; }
+.svelte-flow__node-rich { padding: 0; min-width: 0; }
+.svelte-flow__node-rich .svelte-flow__handle { top: 22px; }
+.svelte-flow__node-rich .nk-node-branch .svelte-flow__handle { top: 50%; right: -17px; }
+.svelte-flow .svelte-flow__handle { width: 9px; height: 9px; min-width: 0; min-height: 0; border: 1px solid transparent; background: var(--shell); }
+.svelte-flow__handle.connectingto, .svelte-flow__handle.valid { border-color: var(--accent); }
+.svelte-flow__edge.animated .svelte-flow__edge-path { stroke-dasharray: 5 6; }
+.svelte-flow__controls-button svg { fill: currentColor; }
+.svelte-flow__edge.is-failed .svelte-flow__edge-path { stroke: var(--err); }
+.svelte-flow__minimap { --xy-minimap-background-color-default: transparent; overflow: hidden; border: 1px solid transparent; border-radius: calc(10px * var(--corner-k, 1)); corner-shape: var(--corner, round); background: var(--face); }
+.svelte-flow__minimap svg { display: block; border-radius: calc(9px * var(--corner-k, 1)); corner-shape: var(--corner, round); }
+/* Rich NeuronKit nodes inside the canvas: the same card as .nk-node.is-rich. */
+.svelte-flow__node-rich { width: 236px; }
+.svelte-flow__node-rich .nk-node-title { margin: 6px 12px 0; }
+.svelte-flow__node-rich .nk-node-meta { margin: 2px 12px 0; }
+.svelte-flow__node-rich.state-failed { box-shadow: 0 0 0 1px color-mix(in srgb, var(--err) 35%, transparent), 0 6px 18px rgba(0, 0, 0, .35); }
+.svelte-flow__node-rich.state-attention { box-shadow: 0 0 0 1px color-mix(in srgb, var(--warn) 35%, transparent), 0 6px 18px rgba(0, 0, 0, .35); }
+.svelte-flow__node-rich.selected { box-shadow: 0 0 0 1px var(--accent-line), 0 6px 18px rgba(0, 0, 0, .35); }
+.svelte-flow__node-rich .nk-node-head { cursor: grab; }

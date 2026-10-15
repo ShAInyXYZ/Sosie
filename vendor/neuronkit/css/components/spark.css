@@ -1,0 +1,14 @@
+/* Sparkline — a trend in the space of a word, for a row, a stat or a table
+   cell. One grey line over a faint area, its last point a dot; toned only
+   when the trend itself is the problem. Drawn by neuronkit.js from
+   data-values (null = a gap), redrawn when they change. In a row, an empty
+   .nk-row-value prints the last reading (with data-unit), "—" when it is a gap.
+
+   <span class="nk-spark" data-values="[3,4,4,6,5,8,7,9]"></span>
+   <span class="nk-spark" data-tone="warn" data-values="[…]" style="--spark-w:120px"></span> */
+.nk-spark { position: relative; display: inline-block; flex: none; width: var(--spark-w, 72px); height: var(--spark-h, 20px); vertical-align: middle; color: var(--muted); }
+.nk-spark[data-tone] { color: var(--tone); }
+.nk-spark svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.nk-spark .nk-spark-line { fill: none; stroke: currentColor; stroke-width: 1.25; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.nk-spark .nk-spark-area { fill: currentColor; opacity: .09; }
+.nk-spark-end { position: absolute; left: var(--x); top: var(--y); width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: currentColor; }   /* outside the stretched svg, so it stays round */

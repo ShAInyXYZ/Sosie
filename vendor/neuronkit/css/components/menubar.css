@@ -1,0 +1,20 @@
+/* Menubar — an application's File · Edit · View. Each item opens a .nk-menu;
+   once one is open, pointing at a neighbour opens that one instead, and
+   Left/Right walk the bar with the menus following. One Tab stop.
+
+   <nav class="nk-menubar" aria-label="Application">
+     <button class="nk-menubar-item" data-menu="m-file">File</button> …
+   </nav> */
+.nk-menubar { display: flex; align-items: center; gap: 2px; height: 36px; padding: 0 4px; }
+.nk-menubar-item {
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: transparent;
+  color: var(--muted);
+  font: 500 var(--fs-small)/1 var(--font-sans);
+  cursor: pointer;
+}
+.nk-menubar-item:hover, .nk-menubar-item[aria-expanded="true"] { background: var(--s3); color: var(--text); }
+.nk-menubar-item:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: -2px; }

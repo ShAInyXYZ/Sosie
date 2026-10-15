@@ -1,0 +1,53 @@
+.nk-choice {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid transparent;
+  --bank-r: calc(5px * var(--corner-k, 1));   /* the tray; segments are concentric inside it */
+  border-radius: var(--bank-r); corner-shape: var(--corner, round);
+  background: var(--inset);
+}
+.nk-choice-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: max(var(--r-sm), calc(var(--bank-r) - 3px)); corner-shape: var(--corner, round);   /* tray radius minus the 2px gap and 1px edge */
+  background: transparent;
+  color: var(--dim);
+  font: 500 var(--fs-small)/28px var(--font-sans);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.nk-choice-btn:hover { color: var(--text); }
+.nk-choice-btn[aria-checked="true"] {
+  color: var(--text);
+  background: var(--shell);
+  box-shadow: 0 0 0 1px var(--control-ring) inset, 0 1px 0 0 rgba(255,255,255,.06) inset;
+}
+
+/* NeuronKit continuous-corner compatibility for browsers without native corner-shape support.
+   Nine-slice masks retain the same corner geometry at any control width.
+   Only decorative faces are masked: labels and keyboard focus stay intact. */
+@supports (not (corner-shape: squircle)) and (-webkit-mask-box-image: none) {
+  .nk-choice {
+    --choice-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpath fill='white' d='M16 0H48C61.6 0 64 2.4 64 16V48C64 61.6 61.6 64 48 64H16C2.4 64 0 61.6 0 48V16C0 2.4 2.4 0 16 0Z'/%3E%3C/svg%3E");
+    --choice-radius: calc(5px * 2.1);
+    position:relative;isolation:isolate;background:none;
+  }
+  .nk-choice::before,
+  .nk-choice-btn[aria-checked="true"]::before,
+  .nk-choice-btn[aria-checked="true"]::after {
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+    -webkit-mask-box-image:var(--choice-mask) 16 fill / var(--choice-radius) / 0 stretch;
+  }
+  .nk-choice::before {background:var(--inset);}
+  .nk-choice-btn {position:relative;isolation:isolate;}
+  .nk-choice-btn[aria-checked="true"] {
+    --choice-radius:calc(5px * 2.1 - 3px);background:none;box-shadow:none;
+  }
+  .nk-choice-btn[aria-checked="true"]::before {background:var(--control-ring);}
+  .nk-choice-btn[aria-checked="true"]::after {
+    inset:1px;--choice-radius:calc(5px * 2.1 - 4px);background:var(--shell);
+  }
+}

@@ -1,0 +1,48 @@
+/* Donut — a split on a monochrome ramp, largest first, never a rainbow; the
+   legend is rows. The values are the only numbers: they size the arcs,
+   print the amounts (with data-amount-unit, formatted by format.js) and give
+   the total in the middle unless data-center says otherwise. More than five
+   slices share the last shade: group the small ones into "Other".
+
+   <div class="nk-donut" data-unit="EUR / MO" data-amount-unit="EUR"
+     data-segments='[{"label":"GPU","value":61},{"label":"CPU","value":17}]'></div>
+
+   A segment's "display" replaces its printed amount with your own text. */
+.nk-donut {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  column-gap: 20px;
+  align-items: center;
+  padding: 8px 0 4px;
+}
+.nk-donut-chart { position: relative; width: 112px; height: 112px; }
+.nk-donut svg { width: 112px; height: 112px; transform: rotate(-90deg); }
+.nk-donut circle { fill: none; stroke-width: 10; }
+.nk-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.nk-donut-value { font: 500 var(--fs-display)/1 var(--font-mono); color: var(--text); letter-spacing: -.01em; }
+.nk-donut-unit {
+  font: 500 var(--fs-micro)/1 var(--font-mono);
+  color: var(--dim);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.nk-donut-legend { display: flex; flex-direction: column; min-width: 0; }
+.nk-donut-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 10px;
+  height: 24px;
+}
+.nk-donut-swatch { width: 6px; height: 6px; border-radius: 1px; }
+.nk-donut-label { font: 500 var(--fs-small)/1 var(--font-sans); color: var(--muted); }
+.nk-donut-amt { font: 400 var(--fs-small)/1 var(--font-mono); color: var(--text); }
+.nk-donut-row.is-minor .nk-donut-amt { color: var(--muted); }

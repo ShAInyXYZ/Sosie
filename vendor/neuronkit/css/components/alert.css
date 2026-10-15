@@ -1,0 +1,52 @@
+.nk-alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 10px;
+  align-items: center;
+  margin: 0 -8px 4px;
+  padding: 8px;
+  border-radius: var(--r); corner-shape: var(--corner, round);
+  background: color-mix(in srgb, var(--tone) 6%, var(--s1));
+}
+.nk-alert > .nk-led { grid-row: 1; }
+.nk-alert-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  height: 24px;
+  line-height: 24px;
+  overflow: hidden;
+}
+.nk-alert-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  font: 600 var(--fs-body)/24px var(--font-sans);
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nk-alert-meta {
+  flex: none; /* at most 24 characters (A12): it always fits */
+  font: 400 var(--fs-small)/24px var(--font-mono);
+  color: var(--tone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nk-alert-actions { grid-column: 3; grid-row: 1; display: flex; gap: 4px; }
+.nk-alert-body {
+  grid-column: 2 / 4;
+  font: 400 var(--fs-small)/16px var(--font-sans);
+  color: var(--muted);
+  /* A second line (what else is known) shows when the first leaves room. */
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.nk-alert-body.is-mono { font-family: var(--font-mono); }
