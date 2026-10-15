@@ -7,7 +7,7 @@ import { FaceWindow, LibraryWindow, LookWindow, ScriptWindow, SettingsWindow, Vo
 type Format = { id: FormatId; label: string; size: string }
 
 const FORMATS: Format[] = [
-  { id: 'corner', label: 'Corner', size: '640 × 640' },
+  { id: 'corner', label: 'Corner', size: '768 × 768' },
   { id: 'reel', label: 'Reel', size: '576 × 1024' },
   { id: 'wide', label: 'Wide', size: '1024 × 576' },
 ]

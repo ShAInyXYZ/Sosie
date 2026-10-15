@@ -17,7 +17,7 @@
     "importVoiceTranscript": ""
   },
   "gpus": {
-    "$comment": "Physical indices (CUDA_DEVICE_ORDER=PCI_BUS_ID). H3's compute card (dit) is ComfyUI's default device; the int8 video VAE runs there too (its kernels, like VEDA's, use the current device). Image and TTS pick from their lists by free memory.",
+    "$comment": "Physical indices (CUDA_DEVICE_ORDER=PCI_BUS_ID). H3's compute card (dit) is ComfyUI's default device; the video VAE runs there too (VEDA's kernels use the current device). Image and TTS pick from their lists by free memory.",
     "h3": {
       "dit": 2,
       "ditDonor": 3,

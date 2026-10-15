@@ -387,7 +387,7 @@ export async function joinSegments(files: string[], voiceWav: string, totalFrame
     '-hide_banner', '-loglevel', 'error', '-y', ...inputs, '-i', voiceWav,
     '-filter_complex', graph, '-map', '[v]', '-map', `${audioIndex}:a:0`,
     '-af', `apad=whole_dur=${seconds},atrim=duration=${seconds}`,
-    '-c:v', 'libx264', '-crf', '18', '-preset', 'medium', '-pix_fmt', 'yuv420p',
+    '-c:v', 'libx264', '-crf', '14', '-preset', 'slow', '-pix_fmt', 'yuv420p',
     '-c:a', 'aac', '-b:a', '192k', '-ar', '48000',
     '-metadata', 'comment=AI-generated (Sosie)', '-movflags', '+faststart', out,
   ], { maxBuffer: 16 * 1024 * 1024 })

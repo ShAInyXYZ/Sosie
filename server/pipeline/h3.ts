@@ -12,13 +12,13 @@ export const SPEED_LORAS: Record<SpeedLora, { file: string; steps: number }> = {
 export const H3_MODELS = {
   model: 'Minimax-h3_Singularity_ref2va_Pruned_v1.3_int8.safetensors',
   textEncoder: 'qwen3vl_32b_minimax_h3_int8_convrot.safetensors',
-  videoVae: 'minimax_h3_video_vae_int8_convrot.safetensors',
+  videoVae: 'minimax_h3_video_vae_fp16.safetensors',
   audioVae: 'minimax_h3_audio_vae_fp32.safetensors',
   veda: 'minimax_h3_r2va_veda_preview_fp8.safetensors',
 }
 
 export const FORMATS = {
-  corner: { width: 640, height: 640 },
+  corner: { width: 768, height: 768 },
   reel: { width: 576, height: 1024 },
   wide: { width: 1024, height: 576 },
 } as const
@@ -35,7 +35,7 @@ export function talkGraph(config: SosieConfig, input: {
   seed: number
   lora: SpeedLora
   outPrefix: string
-  /** Advanced: sampling steps (default: the LoRA's), a size other than the format's, 'max' reference sizing. */
+  /** Advanced: sampling steps (default: the LoRA's), a size other than the format's, 'match' reference sizing (faster; default 'max'). */
   steps?: number
   size?: { width: number; height: number }
   refImageSize?: 'match' | 'max'
@@ -58,7 +58,7 @@ export function talkGraph(config: SosieConfig, input: {
     WIDTH: width,
     HEIGHT: height,
     LENGTH: input.renderFrames,
-    REF_IMAGE_SIZE: input.refImageSize ?? 'match',
+    REF_IMAGE_SIZE: input.refImageSize ?? 'max',
     SEED: input.seed,
     STEPS: input.steps ?? lora.steps,
     DIT_DEVICE: dev(dit),
@@ -76,7 +76,7 @@ export function h3VramNeeds(config: SosieConfig): Record<number, number> {
   const { dit, ditDonor, ditDonorGb, textEncoder, textEncoderGb } = config.gpus.h3
   const needs: Record<number, number> = {}
   const add = (gpu: number, mb: number) => (needs[gpu] = (needs[gpu] ?? 0) + mb)
-  add(dit, 11 * 1024) // compute card: 0.5 GB of weights + activations + the int8 VAE (measured 11.3 GB peak at 640²)
+  add(dit, 14.5 * 1024) // compute card: 0.5 GB of weights + activations + the fp16 VAE (measured 14.4 GB peak at 768², full-detail reference)
   add(ditDonor, (ditDonorGb + 0.5) * 1024)
   add(textEncoder, (textEncoderGb + 1.5) * 1024)
   return needs

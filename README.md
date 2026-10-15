@@ -4,7 +4,7 @@ Sosie makes a lip-synced streamer facecam: a person talking to camera in the voi
 
 Pick a **Face** (a photo, or a character made here), a **Voice** (cloned or designed), a **Script** (typed, or written by AI from your notes) and a **Look** (the set behind the person). Press **Generate**.
 
-Under the hood: Breeze TTS 2 voices the script; MiniMax H3 (Singularity v1.3 Ref2VA, TaoMate 3-step LoRA, VEDA sparse attention, int8 VAE) films it in segments on Sosie's own ComfyUI; SyncNet checks every segment's lip sync; the segments are joined under the untouched voice track, with word-timed captions.
+Under the hood: Breeze TTS 2 voices the script; MiniMax H3 (Singularity v1.3 Ref2VA, TaoMate 3-step LoRA, VEDA sparse attention, fp16 VAE) films it in segments on Sosie's own ComfyUI; SyncNet checks every segment's lip sync; the segments are joined under the untouched voice track, with word-timed captions.
 
 ## Setup (once)
 
@@ -35,7 +35,7 @@ Open <http://127.0.0.1:3190>. **System** shows a lamp per service; **Start servi
 2. **Voice**: choose one, design one from a description, or (Advanced) import your own sample with its exact words.
 3. **Script**: one sentence per line; add a delivery note at the end in brackets, e.g. `That's the trick. [leaning in, slower]`. **Advanced → Write with AI** drafts it from your context through the Claude Code or Codex CLI signed in on this machine.
 4. **Look**: the set behind a photo or a new character.
-5. Pick the format (**Corner** 640×640, **Reel** 576×1024, **Wide** 1024×576), then **Try first segment** to check the face and voice quickly, or **Generate**.
+5. Pick the format (**Corner** 768×768, **Reel** 576×1024, **Wide** 1024×576), then **Try first segment** to check the face and voice quickly, or **Generate**.
 
 A finished video shows a player, the segments with their QC lamps (re-roll any of them), **Download MP4**, **Captions** and **Send to MOceanX**. On this rig filming takes about 3 minutes per 8–10 s segment, so a 60 s video takes roughly 25–35 minutes. **Settings** (gear) has the speed LoRA and punch-in; its Advanced view has seed, steps, a size override and full-detail references.
 

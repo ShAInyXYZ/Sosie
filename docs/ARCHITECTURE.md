@@ -45,7 +45,7 @@ Per segment (`py/qc.py`): exact frame count; no black, frozen or noise-spike fra
 
 ## GPUs
 
-Physical indices from the config (`CUDA_DEVICE_ORDER=PCI_BUS_ID`). H3: DiT on `gpus.h3.dit` (ComfyUI's default device, where VEDA's and the int8 VAE's kernels run) with weights spilled to `ditDonor`, the text encoder on `textEncoder`. Images and TTS pick the freest card from their lists. Before filming, the job frees ComfyUI's image models and checks free VRAM; it stops with a clear message if a card is short.
+Physical indices from the config (`CUDA_DEVICE_ORDER=PCI_BUS_ID`). H3: DiT on `gpus.h3.dit` (ComfyUI's default device, where VEDA's kernels and the video VAE run) with weights spilled to `ditDonor`, the text encoder on `textEncoder`. Images and TTS pick the freest card from their lists. Before filming, the job frees ComfyUI's image models and checks free VRAM; it stops with a clear message if a card is short.
 
 ## Tests
 

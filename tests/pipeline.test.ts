@@ -100,9 +100,9 @@ describe('advanced settings reach the graph', () => {
     const config = configSchema.parse(JSON.parse(readFileSync(join(ROOT, 'config', 'sosie.example.json'), 'utf8')))
     const base = { keyFrame: 'k.png', audio: 'a.wav', prompt: 'p', format: 'corner' as const, renderFrames: 124, seed: 1, lora: 'taomate' as const, outPrefix: 'o' }
     const plain = talkGraph(config, base)
-    expect([plain['9'].inputs.width, plain['9'].inputs.ref_image_size, plain['13'].inputs.steps]).toEqual([640, 'match', 3])
-    const tuned = talkGraph(config, { ...base, steps: 6, size: { width: 768, height: 768 }, refImageSize: 'max' })
-    expect([tuned['9'].inputs.width, tuned['9'].inputs.height, tuned['9'].inputs.ref_image_size, tuned['13'].inputs.steps]).toEqual([768, 768, 'max', 6])
+    expect([plain['9'].inputs.width, plain['9'].inputs.ref_image_size, plain['13'].inputs.steps]).toEqual([768, 'max', 3])
+    const tuned = talkGraph(config, { ...base, steps: 6, size: { width: 896, height: 896 }, refImageSize: 'match' })
+    expect([tuned['9'].inputs.width, tuned['9'].inputs.height, tuned['9'].inputs.ref_image_size, tuned['13'].inputs.steps]).toEqual([896, 896, 'match', 6])
   })
 })
 

@@ -464,9 +464,9 @@ export function SettingsWindow({ settings, onChange, onClose }: { settings: Sett
             }} />
           </Field>
           <Field label="Reference image">
-            <NkSelect value={settings.refImageSize ?? 'match'} onChange={(event) => set({ refImageSize: event.target.value === 'max' ? 'max' : undefined })}>
-              <option value="match">Match the video (fast)</option>
-              <option value="max">Full detail (slower)</option>
+            <NkSelect value={settings.refImageSize ?? 'max'} onChange={(event) => set({ refImageSize: event.target.value === 'match' ? 'match' : undefined })}>
+              <option value="max">Full detail</option>
+              <option value="match">Match the video (3 % faster)</option>
             </NkSelect>
           </Field>
         </div>

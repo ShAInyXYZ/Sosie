@@ -184,7 +184,7 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
       name: typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 80) : script[0].text.slice(0, 48),
       script, faceId: body.faceId, voiceId: body.voiceId, format, lora,
       seed: Number.isInteger(body.seed) ? body.seed : 42, punchIn: body.punchIn === true, firstSegmentOnly: body.firstSegmentOnly === true,
-      steps, size, refImageSize: body.refImageSize === 'max' ? 'max' : undefined,
+      steps, size, refImageSize: body.refImageSize === 'match' ? 'match' : undefined,
     }))
   })
   app.get('/api/jobs/:id', (request, response) => {
