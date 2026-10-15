@@ -1,0 +1,55 @@
+{
+  "$comment": "Sosie's own ComfyUI. Pins match the main ComfyUI container, where these were known to work together (2026-10-15). Update deliberately, one pin at a time.",
+  "python": "3.12",
+  "torch": {
+    "index": "https://download.pytorch.org/whl/cu128",
+    "packages": [
+      "torch==2.9.1",
+      "torchvision==0.24.1",
+      "torchaudio==2.9.1"
+    ]
+  },
+  "comfyui": {
+    "repo": "https://github.com/comfyanonymous/ComfyUI",
+    "commit": "3f767e7f67bc587e88d6de6668eb424f725d4649",
+    "version": "0.37.1"
+  },
+  "nodes": [
+    {
+      "name": "ComfyUI-MultiGPU",
+      "repo": "https://github.com/pollockjj/ComfyUI-MultiGPU",
+      "commit": "b51c99a",
+      "pip": [],
+      "why": "DisTorch2 loaders that split H3 across the 3090s"
+    },
+    {
+      "name": "Veda-on-ComfyUI",
+      "repo": "https://github.com/veda-sparse/Veda-on-ComfyUI",
+      "commit": "67e4eb5",
+      "pip": [],
+      "why": "VEDA sparse attention (v0.3.1); triton ships with torch"
+    },
+    {
+      "name": "ComfyUI-VideoHelperSuite",
+      "repo": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite",
+      "commit": "3234937",
+      "pip": [
+        "opencv-python",
+        "imageio-ffmpeg"
+      ],
+      "why": "video load/save utilities"
+    },
+    {
+      "name": "ComfyUI-KJNodes",
+      "repo": "https://github.com/kijai/ComfyUI-KJNodes",
+      "commit": "3e80b28",
+      "pip": [
+        "color-matcher",
+        "matplotlib",
+        "mss",
+        "opencv-python-headless"
+      ],
+      "why": "image and latent utilities"
+    }
+  ]
+}

@@ -1,0 +1,145 @@
+{
+  "_meta": {
+    "title": "Sosie talking segment — MiniMax H3 Ref2VA + VEDA, lip sync from our own audio",
+    "source": "Built from Veda-on-ComfyUI's 'Veda MiniMax H3 R2VA' template and the tested MultiGPU split; API format.",
+    "placeholders": "Strings that start with $ are replaced by server/comfy/template.ts. The key frame is <Picture 1>; the segment audio is <Audio 1> (reference) and is also anchored at frame 0 of the generated audio track."
+  },
+  "1": {
+    "class_type": "UNETLoaderDisTorch2MultiGPU",
+    "inputs": {
+      "unet_name": "$MODEL",
+      "weight_dtype": "default",
+      "compute_device": "$DIT_DEVICE",
+      "virtual_vram_gb": 0,
+      "donor_device": "$DIT_DONOR_DEVICE",
+      "expert_mode_allocations": "$DIT_ALLOCATIONS",
+      "eject_models": true
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoaderDisTorch2MultiGPU",
+    "inputs": {
+      "clip_name": "$TEXT_ENCODER",
+      "type": "minimax",
+      "device": "$TE_DEVICE",
+      "virtual_vram_gb": 0,
+      "donor_device": "cpu",
+      "expert_mode_allocations": "$TE_ALLOCATIONS",
+      "eject_models": false
+    }
+  },
+  "3": {
+    "class_type": "VAELoaderMultiGPU",
+    "inputs": { "vae_name": "$VIDEO_VAE", "device": "$VAE_DEVICE" }
+  },
+  "4": {
+    "class_type": "VAELoaderMultiGPU",
+    "inputs": { "vae_name": "$AUDIO_VAE", "device": "$VAE_DEVICE" }
+  },
+  "5": {
+    "class_type": "LoraLoaderModelOnly",
+    "inputs": { "model": ["1", 0], "lora_name": "$LORA", "strength_model": "$LORA_STRENGTH" }
+  },
+  "6": {
+    "class_type": "VedaSparseAttention",
+    "inputs": {
+      "model": ["5", 0],
+      "predictor": "$VEDA_PREDICTOR",
+      "generated_sparsity": "32",
+      "reference_sparsity": "32",
+      "full_attention_layers": "",
+      "full_attention_steps": "",
+      "verbose": false
+    }
+  },
+  "7": {
+    "class_type": "LoadImage",
+    "inputs": { "image": "$KEY_FRAME" }
+  },
+  "8": {
+    "class_type": "LoadAudio",
+    "inputs": { "audio": "$AUDIO" }
+  },
+  "9": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "inputs": {
+      "clip": ["2", 0],
+      "prompt": "$PROMPT",
+      "width": "$WIDTH",
+      "height": "$HEIGHT",
+      "length": "$LENGTH",
+      "ref_image_size": "$REF_IMAGE_SIZE",
+      "vae": ["3", 0],
+      "audio_vae": ["4", 0],
+      "ref_images.ref_image_0": ["7", 0],
+      "ref_audios.ref_audio_0": ["8", 0]
+    }
+  },
+  "10": {
+    "class_type": "MiniMaxH3AddGuide",
+    "inputs": {
+      "positive": ["9", 0],
+      "latent": ["9", 1],
+      "frame_idx": 0,
+      "audio_vae": ["4", 0],
+      "audio": ["8", 0]
+    }
+  },
+  "11": {
+    "class_type": "RandomNoise",
+    "inputs": { "noise_seed": "$SEED" }
+  },
+  "12": {
+    "class_type": "KSamplerSelect",
+    "inputs": { "sampler_name": "res_multistep" }
+  },
+  "13": {
+    "class_type": "BasicScheduler",
+    "inputs": { "model": ["1", 0], "scheduler": "simple", "steps": "$STEPS", "denoise": 1.0 }
+  },
+  "14": {
+    "class_type": "BasicGuider",
+    "inputs": { "model": ["6", 0], "conditioning": ["10", 0] }
+  },
+  "15": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": ["11", 0],
+      "guider": ["14", 0],
+      "sampler": ["12", 0],
+      "sigmas": ["13", 0],
+      "latent_image": ["9", 1]
+    }
+  },
+  "16": {
+    "class_type": "LTXVSeparateAVLatent",
+    "inputs": { "av_latent": ["15", 0] }
+  },
+  "17": {
+    "class_type": "VAEDecodeTiled",
+    "inputs": {
+      "samples": ["16", 0],
+      "vae": ["3", 0],
+      "tile_size": 256,
+      "overlap": 64,
+      "temporal_size": 32,
+      "temporal_overlap": 8
+    }
+  },
+  "18": {
+    "class_type": "VHS_VideoCombine",
+    "inputs": {
+      "images": ["17", 0],
+      "frame_rate": 24,
+      "loop_count": 0,
+      "filename_prefix": "$OUT_PREFIX",
+      "format": "video/h264-mp4",
+      "pix_fmt": "yuv420p",
+      "crf": 12,
+      "save_metadata": false,
+      "trim_to_audio": false,
+      "pingpong": false,
+      "save_output": true
+    }
+  }
+}

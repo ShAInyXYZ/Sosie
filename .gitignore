@@ -10,8 +10,10 @@ config/sosie.local.json
 comfy/ComfyUI/
 comfy/.venv/
 comfy/extra_model_paths.yaml
-voice/.venv/
-voice/breeze-tts/
+py/.venv/
+py/breeze-tts/
+py/models/
+__pycache__/
 
 # personal media, generated assets, run state
 data/
