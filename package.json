@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "start": "tsx server/index.ts",
     "test": "vitest run",
-    "sosie": "tsx server/cli.ts"
+    "sosie": "tsx server/cli.ts",
+    "test:ui": "tsx tests/studio.e2e.ts"
   },
   "dependencies": {
     "express": "^5.2.1",

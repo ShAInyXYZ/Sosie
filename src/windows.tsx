@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { api, type CharacterForm, type Face, type FormatId, type Job, type Look, type Voice } from './api'
+import { api, type CharacterForm, type Face, type FormatId, type ImageLora, type Job, type Look, type Settings, type Voice } from './api'
+import { NkSelect, NkSlider } from './ui/controls'
 import { KitIcon } from './ui/icons'
 import { ZoomImage } from './zoom'
 
@@ -87,6 +88,11 @@ export function FaceWindow({ faces, chosen, looks, look, format, onChoose, onCre
   const [consent, setConsent] = useState(false)
   const photo = useRef<HTMLInputElement>(null)
   const lookName = looks.find((item) => item.id === look)?.name ?? 'Home office'
+  const [loras, setLoras] = useState<{ file: string; steps: number }[]>([])
+  const [lora, setLora] = useState<ImageLora | null>(null)
+  useEffect(() => {
+    api.imageLoras().then((result) => { setLoras(result.loras); setLora(result.default) }, () => undefined)
+  }, [])
 
   const run = async (text: string, work: () => Promise<void>) => {
     setBusy(text)
@@ -100,7 +106,7 @@ export function FaceWindow({ faces, chosen, looks, look, format, onChoose, onCre
     }
   }
   const createOptions = () => run('Creating 4 options — about 3 minutes', async () => {
-    setCandidates(await api.characters({ ...form, who }, look, format))
+    setCandidates(await api.characters({ ...form, who }, look, format, lora))
     setPick(null)
   })
   const usePick = () => run('Saving', async () => {
@@ -129,12 +135,23 @@ export function FaceWindow({ faces, chosen, looks, look, format, onChoose, onCre
           <Field label="Hair"><input value={form.hair ?? ''} onChange={(event) => setForm({ ...form, hair: event.target.value })} placeholder="short curly black hair" /></Field>
           <Field label="Outfit"><input value={form.outfit ?? ''} onChange={(event) => setForm({ ...form, outfit: event.target.value })} placeholder="a grey hoodie" /></Field>
           <Field label="Style">
-            <select className="window-select" value={form.style} onChange={(event) => setForm({ ...form, style: event.target.value as CharacterForm['style'] })}>
+            <NkSelect value={form.style} onChange={(event) => setForm({ ...form, style: event.target.value as CharacterForm['style'] })}>
               <option value="photo">Photo-real</option>
               <option value="anime">Anime</option>
               <option value="3d">3D</option>
-            </select>
+            </NkSelect>
           </Field>
+          <Field label="LoRA">
+            <NkSelect value={lora?.file ?? ''} onChange={(event) => setLora(event.target.value ? { file: event.target.value, strength: lora?.strength ?? 1 } : null)}>
+              <option value="">None · 30 steps</option>
+              {loras.map((item) => <option key={item.file} value={item.file}>{item.file.replace(/\.safetensors$/, '')} · {item.steps} steps</option>)}
+            </NkSelect>
+          </Field>
+          {lora ? (
+            <Field label={`Strength ${lora.strength.toFixed(2)}`}>
+              <NkSlider min={0} max={2} step={0.05} value={lora.strength} onChange={(event) => setLora({ ...lora, strength: Number(event.target.value) })} />
+            </Field>
+          ) : null}
         </div>
       )}
     >
@@ -409,6 +426,58 @@ export function LibraryWindow({ faces, voices, jobs, onOpenJob, onChanged, onClo
         )) : <p className="dim">Nothing here yet.</p>}
       </div>
       {error ? <p className="nk-field-error" role="alert">{error}</p> : null}
+    </Window>
+  )
+}
+
+export function SettingsWindow({ settings, onChange, onClose }: { settings: Settings; onChange: (next: Settings) => void; onClose: () => void }) {
+  const set = (patch: Partial<Settings>) => onChange({ ...settings, ...patch })
+  const number = (value: string) => (value.trim() === '' ? undefined : Number(value))
+  return (
+    <Window
+      title="Settings"
+      onClose={onClose}
+      advanced={(
+        <div className="window-grid">
+          <Field label="Seed">
+            <input className="window-input" inputMode="numeric" value={settings.seed ?? 42} onChange={(event) => set({ seed: number(event.target.value) ?? 42 })} />
+          </Field>
+          <Field label="Steps (empty = the LoRA's)">
+            <input className="window-input" inputMode="numeric" value={settings.steps ?? ''} onChange={(event) => set({ steps: number(event.target.value) })} />
+          </Field>
+          <Field label="Width (empty = the format's)">
+            <input className="window-input" inputMode="numeric" value={settings.size?.width ?? ''} onChange={(event) => {
+              const width = number(event.target.value)
+              set({ size: width ? { width, height: settings.size?.height ?? width } : undefined })
+            }} />
+          </Field>
+          <Field label="Height">
+            <input className="window-input" inputMode="numeric" value={settings.size?.height ?? ''} disabled={!settings.size} onChange={(event) => {
+              const height = number(event.target.value)
+              if (settings.size) set({ size: { width: settings.size.width, height: height ?? settings.size.width } })
+            }} />
+          </Field>
+          <Field label="Reference image">
+            <NkSelect value={settings.refImageSize ?? 'match'} onChange={(event) => set({ refImageSize: event.target.value === 'max' ? 'max' : undefined })}>
+              <option value="match">Match the video (fast)</option>
+              <option value="max">Full detail (slower)</option>
+            </NkSelect>
+          </Field>
+        </div>
+      )}
+    >
+      <Field label="Speed">
+        <NkSelect value={settings.lora ?? 'taomate'} onChange={(event) => set({ lora: event.target.value as Settings['lora'] })}>
+          <option value="taomate">TaoMate · 3 steps (steady framing)</option>
+          <option value="turbo4">Turbo · 4 steps</option>
+        </NkSelect>
+      </Field>
+      <label className="advanced-toggle">
+        <button className="nk-switch" role="switch" aria-checked={!!settings.punchIn} aria-label="Punch-in" onClick={() => set({ punchIn: !settings.punchIn })}>
+          <span className="nk-switch-thumb" />
+        </button>
+        <span data-tooltip="Every other segment is 8 % closer, the usual jump-cut style">Punch-in</span>
+      </label>
     </Window>
   )
 }

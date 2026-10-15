@@ -8,7 +8,7 @@ import { JobError, JobManager } from './jobs.ts'
 import multer from 'multer'
 import { trashItem, type LibraryKind } from './library.ts'
 import { faceFiles, listFaces } from './pipeline/faces.ts'
-import { characterCandidates, chooseCharacter, photoFace, type CharacterForm, type LookId } from './pipeline/look.ts'
+import { characterCandidates, chooseCharacter, defaultImageLora, imageSteps, photoFace, type CharacterForm, type ImageLora, type LookId } from './pipeline/look.ts'
 import { designVoice, importVoice } from './pipeline/voice.ts'
 import { sendToMoceanx } from './moceanx.ts'
 import { scriptProviders, writeScript } from './script-ai.ts'
@@ -102,10 +102,21 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
     response.status(201).json(face)
   })
   // a character: four options to choose from
+  app.get('/api/image-loras', (_request, response) => response.json({
+    loras: config.loras.qwenImage21.map((file) => ({ file, steps: imageSteps({ file, strength: 1 }) })),
+    default: defaultImageLora(config),
+  }))
   app.post('/api/faces/characters', async (request, response) => {
     const form = request.body?.form as CharacterForm | undefined
     if (!form || typeof form.who !== 'string' || !form.who.trim()) throw new JobError('Describe who is on camera.')
-    const files = await characterCandidates(config, form, lookOf(request.body?.look), formatOf(request.body?.format), 4, root)
+    const asked = request.body?.lora as Partial<ImageLora> | null | undefined
+    let lora: ImageLora | null = defaultImageLora(config)
+    if (asked === null) lora = null
+    else if (asked) {
+      if (typeof asked.file !== 'string' || !config.loras.qwenImage21.includes(asked.file)) throw new JobError('Unknown LoRA.')
+      lora = { file: asked.file, strength: Math.min(2, Math.max(0, Number(asked.strength ?? 1))) }
+    }
+    const files = await characterCandidates(config, form, lookOf(request.body?.look), formatOf(request.body?.format), 4, root, lora)
     response.json({ candidates: files.map((file) => file.slice(join(root, 'data', 'candidates').length + 1)) })
   })
   app.get('/api/candidates/:batch/:file', (request, response) => {
@@ -164,10 +175,15 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
     const lora = (body.lora ?? 'taomate') as SpeedLora
     if (!(format in FORMATS)) throw new JobError(`Unknown format ${format}.`)
     if (!(lora in SPEED_LORAS)) throw new JobError(`Unknown speed LoRA ${lora}.`)
+    const steps = Number.isInteger(body.steps) && body.steps >= 1 && body.steps <= 50 ? body.steps as number : undefined
+    const size = body.size && [body.size.width, body.size.height].every((v: unknown) => Number.isInteger(v) && (v as number) >= 256 && (v as number) <= 1536 && (v as number) % 32 === 0)
+      ? { width: body.size.width as number, height: body.size.height as number } : undefined
+    if (body.size && !size) throw new JobError('Width and height go from 256 to 1536 in steps of 32.')
     response.status(201).json(jobs.start({
       name: typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 80) : script[0].text.slice(0, 48),
       script, faceId: body.faceId, voiceId: body.voiceId, format, lora,
       seed: Number.isInteger(body.seed) ? body.seed : 42, punchIn: body.punchIn === true, firstSegmentOnly: body.firstSegmentOnly === true,
+      steps, size, refImageSize: body.refImageSize === 'max' ? 'max' : undefined,
     }))
   })
   app.get('/api/jobs/:id', (request, response) => {

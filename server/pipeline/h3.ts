@@ -35,10 +35,14 @@ export function talkGraph(config: SosieConfig, input: {
   seed: number
   lora: SpeedLora
   outPrefix: string
+  /** Advanced: sampling steps (default: the LoRA's), a size other than the format's, 'max' reference sizing. */
+  steps?: number
+  size?: { width: number; height: number }
+  refImageSize?: 'match' | 'max'
 }): Graph {
   const { dit, ditDonor, ditDonorGb, textEncoder, textEncoderGb, vae } = config.gpus.h3
   const dev = (physical: number) => comfyDevice(physical, dit)
-  const { width, height } = FORMATS[input.format]
+  const { width, height } = input.size ?? FORMATS[input.format]
   const lora = SPEED_LORAS[input.lora]
   return fill(loadTemplate('talk_segment'), {
     MODEL: H3_MODELS.model,
@@ -54,9 +58,9 @@ export function talkGraph(config: SosieConfig, input: {
     WIDTH: width,
     HEIGHT: height,
     LENGTH: input.renderFrames,
-    REF_IMAGE_SIZE: 'match',
+    REF_IMAGE_SIZE: input.refImageSize ?? 'match',
     SEED: input.seed,
-    STEPS: lora.steps,
+    STEPS: input.steps ?? lora.steps,
     DIT_DEVICE: dev(dit),
     DIT_DONOR_DEVICE: dev(ditDonor),
     DIT_ALLOCATIONS: `${dev(dit)},0.5gb;${dev(ditDonor)},${ditDonorGb}gb;cpu,*`,

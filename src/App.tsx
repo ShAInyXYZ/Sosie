@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { api, type Face, type FormatId, type Job, type Lamp, type Look, type SystemStatus, type Voice } from './api'
+import { api, type Face, type FormatId, type Job, type Lamp, type Look, type Settings, type SystemStatus, type Voice } from './api'
 import { etaSeconds, formatEta, SECONDS_PER_TAKE, Stage } from './stage'
 import { KitIcon } from './ui/icons'
-import { FaceWindow, LibraryWindow, LookWindow, ScriptWindow, VoiceWindow } from './windows'
+import { FaceWindow, LibraryWindow, LookWindow, ScriptWindow, SettingsWindow, VoiceWindow } from './windows'
 
 type Format = { id: FormatId; label: string; size: string }
 
@@ -13,7 +13,7 @@ const FORMATS: Format[] = [
 ]
 
 type SlotId = 'face' | 'voice' | 'script' | 'look'
-type Open = SlotId | 'library' | 'system' | null
+type Open = SlotId | 'library' | 'system' | 'settings' | null
 
 const LAMP_TONE: Record<Lamp, string> = { ok: 'ok', down: 'crit', missing: 'idle' }
 const LAMP_TEXT: Record<Lamp, string> = { ok: 'Running', down: 'Stopped', missing: 'Not installed' }
@@ -135,6 +135,14 @@ export default function App() {
   const [look, setLook] = remembered<string>('look', 'home-office')
   const [script, setScript] = remembered<string>('script', '')
   const [jobId, setJobId] = remembered<string>('job', '')
+  const [settingsText, setSettingsText] = remembered<string>('settings', '{}')
+  const settings = useMemo<Settings>(() => {
+    try {
+      return JSON.parse(settingsText) as Settings
+    } catch {
+      return {}
+    }
+  }, [settingsText])
   const [status, setStatus] = useState<SystemStatus | null>(null)
   const [faces, setFaces] = useState<Face[]>([])
   const [voices, setVoices] = useState<Voice[]>([])
@@ -143,6 +151,7 @@ export default function App() {
   const [job, setJob] = useState<Job | null>(null)
   const [open, setOpen] = useState<Open>(null)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
 
   const refreshSystem = useCallback(() => {
     api.system().then(setStatus, () => setStatus(null))
@@ -201,7 +210,7 @@ export default function App() {
 
   const start = (firstSegmentOnly: boolean) => {
     setError('')
-    api.startJob({ script, faceId, voiceId, format, firstSegmentOnly }).then((next) => {
+    api.startJob({ ...settings, script, faceId, voiceId, format, firstSegmentOnly }).then((next) => {
       setJobId(next.spec.id)
       setJob(next)
     }, (cause: Error) => setError(cause.message))
@@ -265,6 +274,7 @@ export default function App() {
             }}
           />
           {error ? <p className="nk-field-error" role="alert">{error}</p> : null}
+          {notice ? <p className="dim" role="status">{notice}</p> : null}
         </section>
       </main>
 
@@ -277,6 +287,9 @@ export default function App() {
           ))}
         </div>
         {job && !busy ? <button className="nk-button is-ghost" onClick={() => setJobId('')}>New video</button> : null}
+        <button className="nk-icon-button is-ghost" aria-label="Settings" data-tooltip="Speed, punch-in and advanced settings" disabled={busy} onClick={() => setOpen('settings')}>
+          <KitIcon name="settings" />
+        </button>
         <span className="studio-eta mono" data-tooltip="Estimated render time">ETA {formatEta(eta)}</span>
         <button className="nk-button" disabled={!!reason} data-tooltip={reason || 'Voice the script, film segment 1 only'} onClick={() => start(true)}>
           Try first segment
@@ -292,7 +305,7 @@ export default function App() {
         <FaceWindow
           faces={faces} chosen={faceId} looks={looks} look={look} format={format}
           onChoose={(id) => { setFaceId(id); setOpen(null) }}
-          onCreated={(created) => { setFaceId(created.id); refreshLibrary(); setOpen(null) }}
+          onCreated={(created) => { setFaceId(created.id); setNotice(created.warnings?.join(' ') ?? ''); refreshLibrary(); setOpen(null) }}
           onClose={() => setOpen(null)}
         />
       )}
@@ -314,6 +327,7 @@ export default function App() {
           onClose={() => setOpen(null)}
         />
       )}
+      {open === 'settings' && <SettingsWindow settings={settings} onChange={(next) => setSettingsText(JSON.stringify(next))} onClose={() => setOpen(null)} />}
       {open === 'system' && <SystemDialog status={status} onClose={() => setOpen(null)} onRefresh={refreshSystem} />}
     </div>
   )

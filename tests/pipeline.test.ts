@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import { dropNode, fill, loadTemplate, type Graph } from '../server/comfy/template.ts'
 import { talkPrompt } from '../server/pipeline/prompt.ts'
 import { MAX_SEGMENT_FRAMES, framesFor, onGrid, renderLength } from '../server/pipeline/segments.ts'
@@ -88,5 +88,40 @@ describe('ComfyUI device names', async () => {
     expect([2, 0, 1, 3, 4].map((physical) => comfyIndex(physical, 2))).toEqual([0, 1, 2, 3, 4])
     expect(comfyIndex(0, 0)).toBe(0)
     expect(comfyIndex(3, 0)).toBe(3)
+  })
+})
+
+describe('advanced settings reach the graph', () => {
+  test('steps, a size override and full-detail references replace the defaults', async () => {
+    const { talkGraph } = await import('../server/pipeline/h3.ts')
+    const { configSchema, ROOT } = await import('../server/config.ts')
+    const { readFileSync } = await import('node:fs')
+    const { join } = await import('node:path')
+    const config = configSchema.parse(JSON.parse(readFileSync(join(ROOT, 'config', 'sosie.example.json'), 'utf8')))
+    const base = { keyFrame: 'k.png', audio: 'a.wav', prompt: 'p', format: 'corner' as const, renderFrames: 124, seed: 1, lora: 'taomate' as const, outPrefix: 'o' }
+    const plain = talkGraph(config, base)
+    expect([plain['9'].inputs.width, plain['9'].inputs.ref_image_size, plain['13'].inputs.steps]).toEqual([640, 'match', 3])
+    const tuned = talkGraph(config, { ...base, steps: 6, size: { width: 768, height: 768 }, refImageSize: 'max' })
+    expect([tuned['9'].inputs.width, tuned['9'].inputs.height, tuned['9'].inputs.ref_image_size, tuned['13'].inputs.steps]).toEqual([768, 768, 'max', 6])
+  })
+})
+
+describe('Script AI', () => {
+  test('the answer becomes one line per sentence with delivery notes; junk is refused', async () => {
+    const { scriptFromLines } = await import('../server/script-ai.ts')
+    expect(scriptFromLines({ lines: [{ text: 'Hi there!', direction: 'excited' }, { text: 'Second [line]', direction: '' }, { text: '  ', direction: 'x' }] }))
+      .toBe('Hi there! [excited]\nSecond  line')
+    expect(() => scriptFromLines({ nope: true })).toThrow('no script lines')
+  })
+
+  test('without a CLI the message says what to do', async () => {
+    const { writeScript } = await import('../server/script-ai.ts')
+    const path = process.env.PATH
+    process.env.PATH = '/nonexistent'
+    try {
+      await expect(writeScript('', 'Explain H3')).rejects.toThrow('No Claude Code or Codex CLI was found on this machine. Install one and sign in, or type the script yourself.')
+    } finally {
+      process.env.PATH = path
+    }
   })
 })

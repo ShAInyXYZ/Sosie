@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { ComfyClient } from '../comfy/client.ts'
 import { comfyDevice } from '../comfy/devices.ts'
-import { fill, loadTemplate } from '../comfy/template.ts'
+import { dropNode, fill, loadTemplate } from '../comfy/template.ts'
 import { ROOT, type SosieConfig } from '../config.ts'
 import { pickFreeGpu } from '../gpus.ts'
 import { runPy } from '../py.ts'
@@ -58,16 +58,40 @@ export function lookText(id: string): string {
   return preset.prompt
 }
 
-async function qwenImage(config: SosieConfig, prompt: string, size: { width: number; height: number }, seed: number, outPrefix: string, root: string): Promise<string> {
+/** A Qwen Image 2.1 LoRA from `config.loras.qwenImage21`; a step-distilled one sets the step count. */
+export type ImageLora = { file: string; strength: number }
+
+/** The character creator's default: the first configured Qwen Image 2.1 LoRA, at full strength. */
+export function defaultImageLora(config: SosieConfig): ImageLora | null {
+  const file = config.loras.qwenImage21[0]
+  return file ? { file, strength: 1 } : null
+}
+
+/** Steps for a LoRA named like `…-5step-…` (step-distilled), else the base model's 30. */
+export function imageSteps(lora: ImageLora | null | undefined): number {
+  const match = lora ? /(\d+)-?step/i.exec(lora.file) : null
+  return match ? Number(match[1]) : 30
+}
+
+export function imageGraph(input: { prompt: string; size: { width: number; height: number }; seed: number; outPrefix: string; device: string; lora?: ImageLora | null }) {
+  let graph = fill(loadTemplate('character'), {
+    MODEL: QWEN.model, TEXT_ENCODER: QWEN.textEncoder, VAE: QWEN.vae, DEVICE: input.device,
+    PROMPT: input.prompt, NEGATIVE, RESOLUTION: 1024, HALF_WIDTH: input.size.width / 2, HALF_HEIGHT: input.size.height / 2,
+    SEED: input.seed, STEPS: imageSteps(input.lora), OUT_PREFIX: input.outPrefix,
+    LORA: input.lora?.file ?? '', LORA_STRENGTH: input.lora?.strength ?? 1,
+  })
+  if (!input.lora) {
+    graph = dropNode(graph, '9')
+    graph['5'].inputs.model = ['1', 0]
+  }
+  return graph
+}
+
+async function qwenImage(config: SosieConfig, prompt: string, size: { width: number; height: number }, seed: number, outPrefix: string, root: string, lora?: ImageLora | null): Promise<string> {
   const comfy = new ComfyClient(`http://127.0.0.1:${config.ports.comfy}`)
   if (!(await comfy.alive())) throw new Error("Sosie's ComfyUI is not running. Start services from the System panel.")
   const gpu = await pickFreeGpu(config.gpus.image, 16 * 1024)
-  const graph = fill(loadTemplate('character'), {
-    MODEL: QWEN.model, TEXT_ENCODER: QWEN.textEncoder, VAE: QWEN.vae,
-    DEVICE: comfyDevice(gpu.index, config.gpus.h3.dit),
-    PROMPT: prompt, NEGATIVE, RESOLUTION: 1024, HALF_WIDTH: size.width / 2, HALF_HEIGHT: size.height / 2,
-    SEED: seed, STEPS: 30, OUT_PREFIX: outPrefix,
-  })
+  const graph = imageGraph({ prompt, size, seed, outPrefix, device: comfyDevice(gpu.index, config.gpus.h3.dit), lora })
   const result = await comfy.run(graph)
   const file = result.files.find((f) => f.filename.endsWith('.png'))
   if (!file) throw new Error('The image model returned no image')
@@ -80,19 +104,19 @@ export async function generateSet(config: SosieConfig, lookId: LookId, format: F
   const file = join(dir, `${format}-${seed}.png`)
   if (existsSync(file)) return file
   mkdirSync(dir, { recursive: true })
-  const made = await qwenImage(config, setPrompt(lookText(lookId)), KEY_FRAME_SIZE[format], seed, `sosie/looks/${lookId}-${format}-${seed}`, root)
+  const made = await qwenImage(config, setPrompt(lookText(lookId)), KEY_FRAME_SIZE[format], seed, `sosie/looks/${lookId}-${format}-${seed}`, root, defaultImageLora(config))
   copyFileSync(made, file)
   return file
 }
 
 /** Four character candidates in the chosen set. Returns image paths to choose from. */
-export async function characterCandidates(config: SosieConfig, form: CharacterForm, lookId: LookId, format: Format, count = 4, root = ROOT): Promise<string[]> {
+export async function characterCandidates(config: SosieConfig, form: CharacterForm, lookId: LookId, format: Format, count = 4, root = ROOT, lora?: ImageLora | null): Promise<string[]> {
   const batch = randomUUID().slice(0, 8)
   const dir = join(root, 'data', 'candidates', batch)
   mkdirSync(dir, { recursive: true })
   const files: string[] = []
   for (let i = 0; i < count; i++) {
-    const made = await qwenImage(config, characterPrompt(form, lookText(lookId)), KEY_FRAME_SIZE[format], 1000 + i * 7919 + Math.floor(Math.random() * 1000), `sosie/candidates/${batch}-${i + 1}`, root)
+    const made = await qwenImage(config, characterPrompt(form, lookText(lookId)), KEY_FRAME_SIZE[format], 1000 + i * 7919 + Math.floor(Math.random() * 1000), `sosie/candidates/${batch}-${i + 1}`, root, lora)
     const file = join(dir, `${i + 1}.png`)
     copyFileSync(made, file)
     files.push(file)
@@ -108,18 +132,24 @@ export function chooseCharacter(candidate: string, name: string, root = ROOT): F
 }
 
 /** A real photo: cut the person out (pixels kept) and place them over the set. */
-export async function photoFace(config: SosieConfig, input: { photo: string; name: string; lookId: LookId; format: Format; consent: boolean; subject?: string }, root = ROOT): Promise<Face> {
+export async function photoFace(config: SosieConfig, input: { photo: string; name: string; lookId: LookId; format: Format; consent: boolean; subject?: string }, root = ROOT): Promise<Face & { warnings: string[] }> {
   if (!input.consent) throw new Error("Confirm this is you, or that you have this person's permission.")
   const set = await generateSet(config, input.lookId, input.format, 1, root)
   const work = join(root, 'data', 'candidates', `photo-${randomUUID().slice(0, 8)}`)
   mkdirSync(work, { recursive: true })
   const gpu = await pickFreeGpu([...config.gpus.image, ...config.gpus.tts], 4 * 1024).catch(() => null)
   const size = KEY_FRAME_SIZE[input.format]
-  await runPy('cutout', {
+  const lines = await (runPy('cutout', {
     image: input.photo, modelDir: join(config.paths.modelStore, 'RMBG', 'BiRefNet'), weights: 'BiRefNet-general.safetensors',
     outCutout: join(work, 'cutout.png'), set, outComposite: join(work, 'keyframe.png'), size: [size.width, size.height],
-  }, { gpu: gpu ? gpu.index : null, workDir: work })
-  return saveFace({ keyFrame: join(work, 'keyframe.png'), name: input.name, kind: 'photo', subject: input.subject ?? '', set: lookText(input.lookId), consent: true }, root)
+    landmarker: join(root, 'py', 'models', 'face_landmarker.task'),
+  }, { gpu: gpu ? gpu.index : null, workDir: work }).catch((error: Error) => {
+    const noFace = /No face found[^|]*/.exec(error.message)
+    throw noFace ? new Error(noFace[0].trim()) : error
+  }))
+  const result = JSON.parse(lines.at(-1) ?? '{}') as { framing?: { warnings?: string[] } }
+  const face = saveFace({ keyFrame: join(work, 'keyframe.png'), name: input.name, kind: 'photo', subject: input.subject ?? '', set: lookText(input.lookId), consent: true }, root)
+  return { ...face, warnings: result.framing?.warnings ?? [] }
 }
 
 export function listCandidates(root = ROOT): string[] {

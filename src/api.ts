@@ -8,7 +8,7 @@ export type SystemStatus = {
   problems: { key: string; message: string }[]
 }
 
-export type Face = { id: string; name: string; kind: 'photo' | 'character'; subject: string; set: string; createdAt: string }
+export type Face = { id: string; name: string; kind: 'photo' | 'character'; subject: string; set: string; createdAt: string; warnings?: string[] }
 export type Voice = { id: string; name: string; kind: 'clone' | 'designed'; description?: string; createdAt: string }
 export type Look = { id: string; name: string; prompt: string }
 export type FormatId = 'corner' | 'reel' | 'wide'
@@ -50,7 +50,12 @@ export type JobRequest = {
   seed?: number
   punchIn?: boolean
   firstSegmentOnly?: boolean
+  steps?: number
+  size?: { width: number; height: number }
+  refImageSize?: 'match' | 'max'
 }
+export type Settings = Pick<JobRequest, 'lora' | 'seed' | 'punchIn' | 'steps' | 'size' | 'refImageSize'>
+export type ImageLora = { file: string; strength: number }
 export type CharacterForm = { who: string; age?: string; hair?: string; outfit?: string; style?: 'photo' | 'anime' | '3d' }
 export type SendResult = { sent: true; folderPath: string } | { sent: false; reason: string; bundle: string }
 
@@ -70,8 +75,9 @@ export const api = {
   looks: () => json<{ looks: Look[] }>('/api/looks').then((r) => r.looks),
   keyFrameUrl: (faceId: string) => `/api/faces/${encodeURIComponent(faceId)}/keyframe`,
   photoFace: (form: FormData) => json<Face>('/api/faces/photo', { method: 'POST', body: form }),
-  characters: (form: CharacterForm, look: string, format: FormatId) =>
-    json<{ candidates: string[] }>('/api/faces/characters', post({ form, look, format })).then((r) => r.candidates),
+  imageLoras: () => json<{ loras: { file: string; steps: number }[]; default: ImageLora | null }>('/api/image-loras'),
+  characters: (form: CharacterForm, look: string, format: FormatId, lora?: ImageLora | null) =>
+    json<{ candidates: string[] }>('/api/faces/characters', post({ form, look, format, lora })).then((r) => r.candidates),
   candidateUrl: (candidate: string) => `/api/candidates/${candidate}`,
   chooseCharacter: (candidate: string, name: string) => json<Face>('/api/faces/characters/choose', post({ candidate, name })),
   importVoice: (form: FormData) => json<Voice>('/api/voices/import', { method: 'POST', body: form }),

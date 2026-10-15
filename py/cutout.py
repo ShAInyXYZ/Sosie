@@ -8,8 +8,11 @@ request.json: {
   "image": "<photo>", "modelDir": "<store>/RMBG/BiRefNet", "weights": "BiRefNet-general.safetensors",
   "outCutout": "<rgba.png>",
   "set": "<set image, optional>", "outComposite": "<key frame png, optional>", "size": [1024, 1024],
-  "headroom": 0.06, "personHeight": 0.92
+  "headroom": 0.06, "personHeight": 0.92,
+  "landmarker": "<face_landmarker.task, optional: framing checks>"
 }
+Framing checks (with a landmarker): no face stops the import; one face, big enough, central and roughly
+frontal is the best input for H3 — anything else comes back as a warning to show the user.
 """
 import json
 import sys
@@ -67,14 +70,43 @@ def composite(person: Image.Image, mask: Image.Image, background: Image.Image, s
     return out
 
 
+def framing(image: Image.Image, landmarker_path: str) -> dict:
+    import mediapipe as mp
+    from mediapipe.tasks import python as mp_python
+    from mediapipe.tasks.python import vision
+    options = vision.FaceLandmarkerOptions(base_options=mp_python.BaseOptions(model_asset_path=landmarker_path), num_faces=3)
+    rgb = np.asarray(image.convert("RGB"))
+    with vision.FaceLandmarker.create_from_options(options) as landmarker:
+        faces = landmarker.detect(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb.copy())).face_landmarks
+    if not faces:
+        raise SystemExit("No face found in this photo. Use a clear photo of one person facing the camera.")
+    face = max(faces, key=lambda lm: max(p.y for p in lm) - min(p.y for p in lm))
+    top, bottom = min(p.y for p in face), max(p.y for p in face)
+    cx = (min(p.x for p in face) + max(p.x for p in face)) / 2
+    # yaw: how far the nose tip sits from the middle of the eyes, in eye-distance units
+    eyes_mid = (face[33].x + face[263].x) / 2
+    yaw = (face[1].x - eyes_mid) / max(1e-6, abs(face[263].x - face[33].x))
+    warnings = []
+    if len(faces) > 1:
+        warnings.append("More than one face: the largest one is used.")
+    if bottom - top < 0.12:
+        warnings.append("The face is small in this photo; a chest-up photo works best.")
+    if not 0.25 < cx < 0.75:
+        warnings.append("The face is far from the centre of the photo.")
+    if abs(yaw) > 0.35:
+        warnings.append("The face is turned away; a photo facing the camera syncs best.")
+    return {"faces": len(faces), "faceHeight": round(bottom - top, 3), "centreX": round(cx, 3), "yaw": round(yaw, 3), "warnings": warnings}
+
+
 def run(req: dict) -> dict:
-    model, device = load_model(req["modelDir"], req.get("weights", "BiRefNet-general.safetensors"))
     image = Image.open(req["image"])
+    checks = framing(image, req["landmarker"]) if req.get("landmarker") else None
+    model, device = load_model(req["modelDir"], req.get("weights", "BiRefNet-general.safetensors"))
     mask = matte(image, model, device)
     rgba = image.convert("RGB").copy()
     rgba.putalpha(mask)
     rgba.save(req["outCutout"])
-    result = {"cutout": req["outCutout"], "coverage": round(float(np.asarray(mask).mean() / 255), 3)}
+    result = {"cutout": req["outCutout"], "coverage": round(float(np.asarray(mask).mean() / 255), 3), "framing": checks}
     if req.get("set") and req.get("outComposite"):
         size = tuple(req.get("size", [1024, 1024]))
         out = composite(image, mask, Image.open(req["set"]), size, req.get("personHeight", 0.92), req.get("headroom", 0.06))

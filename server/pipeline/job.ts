@@ -30,6 +30,10 @@ export type JobSpec = {
   punchIn: boolean
   /** "Try first segment": voice the whole script, render segment 1 only. */
   firstSegmentOnly?: boolean
+  /** Advanced settings (Studio → Settings): see talkGraph. */
+  steps?: number
+  size?: { width: number; height: number }
+  refImageSize?: 'match' | 'max'
 }
 
 export type QcReport = { pass: boolean; [key: string]: unknown }
@@ -137,6 +141,7 @@ async function assertVram(config: SosieConfig) {
 /** One take of one segment, as the video engine needs it. Paths are relative to Sosie's ComfyUI input folder. */
 export type FilmRequest = {
   keyFrame: string; audio: string; prompt: string; format: Format; renderFrames: number; seed: number; lora: SpeedLora; outPrefix: string
+  steps?: number; size?: { width: number; height: number }; refImageSize?: 'match' | 'max'
   signal?: AbortSignal
 }
 export type QcRequest = { video: string; audio: string; frames: number; out: string; words: Word[]; workDir: string }
@@ -269,6 +274,7 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
           const raw = await time('h3', () => engines.film({
             keyFrame: `${inputRel}/keyframe.png`, audio: refAudio, prompt, format: spec.format,
             renderFrames: segment.renderFrames, seed, lora: spec.lora, outPrefix: `${inputRel}/${tag}-t${attempt + 1}`, signal: hooks.signal,
+            steps: spec.steps, size: spec.size, refImageSize: spec.refImageSize,
           }))
           checkCancel()
           const file = join(segDir, `${tag}-t${attempt + 1}.mp4`)
@@ -300,7 +306,7 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
     mkdirSync(outDir, { recursive: true })
     const video = join(outDir, 'facecam.mp4')
     const totalFrames = state.segments.reduce((sum, s) => sum + s.frames, 0)
-    await time('join', () => joinSegments(state.segments.map((s) => s.file!), state.voice!.wav, totalFrames, video, spec.punchIn, FORMATS[spec.format]))
+    await time('join', () => joinSegments(state.segments.map((s) => s.file!), state.voice!.wav, totalFrames, video, spec.punchIn, spec.size ?? FORMATS[spec.format]))
 
     // 9. bundle
     update({ step: 'bundle', message: 'Writing the bundle', progress: 0.97 })
@@ -320,7 +326,7 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
       createdAt: new Date().toISOString(),
       durationS,
       fps: FPS,
-      ...FORMATS[spec.format],
+      ...(spec.size ?? FORMATS[spec.format]),
       voice: voice ? { id: voice.id, name: voice.name, kind: voice.kind } : { id: spec.voiceId },
       face: { id: face.id, name: face.name, kind: face.kind },
       look: face.set,
