@@ -135,6 +135,11 @@ export default function App() {
   const [look, setLook] = remembered<string>('look', 'home-office')
   const [script, setScript] = remembered<string>('script', '')
   const [jobId, setJobId] = remembered<string>('job', '')
+  // a link like /?video=<id> opens that video (from the CLI, the Library or a bookmark)
+  useEffect(() => {
+    const linked = new URLSearchParams(window.location.search).get('video')
+    if (linked && /^[A-Za-z0-9-]{1,64}$/.test(linked)) setJobId(linked)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const [settingsText, setSettingsText] = remembered<string>('settings', '{}')
   const settings = useMemo<Settings>(() => {
     try {
