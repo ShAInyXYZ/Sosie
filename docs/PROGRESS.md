@@ -8,7 +8,7 @@ Living checklist for [MASTER_PROMPT.md](MASTER_PROMPT.md). Each ticked item name
 - [x] M0 Scaffold — 2026-10-15 · build passes, `npm test` 7/7 (config loader, GPU parsing), API `/api/health` + `/api/system` live on 3190, shell screenshots `docs/media/m0-studio-shell-{dark,light}.png`
 - [x] M1 Own ComfyUI (+ VEDA R2VA predictor download) — 2026-10-15 · `comfy/setup.sh` built ComfyUI 0.37.1 (3f767e7f) + MultiGPU/VEDA/VHS/KJNodes at the container's pins in 7 m 46 s (`data/run/comfy-setup.log`); running on 8190 with its own I/O dirs and 67 store folders via `extra_model_paths.yaml`; `/object_info` has MiniMaxH3ReferenceToVideo, MiniMaxH3AddGuide, VedaSparseAttention (both predictors), DisTorch2 loaders, TextEncodeQwenImage21; VEDA R2VA predictor archived to NAS (275 415 752 B, logged) and synced to the store (size verified); main container StartedAt unchanged (2026-10-14T11:56:10Z before and after)
 - [ ] M2 Lip-sync spike (speed-LoRA A/B, VEDA on) — before any UI work
-- [ ] M3 Voice
+- [x] M3 Voice — 2026-10-15 · `server/pipeline/voice.ts` + `captions.ts`; `scripts/try-voice.ts`: imported **Me** (consented, from the configured sample), designed **Narrator** (6–10 s sample, then cloned), voiced a 3-line script with a direction note → 10.62 s joined track at −16.3 LUFS (two-pass loudnorm), 35 words aligned per line and shifted onto the track, balanced `captions.srt` (least-squares line split, no orphans); line cache keyed by voice/ref/text/direction/seed; 25 s end to end on GPU 1
 - [ ] M4 Pipeline (CLI first, 60 s proof)
 - [ ] M5 Face and look
 - [ ] M6 Studio UI
@@ -31,6 +31,7 @@ Mirrors §1 of the master prompt; tick with evidence.
 | 2026-10-15 | `py/tts.py` design mode, GPU 3 | 8.56 s line in 29 s incl. model load |
 | 2026-10-15 | `py/align.py` | 24 words aligned in 0.8 s (CPU) |
 | 2026-10-15 | `npm test` | 2 files, 17 tests pass |
+| 2026-10-15 | `npm test` | 4 files, 26 tests pass; `tsc --noEmit` clean |
 | 2026-10-15 | `nash backup` → `git ls-remote nas` | NAS `main` = local HEAD `8b7e6b0` |
 
 ## Decisions

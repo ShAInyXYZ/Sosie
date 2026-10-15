@@ -81,3 +81,12 @@ describe('workflow templates', () => {
     expect(dropNode(graph, 'a')).toEqual({ b: { class_type: 'B', inputs: { y: 2 } } })
   })
 })
+
+describe('ComfyUI device names', async () => {
+  const { comfyIndex } = await import('../server/comfy/devices.ts')
+  it('matches ComfyUI --default-device reordering (default 2 → 2,0,1,3,4)', () => {
+    expect([2, 0, 1, 3, 4].map((physical) => comfyIndex(physical, 2))).toEqual([0, 1, 2, 3, 4])
+    expect(comfyIndex(0, 0)).toBe(0)
+    expect(comfyIndex(3, 0)).toBe(3)
+  })
+})

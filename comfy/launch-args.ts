@@ -14,6 +14,8 @@ export function launchArgs(config: SosieConfig, root = ROOT): string[] {
     '--user-directory', join(io, 'user'),
     '--extra-model-paths-config', join(root, 'comfy', 'extra_model_paths.yaml'),
     '--disable-auto-launch',
+    // VEDA launches on torch's current device, so the H3 compute card must be ComfyUI's default (server/comfy/devices.ts)
+    '--default-device', String(config.gpus.h3.dit),
     ...config.comfy.flags,
   ]
 }

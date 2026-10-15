@@ -17,14 +17,14 @@
     "importVoiceTranscript": ""
   },
   "gpus": {
-    "$comment": "Physical indices (CUDA_DEVICE_ORDER=PCI_BUS_ID). H3 is split across four cards; image and TTS pick from the list by free memory.",
+    "$comment": "Physical indices (CUDA_DEVICE_ORDER=PCI_BUS_ID). H3's compute card (dit) is ComfyUI's default device; the int8 video VAE runs there too (its kernels, like VEDA's, use the current device). Image and TTS pick from their lists by free memory.",
     "h3": {
       "dit": 2,
       "ditDonor": 3,
       "ditDonorGb": 15,
       "textEncoder": 0,
       "textEncoderGb": 11,
-      "vae": 1
+      "vae": 2
     },
     "image": [
       1,

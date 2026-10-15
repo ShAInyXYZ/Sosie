@@ -3,6 +3,7 @@
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { ComfyClient } from '../server/comfy/client.ts'
+import { comfyDevice } from '../server/comfy/devices.ts'
 import { fill, loadTemplate } from '../server/comfy/template.ts'
 import { ROOT, loadConfig } from '../server/config.ts'
 import { pickFreeGpu, trackPeakVram } from '../server/gpus.ts'
@@ -41,7 +42,7 @@ if (!existsSync(keyFrame)) {
     MODEL: 'qwen_image_2.1_int8_convrot.safetensors',
     TEXT_ENCODER: 'qwen3vl_8b_int8_convrot.safetensors',
     VAE: 'qwen_image_2.1_vae_bf16.safetensors',
-    DEVICE: `cuda:${gpu.index}`,
+    DEVICE: comfyDevice(gpu.index, config.gpus.h3.dit),
     PROMPT: `A photorealistic webcam still of ${SUBJECT}, sitting at his desk in ${SET}. He faces the camera directly, framed from the chest up and centred, mouth closed with a slight smile, eyes looking into the lens. Soft, even key light on the face, natural skin texture, sharp focus on the face. No text, no logos.`,
     NEGATIVE: 'text, watermark, logo, hands near the face, open mouth, blurry face, distorted features, extra fingers, cartoon',
     RESOLUTION: 1024,
@@ -68,6 +69,7 @@ console.log(`line ${duration.toFixed(3)} s → ${frames} frames shown, ${length}
 
 // 3. one segment per speed LoRA, VEDA on
 const { dit, ditDonor, ditDonorGb, textEncoder, textEncoderGb, vae } = config.gpus.h3
+const dev = (physical: number) => comfyDevice(physical, dit)
 const report: Record<string, unknown>[] = []
 for (const lora of LORAS) {
   const graph = fill(loadTemplate('talk_segment'), {
@@ -87,12 +89,12 @@ for (const lora of LORAS) {
     REF_IMAGE_SIZE: 'match',
     SEED: 4242,
     STEPS: lora.steps,
-    DIT_DEVICE: `cuda:${dit}`,
-    DIT_DONOR_DEVICE: `cuda:${ditDonor}`,
-    DIT_ALLOCATIONS: `cuda:${dit},0.5gb;cuda:${ditDonor},${ditDonorGb}gb;cpu,*`,
-    TE_DEVICE: `cuda:${textEncoder}`,
-    TE_ALLOCATIONS: `cuda:${textEncoder},${textEncoderGb}gb;cpu,*`,
-    VAE_DEVICE: `cuda:${vae}`,
+    DIT_DEVICE: dev(dit),
+    DIT_DONOR_DEVICE: dev(ditDonor),
+    DIT_ALLOCATIONS: `${dev(dit)},0.5gb;${dev(ditDonor)},${ditDonorGb}gb;cpu,*`,
+    TE_DEVICE: dev(textEncoder),
+    TE_ALLOCATIONS: `${dev(textEncoder)},${textEncoderGb}gb;cpu,*`,
+    VAE_DEVICE: dev(vae),
     OUT_PREFIX: `sosie/spike/m2-${lora.name}`,
   })
   console.log(`H3 ${lora.name} (${lora.steps} steps)…`)
