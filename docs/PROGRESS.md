@@ -54,6 +54,7 @@ Mirrors §1 of the master prompt; tick with evidence.
 | 2026-10-15 | `scripts/try-photo.ts` | cut-out over a generated set in 23 s, no framing warnings |
 | 2026-10-15 | `writeScript` via Claude Code | 6 lines with notes, 14 s |
 | 2026-10-15 | build, `npm test` (6 files, 38 tests), `py/test_qc.py`, `npm run test:ui` (3 runs) | all pass |
+| 2026-10-15 13:02 | final fresh run (test-results and Vite cache removed): build, `npm test` (6 files, 38 tests), `py/test_qc.py`, `npm run test:ui` | all pass (`docs/logs/final-suites.txt`) |
 
 ## Decisions
 
