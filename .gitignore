@@ -1,0 +1,21 @@
+# dependencies and builds
+node_modules/
+dist/
+*.log
+
+# local machine config (paths, ports, GPU map)
+config/sosie.local.json
+
+# recreated by setup scripts
+comfy/ComfyUI/
+comfy/.venv/
+comfy/extra_model_paths.yaml
+voice/.venv/
+voice/breeze-tts/
+
+# personal media, generated assets, run state
+data/
+
+# test output
+test-results/
+playwright-report/
