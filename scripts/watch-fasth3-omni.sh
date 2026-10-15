@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Daily release watch (master prompt §4.5): FastH3-Omni (FastVideo + Nuva Lab + Reactor), announced as open
-# source for 2026-10-20. From that date, asks Hugging Face once a day and sends one ntfy push when it appears.
+# source for 2026-10-20. Asks Hugging Face once a day (also before that date, in case it comes early) and sends one
+# ntfy push when it appears.
 # Installed by: (crontab -l; echo "0 9 * * * <repo>/scripts/watch-fasth3-omni.sh >> <repo>/data/run/watch.log 2>&1") | crontab -
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SEEN=data/run/fasth3-omni.seen
 DRY=${WATCH_DRY_RUN:-}                         # 1 = search now, print, never notify or record
 [ -z "$DRY" ] && [ -f "$SEEN" ] && exit 0      # already announced
-[ -z "$DRY" ] && [ "$(date +%Y%m%d)" -lt 20261020 ] && exit 0   # not before the announced date
 found=""
 for query in "author=FastVideo&search=Omni" "search=FastH3-Omni" "search=H3-Omni"; do
   found+=$(curl -s -m 30 "https://huggingface.co/api/models?${query}&limit=20" | python3 -c '
