@@ -2,7 +2,7 @@
 
 # Sosie
 
-Sosie makes a lip-synced streamer facecam: a person talking to camera in the voice, look and words you choose, as an MP4 for the corner of a YouTube video or a Reel. Everything runs locally, on your own GPUs. Edit the result further in MOceanX, a separate motion-design editor.
+Sosie makes a lip-synced streamer facecam: a person talking to camera in the voice, look and words you choose, as an MP4 for the corner of a YouTube video or a Reel. Everything runs locally, on your own GPUs.
 
 Pick a **Face** (a photo, or a character made here), a **Voice** (cloned or designed), a **Script** (typed, or written by AI from your notes) and a **Look** (the set behind the person). Press **Generate**.
 
@@ -97,4 +97,4 @@ Sosie's own code is under the [MIT licence](LICENSE). The models it drives have 
 - **Qwen Image 2.1** (and its LoRAs): research licence.
 - Helpers: faster-whisper (MIT), MediaPipe (Apache 2.0), BiRefNet (MIT), SyncNet network (MIT, joonson/syncnet_python) with weights from LatentSync (OpenRAIL++), NeuronKit UI (see `vendor/neuronkit/LICENSE`).
 
-Status and evidence: [docs/PROGRESS.md](docs/PROGRESS.md). How it works: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). HTTP API: [docs/API.md](docs/API.md). Voice prompting: [docs/VOICE_PROMPTING.md](docs/VOICE_PROMPTING.md).
+Measured facts and decisions: [docs/NOTES.md](docs/NOTES.md). How it works: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). HTTP API: [docs/API.md](docs/API.md). Voice prompting: [docs/VOICE_PROMPTING.md](docs/VOICE_PROMPTING.md).

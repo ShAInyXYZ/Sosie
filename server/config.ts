@@ -36,10 +36,9 @@ export const configSchema = z.object({
     ttsMinFreeGb: z.number().positive(),
   }),
   comfy: z.object({ flags: z.array(z.string()) }),
+  /** Optional: another ComfyUI on this machine, which the System panel can ask to free its VRAM. */
   mainComfyUrl: z.url(),
   moceanxUrl: z.url().default('http://127.0.0.1:3001'),
-  /** ntfy topic URL for the release watcher (scripts/watch-fasth3-omni.sh); empty = no push. */
-  ntfyUrl: z.string().default(''),
   loras: z.object({ qwenImage21: z.array(z.string()) }),
   /** Where "Check for updates" looks: the official repository and branch (fast-forward only). */
   update: z.object({ repo: z.string().min(1), branch: z.string().min(1) }).default({ repo: 'https://github.com/ShAInyXYZ/Sosie.git', branch: 'main' }),
@@ -113,6 +112,6 @@ export function configProblems(config: SosieConfig): ConfigProblem[] {
     if (seen.has(value)) problems.push({ key: `ports.${name}`, message: `Same port as ports.${seen.get(value)}` })
     seen.set(value, name)
   }
-  if (config.ports.comfy === 8188) problems.push({ key: 'ports.comfy', message: '8188 belongs to the main ComfyUI' })
+  if (config.ports.comfy === Number(new URL(config.mainComfyUrl).port || 80)) problems.push({ key: 'ports.comfy', message: `Same port as the other ComfyUI (${config.mainComfyUrl})` })
   return problems
 }

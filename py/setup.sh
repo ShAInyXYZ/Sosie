@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 UV=${UV:-uv}
 BREEZE_REPO=https://github.com/breezeblue-ai/breeze-tts
-BREEZE_COMMIT=008f769   # Cerveau Hub's working checkout (2026-10-15)
+BREEZE_COMMIT=008f769   # tested 2026-10-15
 
 echo "breeze-tts @ $BREEZE_COMMIT"
 [ -d py/breeze-tts/.git ] || git clone -q --filter=blob:none "$BREEZE_REPO" py/breeze-tts

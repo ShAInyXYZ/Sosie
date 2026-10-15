@@ -1,6 +1,6 @@
 # Sosie architecture
 
-How the code is laid out and how one video is made. Decisions and measured facts are in [PROGRESS.md](PROGRESS.md).
+How the code is laid out and how one video is made. Decisions and measured facts are in [NOTES.md](NOTES.md).
 
 ## Processes
 
@@ -41,7 +41,7 @@ The API accepts requests addressed to localhost only, and browser requests only 
 
 ## QC
 
-Per segment (`py/qc.py`): exact frame count; no black, frozen or noise-spike frames; a face in ≥ 95 % of frames (no face at all = unscored, e.g. a stylised character); lip sync by SyncNet at 25 fps: offset −3…+1 frames, LSE-C ≥ 6, LSE-D ≤ 9. Thresholds and the measurements behind them: master prompt §3.4 and §6.7.
+Per segment (`py/qc.py`): exact frame count; no black, frozen or noise-spike frames; a face in ≥ 95 % of frames (no face at all = unscored, e.g. a stylised character); lip sync by SyncNet at 25 fps: offset −3…+1 frames, LSE-C ≥ 6, LSE-D ≤ 9. Thresholds and the measurements behind them: [NOTES.md](NOTES.md).
 
 ## GPUs
 

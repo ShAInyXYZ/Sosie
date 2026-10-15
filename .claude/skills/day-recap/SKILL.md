@@ -63,6 +63,4 @@ Animated path (Remotion explainer):
 
 ## Care
 
-- Every Sosie output is tagged "AI-generated (Sosie)"; keep that disclosure when publishing.
-- Model licences apply to what is published (Sosie README, Licences). MiniMax H3's licence excludes some
-  territories; check before posting.
+Every Sosie output is tagged "AI-generated (Sosie)"; keep that disclosure when publishing.

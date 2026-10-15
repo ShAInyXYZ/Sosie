@@ -19,7 +19,6 @@
     "fonts",
     "icons",
     "js",
-    "skills",
     "svelte"
   ],
   "exports": {
@@ -43,8 +42,7 @@
     "css",
     "design-system",
     "dark",
-    "dashboard",
-    "cerveau"
+    "dashboard"
   ],
   "peerDependenciesMeta": {
     "svelte": {

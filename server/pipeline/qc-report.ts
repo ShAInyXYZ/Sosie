@@ -4,7 +4,7 @@ type Lip = { offset?: number; confidence?: number; minDist?: number; status?: st
 
 const esc = (text: string) => text.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 
-/** The per-video QC page (§6.7): one row per segment, the chosen take's measures and verdict. Self-contained HTML. */
+/** The per-video QC page: one row per segment, the chosen take's measures and verdict. Self-contained HTML. */
 export function qcReportHtml(state: JobState): string {
   const rows = state.segments.map((segment) => {
     const take = segment.attempts.find((a) => a.file === segment.file) ?? segment.attempts.at(-1)

@@ -147,7 +147,7 @@ async function assertVram(config: SosieConfig, waitMs = 30_000) {
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
   if (short.length) {
-    throw new Error(`Not enough free GPU memory for the video model: ${short.map((x) => `GPU ${x.gpu} has ${(x.free / 1024).toFixed(1)} GB, needs ${(x.need / 1024).toFixed(1)} GB`).join('; ')}. Free the main ComfyUI's VRAM or stop other GPU jobs.`)
+    throw new Error(`Not enough free GPU memory for the video model: ${short.map((x) => `GPU ${x.gpu} has ${(x.free / 1024).toFixed(1)} GB, needs ${(x.need / 1024).toFixed(1)} GB`).join('; ')}. Stop other GPU jobs, or free another ComfyUI's VRAM from the System panel.`)
   }
 }
 
@@ -353,7 +353,7 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
       })),
       models: { ...H3_MODELS, speedLora: SPEED_LORAS[spec.lora].file },
     }, null, 1))
-    // the QC report sits next to the bundle (the bundle's files are fixed by §6.6)
+    // the QC report sits next to the bundle (bundle v1 fixes the bundle's own files)
     const qcJson = join(dir, 'out', 'qc.json')
     const qcHtml = join(dir, 'out', 'qc.html')
     writeFileSync(qcJson, JSON.stringify(state.segments.map((s) => ({

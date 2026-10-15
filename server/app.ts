@@ -77,12 +77,12 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
     child.unref()
     response.status(202).json({ starting: true })
   })
-  // Unload the main ComfyUI's models through its own API (its files and settings are not touched)
+  // Optional: ask another ComfyUI on this machine (mainComfyUrl) to unload its models through its own API
   app.post('/api/system/free-main', async (_request, response) => {
     const answer = await fetch(new URL('/free', config.mainComfyUrl), {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ unload_models: true, free_memory: true }), signal: AbortSignal.timeout(10_000),
     }).catch(() => null)
-    if (!answer?.ok) throw new JobError('The main ComfyUI did not answer.', 502)
+    if (!answer?.ok) throw new JobError('The other ComfyUI did not answer.', 502)
     response.json({ freed: true })
   })
 

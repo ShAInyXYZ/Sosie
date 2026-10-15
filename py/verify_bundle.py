@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Checks a finished Output bundle end to end (the M4 proof checks):
+"""Checks a finished Output bundle end to end:
 
   - lip sync of the whole joined video (SyncNet, as in qc.py);
   - the audio is the exact TTS track: correlation and lag against the voice WAV, at the start and at

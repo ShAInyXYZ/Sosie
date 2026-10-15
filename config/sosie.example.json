@@ -1,7 +1,7 @@
 {
   "$comment": "Copy to config/sosie.local.json (gitignored) and fill in this machine's paths. Keys left out of the local file keep these defaults.",
   "ports": {
-    "$comment": "web = Vite dev server, api = Sosie API, comfy = Sosie's own ComfyUI. Never 8188 (the main ComfyUI).",
+    "$comment": "web = Vite dev server, api = Sosie API, comfy = Sosie's own ComfyUI. comfy must differ from the port of mainComfyUrl.",
     "web": 5190,
     "api": 3190,
     "comfy": 8190
@@ -52,7 +52,6 @@
   },
   "mainComfyUrl": "http://127.0.0.1:8188",
   "moceanxUrl": "http://127.0.0.1:3001",
-  "ntfyUrl": "",
   "loras": {
     "$comment": "Qwen Image 2.1 LoRA file names (model store loras/) offered in the character creator. The first is the default; a name with N-step (a step-distilled LoRA) renders in N steps instead of 30.",
     "qwenImage21": []

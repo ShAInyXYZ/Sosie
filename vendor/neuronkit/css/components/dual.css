@@ -1,8 +1,7 @@
 /* Dual pill — two controls that belong together sharing one pill: a main
    choice and its setting (a material mode and its resolution, a device and
    its level). A hairline divides them; either half can be a button, a
-   menu trigger or a readout. With one child it is just a pill. From
-   Gouache's viewport toolbar.
+   menu trigger or a readout. With one child it is just a pill.
 
    <div class="nk-dual" role="group" aria-label="Display">
      <button class="nk-dual-part">Material</button><button class="nk-dual-part is-value">4K</button>

@@ -3,7 +3,7 @@ import { api, type Face, type FormatId, type Job, type Segment } from './api'
 import { KitIcon } from './ui/icons'
 import { ZoomImage } from './zoom'
 
-/** Seconds of filming per segment take, measured on the rig (§3.4); refined by the job's own timings. */
+/** Seconds of filming per segment take, measured on four RTX 3090s; refined by the job's own timings. */
 export const SECONDS_PER_TAKE = 240
 
 export function etaSeconds(job: Job | null, estimate: number): number {

@@ -3,7 +3,7 @@
    or use the arrows; Home and End jump to the ends, double-click returns to
    data-default. The ridges travel with the value and the drum is shaded
    round, so it reads as turning, not sliding. It never shows its position
-   as a bar — the reading beside it does. From Gouache's light controls.
+   as a bar — the reading beside it does.
 
    <div class="nk-wheel-unit">
      <span class="nk-wheel" data-min="0" data-max="359" data-value="120" data-unit="°" aria-label="Light rotation"></span>

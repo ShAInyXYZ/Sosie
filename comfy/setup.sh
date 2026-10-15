@@ -33,7 +33,7 @@ echo "torch (CUDA 12.8)"
 # shellcheck disable=SC2046
 "$UV" pip install -q --python "$PY" --index-url "$(q "d['torch']['index']")" $(q "' '.join(d['torch']['packages'])")
 
-echo "ComfyUI requirements (constrained to the main container's versions)"
+echo "ComfyUI requirements (constrained to the pinned versions)"
 "$UV" pip install -q --python "$PY" -r comfy/ComfyUI/requirements.txt -c comfy/constraints.txt
 
 echo "Custom node requirements"

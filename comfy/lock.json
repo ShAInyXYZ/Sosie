@@ -1,5 +1,5 @@
 {
-  "$comment": "Sosie's own ComfyUI. Pins match the main ComfyUI container, where these were known to work together (2026-10-15). Update deliberately, one pin at a time.",
+  "$comment": "Sosie's own ComfyUI. These pins are known to work together (2026-10-15). Update deliberately, one pin at a time.",
   "python": "3.12",
   "torch": {
     "index": "https://download.pytorch.org/whl/cu128",

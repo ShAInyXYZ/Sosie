@@ -3,7 +3,7 @@
 //   import { drawInstrument } from "neuronkit/js/social.js";
 //   drawInstrument(document.querySelector(".nk-post-instrument"), {
 //     logo: "logo.svg", fill: 0.74, number: "N°01 · AI TIPS",
-//     brand: "SHINYSTUDIO · LAB", signature: "SHINYLAB — BY SHINY-STUDIO",
+//     brand: "STUDIO", signature: "BY STUDIO",
 //   });
 //
 // Draws into an <svg class="nk-post-instrument"> on a 1080 × 1350 post: an

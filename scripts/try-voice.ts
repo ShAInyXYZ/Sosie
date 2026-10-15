@@ -1,4 +1,4 @@
-// M3 check: import the user's voice ("Me"), design a narrator voice, voice a short script with it,
+// Voice check: import the user's voice ("Me"), design a narrator voice, voice a short script with it,
 // join + normalise + align, write captions. Usage: npx tsx scripts/try-voice.ts
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'

@@ -1,4 +1,4 @@
-// M5 real run: a photo → BiRefNet cut-out (pixels kept) over a generated set → key frame; before/after sheet.
+// Real run: a photo → BiRefNet cut-out (pixels kept) over a generated set → key frame; before/after sheet.
 // Usage: npx tsx scripts/try-photo.ts <photo.png|jpg> [look-id]
 import { execFileSync } from 'node:child_process'
 import { join } from 'node:path'

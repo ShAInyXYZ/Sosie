@@ -1,4 +1,4 @@
-// M2 lip-sync spike: one designed-voice line → one H3 Ref2VA segment per speed LoRA (VEDA on) → trim, mux, QC.
+// Lip-sync spike: one designed-voice line → one H3 Ref2VA segment per speed LoRA (VEDA on) → trim, mux, QC.
 // Usage: npx tsx scripts/spike-m2.ts   (Sosie's ComfyUI must be running: scripts/start.sh comfy)
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'

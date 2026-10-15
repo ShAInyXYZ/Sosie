@@ -1,6 +1,6 @@
 """Checks for the lip-sync verdict (run: py/.venv/bin/python py/test_qc.py).
 
-The scores are the measured ones from the first 60 s proof and its controls (docs/PROGRESS.md)."""
+The scores are the measured ones from a 60 s proof and its controls (docs/NOTES.md)."""
 import qc
 
 ok = lambda offset, dist, conf: qc.sync_verdict({"status": "ok", "offset": offset, "minDist": dist, "confidence": conf})["pass"]

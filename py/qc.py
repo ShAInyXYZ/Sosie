@@ -9,7 +9,7 @@ request.json: {"video": "<segment.mp4>", "audio": "<segment audio wav, same time
 Checks: exact frame count; no black, frozen or noise-spike frames; a face in >= 95% of frames; lip sync.
 Lip sync is SyncNet's (py/syncnet.py): the audio-video offset and the LSE-C / LSE-D scores. The first
 QC (mouth opening vs loudness) failed segments that were in sync — wide "ee" vowels open the lips with
-little energy — so it was replaced (docs/PROGRESS.md, 2026-10-15).
+little energy — so it was replaced (docs/NOTES.md).
 A segment with no face at all is "unscored" (e.g. a stylised character), not failed.
 """
 import json
@@ -20,7 +20,7 @@ import numpy as np
 
 FPS = 24
 FACE_MIN = 0.95
-# Calibrated on the first 60 s proof (13 H3 takes) and controls; see docs/MASTER_PROMPT.md §6.7.
+# Calibrated on a 60 s proof (13 H3 takes) and controls; see docs/NOTES.md.
 MIN_CONFIDENCE = 6.0  # LSE-C: in-sync takes 8.1–10.0; no audio anchor 5.1; time-reversed voice 0.8
 MAX_DISTANCE = 9.0  # LSE-D: in-sync takes 6.6–8.4; no audio anchor 11.1; time-reversed voice 15.8
 # Offset in frames at 25 fps; negative = the voice comes after the lips. The voice may trail by up to

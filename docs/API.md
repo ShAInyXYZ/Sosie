@@ -9,7 +9,7 @@ Base URL `http://127.0.0.1:3190`. JSON in and out unless noted. Requests must be
 | GET | `/api/health` | `{ ok, app: "sosie", version }` |
 | GET | `/api/system` | `{ services: { api, comfy, python }, gpus, problems, dots }` (lamps: `ok`, `down`, `missing`; `dots` is null when the Dots voice engine can run, else why not) |
 | POST | `/api/system/start` | starts Sosie's ComfyUI in the background → `202 { starting: true }` |
-| POST | `/api/system/free-main` | asks the main ComfyUI (`mainComfyUrl`) to unload its models → `{ freed: true }` |
+| POST | `/api/system/free-main` | asks another ComfyUI on this machine (`mainComfyUrl`) to unload its models → `{ freed: true }` |
 
 ## Library
 

@@ -1,7 +1,7 @@
 {
  "_meta": {
   "title": "Sosie key frame \u2014 Qwen Image 2.1 text-to-image (character in the set)",
-  "source": "Settings from GouachePainter's tested Qwen Image 2.1 concept workflow; MultiGPU loaders place it on a free card. API format.",
+  "source": "Qwen Image 2.1 key frame; MultiGPU loaders place it on a free card. API format.",
   "placeholders": "$-strings are filled by server/comfy/template.ts. TextEncodeQwenImage21 makes a square empty latent; LatentUpscale (zeros stay zeros) gives it the key frame's aspect. LatentUpscale assumes 8x latents and Qwen Image 2.1 uses 16x, so $HALF_WIDTH/$HALF_HEIGHT are half the pixel size."
  },
  "1": {

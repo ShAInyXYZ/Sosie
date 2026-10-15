@@ -1,4 +1,4 @@
-// M5 real run: four character options (Qwen Image 2.1, optional speed LoRA) → a 2×2 sheet.
+// Real run: four character options (Qwen Image 2.1, optional speed LoRA) → a 2×2 sheet.
 // Usage: npx tsx scripts/try-character.ts [lora-file|none] [strength]
 import { execFileSync } from 'node:child_process'
 import { join } from 'node:path'

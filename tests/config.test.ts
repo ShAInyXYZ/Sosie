@@ -30,7 +30,7 @@ describe('config', () => {
     expect(() => loadConfig(configDir({ ports: { comfy: 'x' } }))).toThrow(/ports\.comfy/)
   })
 
-  it('lists missing paths, clashing ports and the main ComfyUI port', () => {
+  it('lists missing paths, clashing ports and the port of the other ComfyUI', () => {
     const config = loadConfig(configDir({ ports: { comfy: 8188, web: 3190 } }))
     const keys = configProblems(config).map((problem) => problem.key)
     expect(keys).toContain('paths.modelStore')

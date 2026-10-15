@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """When each word is said: faster-whisper (base, CPU) hears the track with word timestamps, then its words are
-matched back to the script's own words, so captions follow the voice exactly. Ported from ShinyLAB's align.py
+matched back to the script's own words, so captions follow the voice exactly.
 (the key is "word" instead of "w", to match Sosie's bundle).
 
     py/.venv/bin/python py/align.py <request.json>

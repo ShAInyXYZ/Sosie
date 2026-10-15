@@ -201,10 +201,10 @@ function SystemDialog({ status, onClose, onRefresh }: { status: SystemStatus | n
             ))}
             <button
               className="nk-button is-sm"
-              data-tooltip="Asks the main ComfyUI to unload its models; nothing else changes"
-              onClick={() => { void fetch('/api/system/free-main', { method: 'POST' }).then((r) => setNote(r.ok ? 'Main ComfyUI VRAM freed' : 'The main ComfyUI did not answer')).then(() => setTimeout(onRefresh, 1500)) }}
+              data-tooltip="Asks another ComfyUI on this machine (mainComfyUrl) to unload its models; nothing else changes"
+              onClick={() => { void fetch('/api/system/free-main', { method: 'POST' }).then((r) => setNote(r.ok ? 'Other ComfyUI VRAM freed' : 'The other ComfyUI did not answer')).then(() => setTimeout(onRefresh, 1500)) }}
             >
-              Free main ComfyUI VRAM
+              Free other ComfyUI VRAM
             </button>
           </div>
         )}

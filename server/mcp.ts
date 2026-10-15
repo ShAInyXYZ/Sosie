@@ -30,7 +30,7 @@ Sosie films a lip-synced talking-head facecam: a chosen face says a script in a 
 5. Poll sosie_get_job (waitSeconds up to 50) until status is done, failed or canceled. Segments flagged by the lip-sync check can be re-rendered with sosie_reroll_segment.
 6. The result is a bundle folder (outputs.dir) with facecam.mp4, captions.srt, words.json, project.json and poster.jpg. Hand it to MOceanX: sosie_send_to_moceanx imports it into a new native project, or give outputs.dir to MOceanX's moceanx_import_sosie, or add facecam.mp4 to an explainer composition with moceanx_add_composition_media.
 
-Every output is tagged "AI-generated (Sosie)". Model licences apply to what you publish (README, Licences).
+Every output is tagged "AI-generated (Sosie)".
 `
 
 const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
