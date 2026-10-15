@@ -12,6 +12,7 @@ comfy/.venv/
 comfy/extra_model_paths.yaml
 py/.venv/
 py/breeze-tts/
+py/dots-tts/
 py/models/
 __pycache__/
 
