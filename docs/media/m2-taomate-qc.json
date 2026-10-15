@@ -1,0 +1,33 @@
+{
+ "video": "docs/media/m2-taomate.mp4",
+ "frames": 206,
+ "expectedFrames": 206,
+ "duration": {
+  "ok": true
+ },
+ "clean": {
+  "blackFrames": 0,
+  "longestFrozenRun": 0,
+  "noiseSpikes": 0,
+  "ok": true
+ },
+ "face": {
+  "ratio": 1.0,
+  "ok": true
+ },
+ "lipSync": {
+  "envelope": {
+   "near": 0.344,
+   "reversedControl": -0.266,
+   "margin": 0.611,
+   "pass": true
+  },
+  "pauses": {
+   "nearRatio": 1.396,
+   "farRatio": 1.339,
+   "pass": true
+  },
+  "pass": true
+ },
+ "pass": true
+}

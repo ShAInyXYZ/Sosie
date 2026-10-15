@@ -4,11 +4,16 @@
     py/.venv/bin/python py/qc.py <request.json>
 
 request.json: {"video": "<segment.mp4>", "audio": "<segment audio wav, same timeline>", "frames": <expected n>,
-               "landmarker": "<face_landmarker.task>", "out": "<qc.json>"}
+               "landmarker": "<face_landmarker.task>", "out": "<qc.json>",
+               "words": [{"word", "start", "end"}, ...]  (optional, seconds on the segment's timeline)}
 
-Checks: exact frame count; no black, frozen or noise-spike frames; a face in >= 95% of frames;
-lip sync = how well mouth opening tracks the voice at the true timing (best of offsets -2..+2 frames)
-minus how well it tracks at a wrong timing (best of offsets 12..36 frames either way). Pass at >= 0.10.
+Checks: exact frame count; no black, frozen or noise-spike frames; a face in >= 95% of frames; lip sync.
+Lip sync has two parts, because speech is rhythmic and a plain lag search finds false peaks one word
+period away (seen on the first H3 clip):
+  - envelope: mouth opening vs the voice's loudness at offsets -2..+2 frames must beat the same
+    measure against the time-reversed voice (same rhythm, wrong words) by >= 0.20;
+  - pauses (when word timings are given and the clip has pauses): the mouth must be clearly more open
+    during words than in pauses at offsets -2..+2 (ratio >= 1.2), and more so than at 8..16 frames off.
 A segment with no face at all is "unscored" (e.g. a stylised character), not failed.
 """
 import json
@@ -18,7 +23,9 @@ from pathlib import Path
 import numpy as np
 
 FPS = 24
-SYNC_PASS = 0.10
+ENVELOPE_MARGIN = 0.20
+PAUSE_RATIO = 1.2
+LATE_MARGIN = 0.15
 FACE_MIN = 0.95
 
 
@@ -100,19 +107,60 @@ def corr_at(a: np.ndarray, b: np.ndarray, offset: int) -> float:
     return float(np.corrcoef(x[mask], y[mask])[0, 1])
 
 
-def sync_score(mouth: np.ndarray, env: np.ndarray) -> dict:
-    # smooth both a little: mouth shapes lead/lag phonemes by a frame or two
+def smooth(x: np.ndarray) -> np.ndarray:
     kernel = np.ones(3) / 3
-    m = np.convolve(np.nan_to_num(mouth, nan=np.nanmean(mouth)), kernel, mode="same")
-    m[np.isnan(mouth)] = np.nan
-    e = np.convolve(env, kernel, mode="same")
-    near = {o: corr_at(m, e, o) for o in range(-2, 3)}
-    far = {o: corr_at(m, e, o) for o in [*range(12, 37), *range(-36, -11)]}
-    best_near = max((v for v in near.values() if not np.isnan(v)), default=float("nan"))
-    best_far = max((v for v in far.values() if not np.isnan(v)), default=float("nan"))
-    score = best_near - best_far
-    return {"near": round(best_near, 3), "far": round(best_far, 3), "score": round(score, 3),
-            "bestOffset": max(near, key=lambda o: -1 if np.isnan(near[o]) else near[o]), "pass": bool(score >= SYNC_PASS)}
+    filled = np.nan_to_num(x, nan=np.nanmean(x) if np.isfinite(np.nanmean(x)) else 0.0)
+    out = np.convolve(filled, kernel, mode="same")
+    out[np.isnan(x)] = np.nan
+    return out
+
+
+def best_near(a: np.ndarray, b: np.ndarray) -> float:
+    values = [v for v in (corr_at(a, b, o) for o in range(-2, 3)) if not np.isnan(v)]
+    return max(values) if values else float("nan")
+
+
+def envelope_check(mouth: np.ndarray, env: np.ndarray) -> dict:
+    m, e = smooth(mouth), np.convolve(env, np.ones(3) / 3, mode="same")
+    near = best_near(m, e)
+    control = best_near(m, e[::-1].copy())
+    margin = near - control
+    return {"near": round(near, 3), "reversedControl": round(control, 3), "margin": round(margin, 3),
+            "pass": bool(np.isfinite(margin) and margin >= ENVELOPE_MARGIN)}
+
+
+def speech_mask(words: list, n: int) -> np.ndarray:
+    mask = np.zeros(n, bool)
+    for w in words:
+        mask[max(0, int(w["start"] * FPS)):min(n, int(np.ceil(w["end"] * FPS)))] = True
+    return mask
+
+
+def pause_check(mouth: np.ndarray, words: list) -> dict:
+    n = len(mouth)
+    speech = speech_mask(words, n)
+    m = np.nan_to_num(mouth, nan=np.nanmean(mouth))
+    if speech.sum() < FPS or (~speech).sum() < FPS // 2:
+        return {"status": "not applicable (too few pause frames)"}
+
+    def ratio(shift: int) -> float:
+        sp = np.roll(speech, shift)
+        off = m[~sp].mean()
+        return float(m[sp].mean() / off) if off > 0 else float("nan")
+
+    near = max(ratio(s) for s in range(-2, 3))
+    far = max(ratio(s) for s in [*range(8, 17), *range(-16, -7)])
+    # Continuous speech has short gaps, so a wrong offset can score almost as well as the right one;
+    # only a clearly better wrong offset means the lips run late/early.
+    return {"nearRatio": round(near, 3), "farRatio": round(far, 3),
+            "pass": bool(near >= PAUSE_RATIO and far - near < LATE_MARGIN)}
+
+
+def sync_score(mouth: np.ndarray, env: np.ndarray, words: list | None) -> dict:
+    envelope = envelope_check(mouth, env)
+    pauses = pause_check(mouth, words) if words else {"status": "not applicable (no word timings)"}
+    passed = envelope["pass"] and pauses.get("pass", True)
+    return {"envelope": envelope, "pauses": pauses, "pass": bool(passed)}
 
 
 def run(req: dict) -> dict:
@@ -126,7 +174,7 @@ def run(req: dict) -> dict:
         result["lipSync"] = {"status": "unscored"}
     else:
         env = audio_envelope(req["audio"], len(frames))
-        result["lipSync"] = sync_score(mouth, env)
+        result["lipSync"] = sync_score(mouth, env, req.get("words"))
     lip_ok = result["lipSync"].get("pass", True)
     result["pass"] = bool(result["duration"]["ok"] and result["clean"]["ok"] and (face_ratio == 0 or result["face"]["ok"]) and lip_ok)
     return result

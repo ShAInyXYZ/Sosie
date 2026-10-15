@@ -1,0 +1,33 @@
+{
+ "video": "docs/media/m2-turbo4.mp4",
+ "frames": 206,
+ "expectedFrames": 206,
+ "duration": {
+  "ok": true
+ },
+ "clean": {
+  "blackFrames": 0,
+  "longestFrozenRun": 0,
+  "noiseSpikes": 0,
+  "ok": true
+ },
+ "face": {
+  "ratio": 1.0,
+  "ok": true
+ },
+ "lipSync": {
+  "envelope": {
+   "near": 0.365,
+   "reversedControl": -0.179,
+   "margin": 0.544,
+   "pass": true
+  },
+  "pauses": {
+   "nearRatio": 1.464,
+   "farRatio": 1.444,
+   "pass": true
+  },
+  "pass": true
+ },
+ "pass": true
+}
