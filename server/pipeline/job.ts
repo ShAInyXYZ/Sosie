@@ -14,7 +14,8 @@ import { planSegments, type Segment } from './plan.ts'
 import { qcReportHtml } from './qc-report.ts'
 import { talkPrompt } from './prompt.ts'
 import { FPS, framesFor } from './segments.ts'
-import { listVoices, speakScript, type ScriptLine, type SpokenLine } from './voice.ts'
+import { spokenText } from './script.ts'
+import { listVoices, speakScript, type ScriptLine, type SpokenLine, type VoiceEngine } from './voice.ts'
 
 const run = promisify(execFile)
 
@@ -23,6 +24,8 @@ export type JobSpec = {
   name: string
   script: ScriptLine[]
   voiceId: string
+  /** Who speaks the script: Breeze TTS 2 (default) or Dots TTS. */
+  voiceEngine?: VoiceEngine
   faceId: string
   format: Format
   lora: SpeedLora
@@ -235,7 +238,7 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
     if (!state.voice || !existsSync(state.voice.wav)) {
       update({ step: 'voice', message: 'Recording the voice', progress: 0.02 })
       const track = await time('voice', () => engines.speak(config, spec.voiceId, spec.script, join(dir, 'voice'), {
-        seed: spec.seed,
+        seed: spec.seed, engine: spec.voiceEngine ?? 'breeze',
         onProgress: (done, total) => update({ message: `Voicing line ${done} of ${total}`, progress: 0.02 + 0.08 * (done / total) }),
       }, root))
       update({ voice: { wav: track.wav, durationS: track.durationS, words: track.words, lines: track.lines } })
@@ -246,7 +249,8 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
     if (!state.segments.length) {
       update({ step: 'plan', message: 'Planning segments', progress: 0.1 })
       const voice = state.voice!
-      let segments = planSegments(voice.lines.map((l) => ({ text: l.text, direction: l.direction, startS: l.startS, durationS: l.durationS })), voice.words, framesFor(voice.durationS))
+      // the video prompt quotes the words only: vocal events like (laugh) are performed by the voice, not read
+      let segments = planSegments(voice.lines.map((l) => ({ text: spokenText(l.text), direction: l.direction, startS: l.startS, durationS: l.durationS })), voice.words, framesFor(voice.durationS))
       if (spec.firstSegmentOnly) segments = segments.slice(0, 1)
       update({ segments: segments.map((s) => ({ ...s, status: 'pending', attempts: [], seedBase: spec.seed + s.index * 1000 })) })
     }
@@ -337,7 +341,7 @@ export async function runJob(config: SosieConfig, spec: JobSpec, hooks: JobHooks
       durationS,
       fps: FPS,
       ...(spec.size ?? FORMATS[spec.format]),
-      voice: voice ? { id: voice.id, name: voice.name, kind: voice.kind } : { id: spec.voiceId },
+      voice: { ...(voice ? { id: voice.id, name: voice.name, kind: voice.kind } : { id: spec.voiceId }), engine: spec.voiceEngine ?? 'breeze' },
       face: { id: face.id, name: face.name, kind: face.kind },
       look: face.set,
       script: spec.script,

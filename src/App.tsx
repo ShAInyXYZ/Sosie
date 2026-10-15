@@ -292,7 +292,7 @@ export default function App() {
           ))}
         </div>
         {job && !busy ? <button className="nk-button is-ghost" onClick={() => setJobId('')}>New video</button> : null}
-        <button className="nk-icon-button is-ghost" aria-label="Settings" data-tooltip="Speed, punch-in and advanced settings" disabled={busy} onClick={() => setOpen('settings')}>
+        <button className="nk-icon-button is-ghost" aria-label="Settings" data-tooltip="Voice, speed, punch-in and advanced settings" disabled={busy} onClick={() => setOpen('settings')}>
           <KitIcon name="settings" />
         </button>
         <span className="studio-eta mono" data-tooltip="Estimated render time">ETA {formatEta(eta)}</span>
@@ -322,7 +322,7 @@ export default function App() {
           onClose={() => setOpen(null)}
         />
       )}
-      {open === 'script' && <ScriptWindow script={script} onChange={setScript} onClose={() => setOpen(null)} />}
+      {open === 'script' && <ScriptWindow script={script} engine={settings.voiceEngine} onChange={setScript} onClose={() => setOpen(null)} />}
       {open === 'look' && <LookWindow looks={looks} chosen={look} onChoose={(id) => { setLook(id); setOpen(null) }} onClose={() => setOpen(null)} />}
       {open === 'library' && (
         <LibraryWindow
@@ -332,7 +332,7 @@ export default function App() {
           onClose={() => setOpen(null)}
         />
       )}
-      {open === 'settings' && <SettingsWindow settings={settings} onChange={(next) => setSettingsText(JSON.stringify(next))} onClose={() => setOpen(null)} />}
+      {open === 'settings' && <SettingsWindow settings={settings} dots={status ? status.dots ?? null : undefined} onChange={(next) => setSettingsText(JSON.stringify(next))} onClose={() => setOpen(null)} />}
       {open === 'system' && <SystemDialog status={status} onClose={() => setOpen(null)} onRefresh={refreshSystem} />}
     </div>
   )

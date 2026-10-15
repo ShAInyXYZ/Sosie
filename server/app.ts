@@ -9,7 +9,7 @@ import multer from 'multer'
 import { trashItem, type LibraryKind } from './library.ts'
 import { faceFiles, listFaces } from './pipeline/faces.ts'
 import { characterCandidates, chooseCharacter, defaultImageLora, imageSteps, photoFace, type CharacterForm, type ImageLora, type LookId } from './pipeline/look.ts'
-import { designVoice, importVoice } from './pipeline/voice.ts'
+import { designVoice, dotsMissing, importVoice } from './pipeline/voice.ts'
 import { sendToMoceanx } from './moceanx.ts'
 import { scriptProviders, writeScript } from './script-ai.ts'
 import { FORMATS, SPEED_LORAS, type Format, type SpeedLora } from './pipeline/h3.ts'
@@ -59,7 +59,8 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
   })
 
   app.get('/api/system', async (_request, response) => {
-    response.json(await systemStatus(config))
+    // dots: null when the Dots voice engine can run, else why not
+    response.json({ ...(await systemStatus(config)), dots: dotsMissing(config, root) })
   })
   // Start Sosie's own ComfyUI (the API is already up if this answers)
   app.post('/api/system/start', (_request, response) => {
@@ -151,7 +152,7 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
   // Script AI: the local Claude Code or Codex CLI writes; the user edits
   app.get('/api/script/providers', async (_request, response) => response.json({ providers: await scriptProviders() }))
   app.post('/api/script/write', async (request, response) => {
-    const script = await writeScript(String(request.body?.context ?? ''), String(request.body?.brief ?? ''))
+    const script = await writeScript(String(request.body?.context ?? ''), String(request.body?.brief ?? ''), { engine: request.body?.engine === 'dots' ? 'dots' : 'breeze' })
       .catch((error: Error) => { throw new JobError(error.message, 502) })
     response.json({ script })
   })
@@ -180,11 +181,14 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
     const size = body.size && [body.size.width, body.size.height].every((v: unknown) => Number.isInteger(v) && (v as number) >= 256 && (v as number) <= 1536 && (v as number) % 32 === 0)
       ? { width: body.size.width as number, height: body.size.height as number } : undefined
     if (body.size && !size) throw new JobError('Width and height go from 256 to 1536 in steps of 32.')
+    const voiceEngine = body.voiceEngine === 'dots' ? 'dots' : undefined
+    const dotsProblem = voiceEngine && dotsMissing(config, root)
+    if (dotsProblem) throw new JobError(dotsProblem)
     response.status(201).json(jobs.start({
       name: typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 80) : script[0].text.slice(0, 48),
       script, faceId: body.faceId, voiceId: body.voiceId, format, lora,
       seed: Number.isInteger(body.seed) ? body.seed : 42, punchIn: body.punchIn === true, firstSegmentOnly: body.firstSegmentOnly === true,
-      steps, size, refImageSize: body.refImageSize === 'match' ? 'match' : undefined,
+      steps, size, refImageSize: body.refImageSize === 'match' ? 'match' : undefined, voiceEngine,
     }))
   })
   app.get('/api/jobs/:id', (request, response) => {

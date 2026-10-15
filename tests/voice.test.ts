@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { captionLines, shiftWords, toSrt, type Word } from '../server/pipeline/captions.ts'
-import { lineKey, pauseAfter } from '../server/pipeline/voice.ts'
+import { parseScript, scriptText, spokenText } from '../server/pipeline/script.ts'
+import { engineRate, gapFilter, lineKey, pauseAfter } from '../server/pipeline/voice.ts'
 
 const words = (text: string, start = 0, step = 0.3): Word[] =>
   text.split(' ').map((word, i) => ({ word, start: +(start + i * step).toFixed(3), end: +(start + i * step + step * 0.8).toFixed(3) }))
@@ -34,9 +35,9 @@ describe('captions', () => {
 
 describe('voice helpers', () => {
   it('pauses longer after a full stop', () => {
-    expect(pauseAfter('Done.')).toBe(0.4)
-    expect(pauseAfter('Wait, what?')).toBe(0.4)
-    expect(pauseAfter('and then')).toBe(0.25)
+    expect(pauseAfter('Done.')).toBe(0.5)
+    expect(pauseAfter('Wait, what?')).toBe(0.5)
+    expect(pauseAfter('and then')).toBe(0.3)
   })
 
   it('caches by voice, reference, text, direction and seed', () => {
@@ -45,6 +46,45 @@ describe('voice helpers', () => {
     expect(lineKey('v', 'h', { text: 'Hi', direction: 'excited' }, 42)).not.toBe(base)
     expect(lineKey('v', 'h2', { text: 'Hi' }, 42)).not.toBe(base)
     expect(lineKey('v', 'h', { text: 'Hi' }, 7)).not.toBe(base)
+  })
+
+  it('never pads without a length (a zero pause once wrote an endless file)', () => {
+    expect(gapFilter(2, 0.5)).toBe('[2:a]apad=pad_dur=0.5[a2]')
+    expect(gapFilter(3, 0)).toBe('[3:a]anull[a3]')
+  })
+
+  it('caches Dots lines by their spoken words only, apart from Breeze', () => {
+    const dots = lineKey('v', 'h', { text: 'Hi' }, 42, 'dots')
+    expect(dots).not.toBe(lineKey('v', 'h', { text: 'Hi' }, 42))
+    expect(lineKey('v', 'h', { text: '(laugh) Hi', direction: 'excited' }, 42, 'dots')).toBe(dots)
+    expect(engineRate('dots')).toBe(48000)
+    expect(engineRate('breeze')).toBe(24000)
+  })
+})
+
+describe('script controls', () => {
+  it('reads the note, pace and pause from the brackets', () => {
+    expect(parseScript('No war. [low, dry; pace 0.9; pause 1.2]\nHi! [excited]\nPlain line')).toEqual([
+      { text: 'No war.', direction: 'low, dry', pace: 0.9, pause: 1.2 },
+      { text: 'Hi!', direction: 'excited' },
+      { text: 'Plain line' },
+    ])
+  })
+
+  it('accepts = and s, and keeps values in range', () => {
+    expect(parseScript('A [pace=2; pause: 9s]')).toEqual([{ text: 'A', pace: 1.3, pause: 3 }])
+    expect(parseScript('B [pace 0.2]')).toEqual([{ text: 'B', pace: 0.7 }])
+  })
+
+  it('writes the same form back', () => {
+    const text = 'No war. [low, dry; pace 0.9; pause 1.2]\nHi! [excited]\nOnly a pause. [pause 0.8]\nPlain line'
+    expect(scriptText(parseScript(text))).toBe(text)
+  })
+
+  it('removes vocal events from the spoken words', () => {
+    expect(spokenText('(sigh) Fine. You win (laugh).')).toBe('Fine. You win.')
+    expect(spokenText('(Clears throat) Right then.')).toBe('Right then.')
+    expect(spokenText('Keep (this) word')).toBe('Keep (this) word')
   })
 })
 

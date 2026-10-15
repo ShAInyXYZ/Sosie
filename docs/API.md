@@ -7,7 +7,7 @@ Base URL `http://127.0.0.1:3190`. JSON in and out unless noted. Requests must be
 | Method | Route | Body → result |
 |---|---|---|
 | GET | `/api/health` | `{ ok, app: "sosie", version }` |
-| GET | `/api/system` | `{ services: { api, comfy, python }, gpus, problems }` (lamps: `ok`, `down`, `missing`) |
+| GET | `/api/system` | `{ services: { api, comfy, python }, gpus, problems, dots }` (lamps: `ok`, `down`, `missing`; `dots` is null when the Dots voice engine can run, else why not) |
 | POST | `/api/system/start` | starts Sosie's ComfyUI in the background → `202 { starting: true }` |
 | POST | `/api/system/free-main` | asks the main ComfyUI (`mainComfyUrl`) to unload its models → `{ freed: true }` |
 
@@ -33,14 +33,14 @@ Base URL `http://127.0.0.1:3190`. JSON in and out unless noted. Requests must be
 | Method | Route | Body → result |
 |---|---|---|
 | GET | `/api/script/providers` | `{ providers: [{ id: "claude" \| "codex", available }] }` |
-| POST | `/api/script/write` | `{ context, brief }` → `{ script }` (one line per sentence, `[direction]` notes); 502 with a clear message when no CLI is installed or signed in |
+| POST | `/api/script/write` | `{ context, brief, engine?: "breeze" \| "dots" }` → `{ script }` (one breath per line, `[note; pace …; pause …]`, written to that engine's guide in docs/VOICE_PROMPTING.md); 502 with a clear message when no CLI is installed or signed in |
 
 ## Videos (jobs)
 
 | Method | Route | Body → result |
 |---|---|---|
 | GET | `/api/jobs` | `{ jobs: Job[] }`, newest first |
-| POST | `/api/jobs` | `{ script, faceId, voiceId, format?, name?, lora?: "taomate" \| "turbo4", seed?, punchIn?, firstSegmentOnly?, steps?, size?: { width, height }, refImageSize?: "match" \| "max" }` → `201 Job` (queued) |
+| POST | `/api/jobs` | `{ script, faceId, voiceId, format?, name?, lora?: "taomate" \| "turbo4", seed?, punchIn?, firstSegmentOnly?, steps?, size?: { width, height }, refImageSize?: "match" \| "max", voiceEngine?: "breeze" \| "dots" }` → `201 Job` (queued); `script` lines take `[note; pace 0.9; pause 1.2]` (docs/VOICE_PROMPTING.md); `voiceEngine: "dots"` is refused with the reason when Dots is not set up |
 | GET | `/api/jobs/:id` | `Job`: `status` (`queued`, `running`, `done`, `failed`, `canceled`), `step`, `progress` 0–1, `message`, `segments` (each with `status` and its takes' QC) |
 | DELETE | `/api/jobs/:id` | cancel |
 | POST | `/api/jobs/:id/resume` | continue a canceled, failed or interrupted job |

@@ -112,6 +112,19 @@ describe('Script AI', () => {
     expect(scriptFromLines({ lines: [{ text: 'Hi there!', direction: 'excited' }, { text: 'Second [line]', direction: '' }, { text: '  ', direction: 'x' }] }))
       .toBe('Hi there! [excited]\nSecond  line')
     expect(() => scriptFromLines({ nope: true })).toThrow('no script lines')
+    expect(scriptFromLines({ lines: [{ text: 'No war.', direction: 'low; dry', pace: 0.9, pause: 1.2 }, { text: 'Go.', direction: '', pace: 1, pause: 9 }] }))
+      .toBe('No war. [low, dry; pace 0.9; pause 1.2]\nGo. [pause 3]')
+  })
+
+  test('the brief carries the writing guide of the chosen engine', async () => {
+    const { scriptBrief } = await import('../server/script-ai.ts')
+    const breeze = scriptBrief('', 'Explain Sosie')
+    expect(breeze).toContain('Breeze TTS 2')
+    expect(breeze).toContain('(clears throat)')
+    const dots = scriptBrief('', 'Explain Sosie', 'dots')
+    expect(dots).toContain('Dots TTS')
+    expect(dots).toContain('no vocal events')
+    expect(dots).not.toContain('Breeze TTS 2')
   })
 
   test('without a CLI the message says what to do', async () => {

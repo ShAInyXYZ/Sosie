@@ -7,11 +7,12 @@
     "comfy": 8190
   },
   "paths": {
-    "$comment": "Absolute paths on this machine. Empty = not configured; the System panel lists what is missing.",
+    "$comment": "Absolute paths on this machine. Empty = not configured; the System panel lists what is missing. dotsModel (optional) = the dots-studio/dots.tts-soar folder for the Dots voice engine.",
     "modelStore": "",
     "nasModels": "",
     "nasTts": "",
     "breezeModel": "",
+    "dotsModel": "",
     "whisperModel": "",
     "importVoiceSample": "",
     "importVoiceTranscript": ""

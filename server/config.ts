@@ -16,6 +16,8 @@ export const configSchema = z.object({
     nasModels: z.string(),
     nasTts: z.string(),
     breezeModel: z.string(),
+    /** The official dots-studio/dots.tts-soar folder; empty = the Dots voice engine is off. */
+    dotsModel: z.string().default(''),
     whisperModel: z.string(),
     importVoiceSample: z.string(),
     importVoiceTranscript: z.string(),

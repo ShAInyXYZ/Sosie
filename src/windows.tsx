@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { api, type CharacterForm, type Face, type FormatId, type ImageLora, type Job, type Look, type Settings, type Voice } from './api'
+import { api, type CharacterForm, type Face, type FormatId, type ImageLora, type Job, type Look, type Settings, type Voice, type VoiceEngine } from './api'
 import { NkSelect, NkSlider } from './ui/controls'
 import { KitIcon } from './ui/icons'
 import { ZoomImage } from './zoom'
@@ -313,7 +313,7 @@ export function VoiceWindow({ voices, chosen, onChoose, onCreated, onClose }: {
   )
 }
 
-export function ScriptWindow({ script, onChange, onClose }: { script: string; onChange: (text: string) => void; onClose: () => void }) {
+export function ScriptWindow({ script, engine, onChange, onClose }: { script: string; engine?: VoiceEngine; onChange: (text: string) => void; onClose: () => void }) {
   const [text, setText] = useState(script)
   const [context, setContext] = useState('')
   const [brief, setBrief] = useState('')
@@ -340,7 +340,7 @@ export function ScriptWindow({ script, onChange, onClose }: { script: string; on
               onClick={() => {
                 setBusy(true)
                 setError('')
-                api.writeScript(context, brief).then((result) => setText(result.script), (cause) => setError(errorText(cause))).finally(() => setBusy(false))
+                api.writeScript(context, brief, engine).then((result) => setText(result.script), (cause) => setError(errorText(cause))).finally(() => setBusy(false))
               }}
             >
               Write
@@ -357,7 +357,7 @@ export function ScriptWindow({ script, onChange, onClose }: { script: string; on
         rows={12}
         value={text}
         onChange={(event) => setText(event.target.value)}
-        placeholder={'One sentence per line.\nAdd a delivery note at the end in brackets. [excited]'}
+        placeholder={'One breath per line, a note and controls in brackets:\nNo war. No bang. A yawn. [low, dry; pace 0.9; pause 1.2]\n(laugh) and (sigh) work with Breeze.'}
       />
       <p className="dim mono">{words} words · about {Math.max(1, Math.round(words / 2.5))} s</p>
     </Window>
@@ -436,7 +436,7 @@ export function LibraryWindow({ faces, voices, jobs, onOpenJob, onChanged, onClo
   )
 }
 
-export function SettingsWindow({ settings, onChange, onClose }: { settings: Settings; onChange: (next: Settings) => void; onClose: () => void }) {
+export function SettingsWindow({ settings, dots, onChange, onClose }: { settings: Settings; dots?: string | null; onChange: (next: Settings) => void; onClose: () => void }) {
   const set = (patch: Partial<Settings>) => onChange({ ...settings, ...patch })
   const number = (value: string) => (value.trim() === '' ? undefined : Number(value))
   return (
@@ -472,6 +472,12 @@ export function SettingsWindow({ settings, onChange, onClose }: { settings: Sett
         </div>
       )}
     >
+      <Field label="Voice">
+        <NkSelect value={settings.voiceEngine ?? 'breeze'} onChange={(event) => set({ voiceEngine: event.target.value === 'dots' ? 'dots' : undefined })}>
+          <option value="breeze">Breeze TTS 2 · follows delivery notes</option>
+          <option value="dots" disabled={dots !== null}>{dots === null ? 'Dots TTS · cleanest sound' : 'Dots TTS · not set up'}</option>
+        </NkSelect>
+      </Field>
       <Field label="Speed">
         <NkSelect value={settings.lora ?? 'taomate'} onChange={(event) => set({ lora: event.target.value as Settings['lora'] })}>
           <option value="taomate">TaoMate · 3 steps (steady framing)</option>

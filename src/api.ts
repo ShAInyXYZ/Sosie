@@ -6,6 +6,8 @@ export type SystemStatus = {
   services: { api: Lamp; comfy: Lamp; python: Lamp }
   gpus: Gpu[] | null
   problems: { key: string; message: string }[]
+  /** null when the Dots voice engine can run, else why not. */
+  dots?: string | null
 }
 
 export type Face = { id: string; name: string; kind: 'photo' | 'character'; subject: string; set: string; createdAt: string; warnings?: string[] }
@@ -47,6 +49,7 @@ export type JobRequest = {
   voiceId: string
   format: FormatId
   lora?: 'taomate' | 'turbo4'
+  voiceEngine?: VoiceEngine
   seed?: number
   punchIn?: boolean
   firstSegmentOnly?: boolean
@@ -54,7 +57,8 @@ export type JobRequest = {
   size?: { width: number; height: number }
   refImageSize?: 'match' | 'max'
 }
-export type Settings = Pick<JobRequest, 'lora' | 'seed' | 'punchIn' | 'steps' | 'size' | 'refImageSize'>
+export type VoiceEngine = 'breeze' | 'dots'
+export type Settings = Pick<JobRequest, 'lora' | 'seed' | 'punchIn' | 'steps' | 'size' | 'refImageSize' | 'voiceEngine'>
 export type ImageLora = { file: string; strength: number }
 export type CharacterForm = { who: string; age?: string; hair?: string; outfit?: string; style?: 'photo' | 'anime' | '3d'; framing?: 'chest' | 'close' }
 export type SendResult = { sent: true; folderPath: string } | { sent: false; reason: string; bundle: string }
@@ -82,7 +86,7 @@ export const api = {
   chooseCharacter: (candidate: string, name: string) => json<Face>('/api/faces/characters/choose', post({ candidate, name })),
   importVoice: (form: FormData) => json<Voice>('/api/voices/import', { method: 'POST', body: form }),
   designVoice: (name: string, description: string) => json<Voice>('/api/voices/design', post({ name, description })),
-  writeScript: (context: string, brief: string) => json<{ script: string }>('/api/script/write', post({ context, brief })),
+  writeScript: (context: string, brief: string, engine?: VoiceEngine) => json<{ script: string }>('/api/script/write', post({ context, brief, engine })),
   jobs: () => json<{ jobs: Job[] }>('/api/jobs').then((r) => r.jobs),
   job: (id: string) => json<Job>(`/api/jobs/${encodeURIComponent(id)}`),
   startJob: (request: JobRequest) => json<Job>('/api/jobs', post(request)),

@@ -8,6 +8,7 @@ import { pickFreeGpu } from '../gpus.ts'
 import { runPy } from '../py.ts'
 import { probeDuration } from '../media/ffmpeg.ts'
 import { shiftWords, type Word } from './captions.ts'
+import { spokenText } from './script.ts'
 
 const run = promisify(execFile)
 
@@ -22,7 +23,12 @@ export type Voice = {
   createdAt: string
 }
 
-export type ScriptLine = { text: string; direction?: string }
+/** One line of the script: what is said, its delivery note, and optional pace (1 = natural) and pause after it (s). */
+export type ScriptLine = { text: string; direction?: string; pace?: number; pause?: number }
+
+/** Breeze TTS 2 follows delivery notes and vocal events; Dots TTS clones the cleanest (docs/VOICE_PROMPTING.md). */
+export type VoiceEngine = 'breeze' | 'dots'
+export const VOICE_ENGINES: VoiceEngine[] = ['breeze', 'dots']
 
 export type SpokenLine = ScriptLine & { file: string; durationS: number; startS: number }
 
@@ -52,12 +58,13 @@ export function listVoices(root = ROOT): Voice[] {
 
 function voiceFiles(id: string, root = ROOT) {
   const dir = join(voicesDir(root), id)
-  return { dir, meta: join(dir, 'voice.json'), wav: join(dir, 'ref.wav'), text: join(dir, 'ref.txt') }
+  // ref.wav is 24 kHz for Breeze; ref-hq.wav keeps 48 kHz for Dots, which copies the reference's sound
+  return { dir, meta: join(dir, 'voice.json'), wav: join(dir, 'ref.wav'), hq: join(dir, 'ref-hq.wav'), text: join(dir, 'ref.txt') }
 }
 
-/** Mono 24 kHz WAV, the rate Breeze works at. */
-async function toVoiceWav(src: string, dst: string, maxSeconds = 20) {
-  await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', src, '-t', String(maxSeconds), '-ac', '1', '-ar', '24000', '-c:a', 'pcm_s16le', dst])
+/** Mono WAV: 24 kHz is the rate Breeze works at; Dots works at 48 kHz. */
+async function toVoiceWav(src: string, dst: string, maxSeconds = 20, rate = 24000) {
+  await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', src, '-t', String(maxSeconds), '-ac', '1', '-ar', String(rate), '-c:a', 'pcm_s16le', dst])
 }
 
 /** Add a cloned voice from a sample (5–20 s) and its exact transcript. */
@@ -69,6 +76,7 @@ export async function importVoice(input: { name: string; sample: string; transcr
   const files = voiceFiles(voice.id, root)
   mkdirSync(files.dir, { recursive: true })
   await toVoiceWav(input.sample, files.wav)
+  await toVoiceWav(input.sample, files.hq, 20, 48000)
   const seconds = await probeDuration(files.wav)
   if (seconds < 3) throw new Error(`The sample is ${seconds.toFixed(1)} s; use 5–20 s of clear speech.`)
   writeFileSync(files.text, transcript)
@@ -95,75 +103,121 @@ export async function designVoice(config: SosieConfig, input: { name: string; de
   return voice
 }
 
-export function lineKey(voiceId: string, refHash: string, line: ScriptLine, seed: number): string {
-  return createHash('sha256').update(JSON.stringify([voiceId, refHash, line.text.trim(), (line.direction ?? '').trim(), seed])).digest('hex').slice(0, 24)
+export function lineKey(voiceId: string, refHash: string, line: ScriptLine, seed: number, engine: VoiceEngine = 'breeze'): string {
+  // Dots takes no delivery note and speaks only the words, so its key ignores both
+  const parts = engine === 'dots' ? ['dots', spokenText(line.text)] : [line.text.trim(), (line.direction ?? '').trim()]
+  return createHash('sha256').update(JSON.stringify([voiceId, refHash, ...parts, seed])).digest('hex').slice(0, 24)
 }
 
-/** Pause after a line: longer after a full stop. */
-export function pauseAfter(text: string): number {
-  return /[.!?…]["')\]]*\s*$/.test(text.trim()) ? 0.4 : 0.25
+/** The engine's sample rate: the joined track keeps it (Dots stays 48 kHz all the way to the video). */
+export function engineRate(engine: VoiceEngine): number {
+  return engine === 'dots' ? 48000 : 24000
 }
+
+/** The Python environment and model a Dots job needs; null when they are in place. */
+export function dotsMissing(config: SosieConfig, root = ROOT): string | null {
+  if (!config.paths.dotsModel) return 'Dots TTS is not set up: paths.dotsModel is empty in config/sosie.local.json.'
+  if (!existsSync(join(config.paths.dotsModel, 'model.safetensors'))) return `Dots TTS model not found in ${config.paths.dotsModel}.`
+  if (!existsSync(join(root, 'py', 'dots-tts', '.venv', 'bin', 'python'))) return 'Dots TTS is not installed (py/dots-tts/.venv).'
+  return null
+}
+
+/** Default pause after a line (the gap after its trimmed speech): longer after a full stop. */
+export function pauseAfter(text: string): number {
+  return /[.!?…]["')\]]*\s*$/.test(text.trim()) ? 0.5 : 0.3
+}
+
+/** Line `i` followed by `pause` seconds of silence. apad without a positive duration pads forever (it once filled
+ * the disk), so a zero pause passes the line through unchanged. */
+export function gapFilter(i: number, pause: number): string {
+  return pause > 0 ? `[${i}:a]apad=pad_dur=${pause}[a${i}]` : `[${i}:a]anull[a${i}]`
+}
+
+/** Cut the silence the engines leave around a line (Dots up to 0.9 s), keeping 50 ms, so `pause` is the real gap. */
+export const TRIM_SILENCE = 'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05,areverse'
 
 /**
- * Voice every line (cached), join them with natural pauses, normalise loudness once on the joined
- * track, and align words. Returns the joined track and each line's place on it.
+ * Voice every line (cached) with the chosen engine, apply each line's pace, join them with their pauses,
+ * normalise loudness once on the joined track, and align words. Returns the joined track and each line's place on it.
  */
-export async function speakScript(config: SosieConfig, voiceId: string, lines: ScriptLine[], workDir: string, opts: { seed?: number; onProgress?: (done: number, total: number) => void } = {}, root = ROOT): Promise<VoiceTrack> {
+export async function speakScript(config: SosieConfig, voiceId: string, lines: ScriptLine[], workDir: string, opts: { seed?: number; engine?: VoiceEngine; onProgress?: (done: number, total: number) => void } = {}, root = ROOT): Promise<VoiceTrack> {
   const seed = opts.seed ?? 42
+  const engine = opts.engine ?? 'breeze'
+  const rate = engineRate(engine)
   const files = voiceFiles(voiceId, root)
   if (!existsSync(files.meta)) throw new Error('That voice no longer exists.')
-  const refHash = createHash('sha256').update(readFileSync(files.wav)).digest('hex')
+  if (engine === 'dots') {
+    const missing = dotsMissing(config, root)
+    if (missing) throw new Error(missing)
+  }
+  // Dots copies the reference's sound, so it gets the 48 kHz copy when the voice has one
+  const refAudio = engine === 'dots' && existsSync(files.hq) ? files.hq : files.wav
+  const refHash = createHash('sha256').update(readFileSync(refAudio)).digest('hex')
   const cacheDir = join(root, 'data', 'cache', 'tts')
   mkdirSync(cacheDir, { recursive: true })
   mkdirSync(workDir, { recursive: true })
 
-  const keys = lines.map((line) => lineKey(voiceId, refHash, line, seed))
+  const keys = lines.map((line) => lineKey(voiceId, refHash, line, seed, engine))
   const missing = lines.map((line, i) => ({ line, key: keys[i] })).filter(({ key }) => !existsSync(join(cacheDir, `${key}.wav`)))
   if (missing.length) {
     const gpu = await pickFreeGpu(config.gpus.tts, config.gpus.ttsMinFreeGb * 1024)
     const out = join(workDir, 'tts')
     let done = lines.length - missing.length
-    await runPy('tts', {
-      model: config.paths.breezeModel, out, seed,
-      voice: { mode: 'clone', refAudio: files.wav, refText: readFileSync(files.text, 'utf8').trim() },
-      lines: missing.map(({ line }) => ({ text: line.text, direction: line.direction ?? '' })),
-    }, { gpu: gpu.index, workDir: out, onLine: (text) => { if (text.startsWith('{"line"')) opts.onProgress?.(++done, lines.length) } })
+    const onLine = (text: string) => { if (text.startsWith('{"line"')) opts.onProgress?.(++done, lines.length) }
+    const refText = readFileSync(files.text, 'utf8').trim()
+    if (engine === 'dots') {
+      await runPy('dots', {
+        model: config.paths.dotsModel, out, seed, steps: 15, cfg: 1.2, refAudio, refText,
+        lines: missing.map(({ line }) => ({ text: spokenText(line.text) })),
+      }, { gpu: gpu.index, workDir: out, onLine })
+    } else {
+      await runPy('tts', {
+        model: config.paths.breezeModel, out, seed,
+        voice: { mode: 'clone', refAudio, refText },
+        lines: missing.map(({ line }) => ({ text: line.text, direction: line.direction ?? '' })),
+      }, { gpu: gpu.index, workDir: out, onLine })
+    }
     missing.forEach(({ key }, i) => copyFileSync(join(out, `${String(i + 1).padStart(2, '0')}.wav`), join(cacheDir, `${key}.wav`)))
   }
 
-  // join: line, pause, line, pause … (sample-accurate concat via the concat filter)
+  // each line trimmed to its speech, at the track's rate, with its pace (a pitch-preserving stretch); then line, pause, line …
   const spoken: SpokenLine[] = []
   let cursor = 0
   const inputs: string[] = []
   const filters: string[] = []
   for (let i = 0; i < lines.length; i++) {
-    const file = join(cacheDir, `${keys[i]}.wav`)
+    const file = join(workDir, `line-${String(i + 1).padStart(2, '0')}.wav`)
+    const pace = lines[i].pace ?? 1
+    const stretch = pace !== 1 ? `,rubberband=tempo=${pace}:formant=preserved:pitchq=quality` : ''
+    await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', join(cacheDir, `${keys[i]}.wav`), '-af',
+      `aresample=${rate},aformat=channel_layouts=mono,${TRIM_SILENCE}${stretch}`, '-c:a', 'pcm_s16le', file])
     const durationS = await probeDuration(file)
     spoken.push({ ...lines[i], file, durationS, startS: +cursor.toFixed(6) })
     inputs.push('-i', file)
-    const pause = i < lines.length - 1 ? pauseAfter(lines[i].text) : 0.3
-    filters.push(`[${i}:a]aresample=24000,aformat=channel_layouts=mono,apad=pad_dur=${pause}[a${i}]`)
+    const pause = lines[i].pause ?? (i < lines.length - 1 ? pauseAfter(lines[i].text) : 0.3)
+    filters.push(gapFilter(i, pause))
     cursor += durationS + pause
   }
   const raw = join(workDir, 'voice-raw.wav')
   const graph = `${filters.join(';')};${lines.map((_, i) => `[a${i}]`).join('')}concat=n=${lines.length}:v=0:a=1[out]`
-  await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...inputs, '-filter_complex', graph, '-map', '[out]', '-c:a', 'pcm_s16le', raw], { maxBuffer: 16 * 1024 * 1024 })
+  // the length is known: cap the output so a filter mistake can never write an endless file
+  await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...inputs, '-filter_complex', graph, '-map', '[out]', '-t', (cursor + 1).toFixed(3), '-c:a', 'pcm_s16le', raw], { maxBuffer: 16 * 1024 * 1024 })
 
   // loudness: two-pass loudnorm to −16 LUFS, once, on the joined track
   const wav = join(workDir, 'voice.wav')
   const { stderr } = await run('ffmpeg', ['-hide_banner', '-nostats', '-i', raw, '-af', 'loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json', '-f', 'null', '-'], { maxBuffer: 16 * 1024 * 1024 })
   const measured = JSON.parse(stderr.slice(stderr.lastIndexOf('{'), stderr.lastIndexOf('}') + 1)) as Record<string, string>
   await run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', raw, '-af',
-    `loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=${measured.input_i}:measured_TP=${measured.input_tp}:measured_LRA=${measured.input_lra}:measured_thresh=${measured.input_thresh}:offset=${measured.target_offset}:linear=true,aresample=24000`,
+    `loudnorm=I=-16:TP=-1.5:LRA=11:measured_I=${measured.input_i}:measured_TP=${measured.input_tp}:measured_LRA=${measured.input_lra}:measured_thresh=${measured.input_thresh}:offset=${measured.target_offset}:linear=true,aresample=${rate}`,
     '-ac', '1', '-c:a', 'pcm_s16le', wav])
 
-  // words: align each line on its own clip (short and exact), then shift onto the joined timeline
+  // words: align each line on its own clip (short and exact, events removed), then shift onto the joined timeline
   const words: Word[] = []
   for (let i = 0; i < spoken.length; i++) {
     const out = join(workDir, `words-${String(i + 1).padStart(2, '0')}.json`)
-    await runPy('align', { model: config.paths.whisperModel, wav: spoken[i].file, text: spoken[i].text, out }, { gpu: null, workDir })
+    await runPy('align', { model: config.paths.whisperModel, wav: spoken[i].file, text: spokenText(spoken[i].text), out }, { gpu: null, workDir })
     words.push(...shiftWords(JSON.parse(readFileSync(out, 'utf8')) as Word[], spoken[i].startS))
   }
   const durationS = await probeDuration(wav)
-  return { wav, durationS, sampleRate: 24000, lines: spoken, words }
+  return { wav, durationS, sampleRate: rate, lines: spoken, words }
 }

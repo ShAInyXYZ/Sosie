@@ -8,7 +8,7 @@ How the code is laid out and how one video is made. The plan and its reasons are
 |---|---|---|---|
 | API (Express 5) | `scripts/start.sh api` (`node --import tsx server/index.ts`) | 3190 | serves the built Studio from `dist/`, the REST API ([API.md](API.md)) and the job queue |
 | Sosie's ComfyUI | `scripts/start.sh comfy` | 8190 | pinned in `comfy/lock.json`, own venv, own `data/comfy-io/{input,output,temp}`, shared weights read through `comfy/extra_model_paths.yaml`; `--default-device` = the H3 compute card (`comfy/launch-args.ts`) |
-| Python tools | the API, one process per call (`server/py.ts`) | — | `py/<tool>.py <request.json>`: `tts`, `align`, `qc`, `cutout`; offline (`HF_HUB_OFFLINE`), GPU chosen per call |
+| Python tools | the API, one process per call (`server/py.ts`) | — | `py/<tool>.py <request.json>`: `tts`, `dots`, `align`, `qc`, `cutout`; offline (`HF_HUB_OFFLINE`), GPU chosen per call; `dots` runs in its own environment (`py/dots-tts/.venv`) |
 | Studio dev server | `npm run dev` | 5190 | Vite with `/api` proxied to 3190 |
 
 The API accepts requests addressed to localhost only, and browser requests only from Sosie's own origins (`server/app.ts`).
@@ -20,7 +20,7 @@ The API accepts requests addressed to localhost only, and browser requests only 
 | Config | `server/config.ts` (zod; `config/sosie.example.json` documents every key, `config/sosie.local.json` holds this machine's) |
 | API | `server/app.ts` routes · `server/jobs.ts` queue · `server/library.ts` trash · `server/moceanx.ts` Send to MOceanX · `server/script-ai.ts` Write with AI · `server/system.ts` lamps and GPUs |
 | Job runner | `server/pipeline/job.ts`: steps, resume, re-roll, rescore, join, bundle; `Engines` (`realEngines` or `server/testing/fake-engines.ts`) |
-| Voice | `server/pipeline/voice.ts` (import, design, line cache, join, loudness, alignment) · `py/tts.py` (Breeze TTS 2) · `py/align.py` (faster-whisper) · `server/pipeline/captions.ts` |
+| Voice | `server/pipeline/voice.ts` (import, design, line cache, trim, pace, join, loudness, alignment) · `server/pipeline/script.ts` (script lines and controls) · `py/tts.py` (Breeze TTS 2) · `py/dots.py` (Dots TTS, optional) · `py/align.py` (faster-whisper) · `server/pipeline/captions.ts` |
 | Segments | `server/pipeline/plan.ts` (cuts at line pauses, then word gaps) · `server/pipeline/segments.ts` (24 fps, 17k+5 grid, ≤ 243 frames) |
 | Video | `server/pipeline/h3.ts` (`talkGraph`, formats, speed LoRAs) · `server/pipeline/prompt.ts` · `comfy/workflows/talk_segment.json` · `server/comfy/*` (client, templates, device mapping) |
 | Faces and looks | `server/pipeline/faces.ts` (library) · `server/pipeline/look.ts` (looks, Qwen Image 2.1 sets and characters, photo cut-out) · `comfy/workflows/character.json` · `py/cutout.py` (BiRefNet + framing checks) |
@@ -32,7 +32,7 @@ The API accepts requests addressed to localhost only, and browser requests only 
 
 `POST /api/jobs` (or `npm run sosie -- make`) queues a job. Jobs run one at a time because they share the GPUs. Every step saves `data/projects/<id>/job.json`, so a crash, a cancel or a restart resumes where it stopped.
 
-1. **Voice**: each script line is voiced by Breeze TTS 2 (cached per voice, text, direction and seed), joined with natural pauses, loudness-normalised once (−16 LUFS), and aligned word by word with faster-whisper.
+1. **Voice**: each script line is voiced by the chosen engine, Breeze TTS 2 (24 kHz) or Dots TTS (48 kHz), cached per engine, voice, text, note and seed; trimmed to its speech, stretched to its `pace`, joined with its `pause`, loudness-normalised once (−16 LUFS), and aligned word by word with faster-whisper (vocal events removed). See docs/VOICE_PROMPTING.md.
 2. **Plan**: the track is cut into segments of 6–10 s, at line pauses first, word gaps otherwise.
 3. **Face**: the face's key frame is copied into ComfyUI's input folder.
 4. **Film**: for each segment, H3 Ref2VA renders a 17k+5 frame clip from the key frame, the prompt (subject, set, dialogue, delivery) and the segment's own voice as `<Audio 1>` (`fully_copy`) anchored at frame 0. The clip is cut to the segment's exact frame count and muxed with its voice; QC scores it. A failing take is filmed once more with a new seed; if both fail, the best is kept and flagged for a re-roll.

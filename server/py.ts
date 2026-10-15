@@ -3,7 +3,10 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { ROOT } from './config.ts'
 
-export type PyTool = 'tts' | 'align' | 'qc' | 'cutout'
+export type PyTool = 'tts' | 'dots' | 'align' | 'qc' | 'cutout'
+
+/** Dots TTS lives in its own environment (its pinned torch and transformers differ from Breeze's). */
+const PYTHON: Partial<Record<PyTool, string[]>> = { dots: ['py', 'dots-tts', '.venv', 'bin', 'python'] }
 
 /**
  * Run one of Sosie's one-shot Python tools (py/<tool>.py) with a JSON request file.
@@ -24,7 +27,7 @@ export function runPy(tool: PyTool, request: object, opts: { gpu: number | null;
     PYTORCH_CUDA_ALLOC_CONF: 'expandable_segments:True',
   }
   return new Promise((resolve, reject) => {
-    const child = spawn(join(ROOT, 'py', '.venv', 'bin', 'python'), [join(ROOT, 'py', `${tool}.py`), requestFile], { env, cwd: ROOT })
+    const child = spawn(join(ROOT, ...(PYTHON[tool] ?? ['py', '.venv', 'bin', 'python'])), [join(ROOT, 'py', `${tool}.py`), requestFile], { env, cwd: ROOT })
     const lines: string[] = []
     let stderr = ''
     child.stdout.setEncoding('utf8').on('data', (chunk: string) => {
