@@ -16,6 +16,7 @@ import { FORMATS, SPEED_LORAS, type Format, type SpeedLora } from './pipeline/h3
 import { LOOKS } from './pipeline/look.ts'
 import { parseScript } from './pipeline/script.ts'
 import { listVoices } from './pipeline/voice.ts'
+import { applyUpdate, buildInfo, checkForUpdate } from './update.ts'
 
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost', '[::1]']
 
@@ -61,6 +62,14 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
   app.get('/api/system', async (_request, response) => {
     // dots: null when the Dots voice engine can run, else why not
     response.json({ ...(await systemStatus(config)), dots: dotsMissing(config, root) })
+  })
+  // Updates from the official repository (config.update): this build, what's new, fast-forward + rebuild + restart
+  app.get('/api/update', async (_request, response) => response.json(await buildInfo(root)))
+  app.post('/api/update/check', async (_request, response) => response.json(await checkForUpdate(config, root)))
+  app.post('/api/update/apply', async (_request, response) => {
+    if (jobs.list().some((job) => job.status === 'running' || job.status === 'queued')) throw new JobError('A video is rendering. Update when it is done.', 409)
+    const result = await applyUpdate(config, root).catch((error: Error) => { throw new JobError(error.message, 409) })
+    response.status(202).json(result)
   })
   // Start Sosie's own ComfyUI (the API is already up if this answers)
   app.post('/api/system/start', (_request, response) => {

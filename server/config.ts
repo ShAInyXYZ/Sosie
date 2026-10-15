@@ -41,6 +41,8 @@ export const configSchema = z.object({
   /** ntfy topic URL for the release watcher (scripts/watch-fasth3-omni.sh); empty = no push. */
   ntfyUrl: z.string().default(''),
   loras: z.object({ qwenImage21: z.array(z.string()) }),
+  /** Where "Check for updates" looks: the official repository and branch (fast-forward only). */
+  update: z.object({ repo: z.string().min(1), branch: z.string().min(1) }).default({ repo: 'https://github.com/ShAInyXYZ/Sosie.git', branch: 'main' }),
 })
 
 export type SosieConfig = z.infer<typeof configSchema>

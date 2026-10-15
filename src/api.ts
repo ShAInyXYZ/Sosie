@@ -58,6 +58,19 @@ export type JobRequest = {
   refImageSize?: 'match' | 'max'
 }
 export type VoiceEngine = 'breeze' | 'dots'
+export type BuildInfo = { version: string; commit: string; date: string }
+export type PatchNote = { commit: string; date: string; subject: string; body: string }
+export type UpdateStatus = {
+  current: BuildInfo
+  upstream?: { repo: string; branch: string; commit: string; date: string }
+  behind: number
+  ahead: number
+  dirty: boolean
+  notes: PatchNote[]
+  canUpdate: boolean
+  reason?: string
+  checkedAt: string
+}
 export type Settings = Pick<JobRequest, 'lora' | 'seed' | 'punchIn' | 'steps' | 'size' | 'refImageSize' | 'voiceEngine'>
 export type ImageLora = { file: string; strength: number }
 export type CharacterForm = { who: string; age?: string; hair?: string; outfit?: string; style?: 'photo' | 'anime' | '3d'; framing?: 'chest' | 'close' }
@@ -74,6 +87,9 @@ const post = (body: unknown): RequestInit => ({ method: 'POST', headers: { 'cont
 
 export const api = {
   system: () => json<SystemStatus>('/api/system'),
+  build: () => json<BuildInfo>('/api/update'),
+  checkUpdate: () => json<UpdateStatus>('/api/update/check', { method: 'POST' }),
+  applyUpdate: () => json<{ from: string; to: string; followUps: string[] }>('/api/update/apply', { method: 'POST' }),
   faces: () => json<{ faces: Face[] }>('/api/faces').then((r) => r.faces),
   voices: () => json<{ voices: Voice[] }>('/api/voices').then((r) => r.voices),
   looks: () => json<{ looks: Look[] }>('/api/looks').then((r) => r.looks),

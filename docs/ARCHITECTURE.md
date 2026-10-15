@@ -1,6 +1,6 @@
 # Sosie architecture
 
-How the code is laid out and how one video is made. The plan and its reasons are in [MASTER_PROMPT.md](MASTER_PROMPT.md); measured facts are in its §3.4.
+How the code is laid out and how one video is made. Decisions and measured facts are in [PROGRESS.md](PROGRESS.md).
 
 ## Processes
 

@@ -1,6 +1,6 @@
 # Sosie — Progress
 
-Living checklist for [MASTER_PROMPT.md](MASTER_PROMPT.md). Each ticked item names its evidence (test, file, commit) and date.
+Living checklist for Sosie's build plan (kept outside the public repository). Each ticked item names its evidence (test, file, commit) and date.
 
 ## Milestones
 
@@ -80,6 +80,8 @@ Mirrors §1 of the master prompt; tick with evidence.
 - 2026-10-15 — **Voice controls** (user: "way too fast with no control … the AI should use proper prompt structure"). Script lines take `[note; pace 0.9; pause 1.2]`; Breeze performs `(laugh)`, `(sigh)`, `(cough)`, `(clears throat)`. The script AI writes to a per-engine guide built from both engines' documentation (docs/VOICE_PROMPTING.md). Each line is trimmed to its speech (Dots leaves up to 0.9 s of silence around a line), stretched to its pace (rubberband, pitch kept) and followed by its pause; default pauses 0.5 / 0.3 s.
 - 2026-10-15 — **Dots TTS** (dots.tts SOAR, Apache-2.0) is an optional second voice engine (Settings → Voice): `py/dots.py` in its own environment `py/dots-tts`, bf16, 15 steps, CFG 1.2, 48 kHz kept into the video, 48 kHz reference (`ref-hq.wav`). Dots has no instruction input and no emotion or event tokens, so its controls are wording, punctuation, pace, pause, reference and seed. dots.tts.edit (`<emo>` tags) was tried and not adopted by ear.
 - 2026-10-15 — **Incident, fixed:** a line with `pause 0` made ffmpeg's `apad` pad forever; the join wrote one WAV until `/` was full (20:51). The file was deleted at once (54 GB free again) and the Sosie API, both ComfyUIs, Typesense and Karakeep were checked healthy. A zero pause now passes the line through (`gapFilter`, regression test) and the join is capped at the known length.
+- 2026-10-16 — **Public release** on GitHub (ShAInyXYZ/Sosie), MIT. The history was rewritten without the internal build brief (NAS layout, hostnames, work paths); the brief is kept locally in `private/` (gitignored) and the NAS keeps the original history. Logo and banner made by Codex: the Gemini glyph whose two pillars are mirrored face profiles, the original (Cherry) and its double (`docs/brand/`, SVG markup and the README banner).
+- 2026-10-16 — **Updates**: System → Check for updates compares the build with `update.repo` (default the official GitHub repo), shows the new commits as patch notes, and Update fast-forwards, reinstalls packages when they changed, rebuilds and restarts. Edited files or local commits stop it with the reason (`server/update.ts`, `tests/update.test.ts`).
 
 ## Awaiting user review
 

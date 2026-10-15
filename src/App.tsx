@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { api, type Face, type FormatId, type Job, type Lamp, type Look, type Settings, type SystemStatus, type Voice } from './api'
+import { api, type BuildInfo, type Face, type FormatId, type Job, type Lamp, type Look, type Settings, type SystemStatus, type UpdateStatus, type Voice } from './api'
 import { etaSeconds, formatEta, SECONDS_PER_TAKE, Stage } from './stage'
 import { KitIcon } from './ui/icons'
 import { FaceWindow, LibraryWindow, LookWindow, ScriptWindow, SettingsWindow, VoiceWindow } from './windows'
@@ -42,6 +42,91 @@ function useTheme() {
     document.documentElement.dataset.theme = theme
   }, [theme])
   return [theme, setTheme] as const
+}
+
+const shortCommit = (commit?: string) => (commit && commit !== 'unknown' ? commit.slice(0, 7) : '—')
+
+/** This build, "Check for updates" against the official repository, its patch notes, and a one-click update. */
+function Updates() {
+  const [build, setBuild] = useState<BuildInfo | null>(null)
+  const [status, setStatus] = useState<UpdateStatus | null>(null)
+  const [busy, setBusy] = useState<'' | 'check' | 'update'>('')
+  const [error, setError] = useState('')
+  const [updated, setUpdated] = useState<{ to: string; followUps: string[]; back: boolean } | null>(null)
+  useEffect(() => {
+    api.build().then(setBuild, () => setBuild(null))
+  }, [])
+  // the API restarts after an update: wait until it answers with the new build
+  useEffect(() => {
+    if (!updated || updated.back) return
+    const timer = setInterval(() => {
+      api.build().then((next) => { if (next.commit === updated.to) setUpdated({ ...updated, back: true }) }, () => {})
+    }, 2000)
+    return () => clearInterval(timer)
+  }, [updated])
+  const tone = !status ? 'idle' : status.canUpdate ? 'warn' : status.behind === 0 && status.ahead === 0 ? 'ok' : 'idle'
+  const check = () => {
+    setBusy('check')
+    setError('')
+    api.checkUpdate().then(setStatus, (cause: Error) => setError(cause.message)).finally(() => setBusy(''))
+  }
+  const update = () => {
+    setBusy('update')
+    setError('')
+    api.applyUpdate().then((result) => setUpdated({ to: result.to, followUps: result.followUps, back: false }), (cause: Error) => setError(cause.message)).finally(() => setBusy(''))
+  }
+  return (
+    <section className="update-panel" aria-label="Updates">
+      <div className="nk-row has-led">
+        <span className="nk-led" data-tone={tone} />
+        <span className="nk-row-name">Sosie {build?.version ?? ''}</span>
+        <span className="nk-row-value mono" data-tooltip={build?.date ? `Built from ${build.commit.slice(0, 12)}, ${build.date.slice(0, 10)}` : 'Not a git clone'}>{shortCommit(build?.commit)}</span>
+      </div>
+      {status && !status.canUpdate && !updated ? <p className="dim">{status.reason}</p> : null}
+      {status?.canUpdate && !updated ? (
+        <div className="patch-notes">
+          <p className="patch-count">{status.behind} update{status.behind === 1 ? '' : 's'} · {shortCommit(status.upstream?.commit)}</p>
+          <ol>
+            {status.notes.map((note) => (
+              <li key={note.commit}>
+                {note.body ? (
+                  <details>
+                    <summary>{note.subject}</summary>
+                    <p>{note.body}</p>
+                  </details>
+                ) : <span>{note.subject}</span>}
+                <span className="dim mono">{note.date.slice(0, 10)}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
+      {updated && !updated.back ? <p className="window-busy" role="status"><span className="nk-spinner is-sm" /> Updated to {shortCommit(updated.to)}. Restarting…</p> : null}
+      {updated?.back ? (
+        <div className="patch-notes" role="status">
+          <p className="patch-count">Updated to {shortCommit(updated.to)}</p>
+          {updated.followUps.map((step) => <p className="dim" key={step}>{step}</p>)}
+        </div>
+      ) : null}
+      {error ? <p className="nk-field-error" role="alert">{error}</p> : null}
+      <div className="window-row">
+        {updated?.back ? (
+          <button className="nk-button is-primary" onClick={() => window.location.reload()}>Reload</button>
+        ) : (
+          <>
+            <button className="nk-button" disabled={!!busy || !!updated} data-tooltip="Compares this build with the official one on GitHub" onClick={check}>
+              {busy === 'check' ? 'Checking…' : 'Check for updates'}
+            </button>
+            {status?.canUpdate ? (
+              <button className="nk-button is-primary" disabled={!!busy || !!updated} data-tooltip="Downloads the changes, rebuilds and restarts Sosie (about a minute)" onClick={update}>
+                {busy === 'update' ? 'Updating…' : 'Update'}
+              </button>
+            ) : null}
+          </>
+        )}
+      </div>
+    </section>
+  )
 }
 
 function SystemDialog({ status, onClose, onRefresh }: { status: SystemStatus | null; onClose: () => void; onRefresh: () => void }) {
@@ -96,6 +181,7 @@ function SystemDialog({ status, onClose, onRefresh }: { status: SystemStatus | n
           </button>
           {note ? <span className="dim">{note}</span> : null}
         </div>
+        <Updates />
         <label className="advanced-toggle">
           <button className="nk-switch" role="switch" aria-checked={advanced} aria-label="Advanced" onClick={() => setAdvanced(!advanced)}>
             <span className="nk-switch-thumb" />
@@ -231,7 +317,7 @@ export default function App() {
   return (
     <div className="studio">
       <header className="studio-bar">
-        <div className="nk-wordmark">Sosie</div>
+        <div className="nk-wordmark studio-brand"><img src="/favicon.svg" alt="" width={22} height={22} draggable={false} />Sosie</div>
         <div className="studio-bar-end">
           <button className="nk-button is-sm is-ghost" data-tooltip="Faces, voices and videos" onClick={() => setOpen('library')}>
             <KitIcon name="folder" />
