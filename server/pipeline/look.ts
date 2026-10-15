@@ -32,7 +32,13 @@ export const KEY_FRAME_SIZE: Record<Format, { width: number; height: number }> =
 const NEGATIVE = 'text, watermark, logo, hands near the face, open mouth, blurry face, distorted features, extra fingers, cartoon, people in the background'
 const QWEN = { model: 'qwen_image_2.1_int8_convrot.safetensors', textEncoder: 'qwen3vl_8b_int8_convrot.safetensors', vae: 'qwen_image_2.1_vae_bf16.safetensors' }
 
-export type CharacterForm = { who: string; age?: string; hair?: string; outfit?: string; style?: 'photo' | 'anime' | '3d' }
+export type CharacterForm = { who: string; age?: string; hair?: string; outfit?: string; style?: 'photo' | 'anime' | '3d'; framing?: 'chest' | 'close' }
+
+/** Chest-up (the default) or a close-up: the face fills more of the frame, so lip movement reads better. */
+const FRAMING_LINE = {
+  chest: 'framed from the chest up and centred',
+  close: 'framed as a close-up of the head and shoulders, the face filling much of the frame, centred',
+}
 
 const STYLE_LINE = {
   photo: 'A photorealistic webcam still',
@@ -45,7 +51,7 @@ export function describeCharacter(form: CharacterForm): string {
 }
 
 export function characterPrompt(form: CharacterForm, look: string): string {
-  return `${STYLE_LINE[form.style ?? 'photo']} of ${describeCharacter(form)}, sitting in ${look}. They face the camera directly, framed from the chest up and centred, mouth closed with a slight smile, eyes looking into the lens. Soft, even key light on the face, natural skin texture, sharp focus on the face. No text, no logos.`
+  return `${STYLE_LINE[form.style ?? 'photo']} of ${describeCharacter(form)}, sitting in ${look}. They face the camera directly, ${FRAMING_LINE[form.framing ?? 'chest']}, mouth closed with a slight smile, eyes looking into the lens. Soft, even key light on the face, natural skin texture, sharp focus on the face. No text, no logos.`
 }
 
 export function setPrompt(look: string): string {

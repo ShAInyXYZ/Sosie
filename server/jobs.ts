@@ -83,6 +83,16 @@ export class JobManager {
     return queued
   }
 
+  /**
+   * Run other GPU work (a new character, a photo cut-out, a designed voice) in the same line as the
+   * videos: two models loading at once on one card ran it out of memory.
+   */
+  exclusive<T>(task: () => Promise<T>): Promise<T> {
+    const result = this.chain.then(task)
+    this.chain = result.catch(() => undefined)
+    return result
+  }
+
   /** Files a finished job may serve, by bundle name. */
   file(id: string, name: string): string | null {
     const job = this.get(id)

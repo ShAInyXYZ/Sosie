@@ -141,6 +141,12 @@ export function FaceWindow({ faces, chosen, looks, look, format, onChoose, onCre
               <option value="3d">3D</option>
             </NkSelect>
           </Field>
+          <Field label="Framing">
+            <NkSelect value={form.framing ?? 'chest'} onChange={(event) => setForm({ ...form, framing: event.target.value as CharacterForm['framing'] })}>
+              <option value="chest">Chest up</option>
+              <option value="close">Close-up</option>
+            </NkSelect>
+          </Field>
           <Field label="LoRA">
             <NkSelect value={lora?.file ?? ''} onChange={(event) => setLora(event.target.value ? { file: event.target.value, strength: lora?.strength ?? 1 } : null)}>
               <option value="">None · 30 steps</option>

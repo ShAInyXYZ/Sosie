@@ -94,11 +94,12 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
   })
   // a real photo: the person is cut out (pixels kept) and placed over a generated set
   app.post('/api/faces/photo', uploads.single('photo'), async (request, response) => {
-    if (!request.file) throw new JobError('Choose a photo.')
-    const face = await photoFace(config, {
-      photo: request.file.path, name: String(request.body?.name ?? 'Me'), lookId: lookOf(request.body?.look),
+    const photo = request.file
+    if (!photo) throw new JobError('Choose a photo.')
+    const face = await jobs.exclusive(() => photoFace(config, {
+      photo: photo.path, name: String(request.body?.name ?? 'Me'), lookId: lookOf(request.body?.look),
       format: formatOf(request.body?.format), consent: request.body?.consent === 'true', subject: String(request.body?.subject ?? ''),
-    }, root).catch((error: Error) => { throw new JobError(error.message) })
+    }, root)).catch((error: Error) => { throw new JobError(error.message) })
     response.status(201).json(face)
   })
   // a character: four options to choose from
@@ -116,7 +117,7 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
       if (typeof asked.file !== 'string' || !config.loras.qwenImage21.includes(asked.file)) throw new JobError('Unknown LoRA.')
       lora = { file: asked.file, strength: Math.min(2, Math.max(0, Number(asked.strength ?? 1))) }
     }
-    const files = await characterCandidates(config, form, lookOf(request.body?.look), formatOf(request.body?.format), 4, root, lora)
+    const files = await jobs.exclusive(() => characterCandidates(config, form, lookOf(request.body?.look), formatOf(request.body?.format), 4, root, lora))
     response.json({ candidates: files.map((file) => file.slice(join(root, 'data', 'candidates').length + 1)) })
   })
   app.get('/api/candidates/:batch/:file', (request, response) => {
@@ -140,7 +141,7 @@ export function createApp(config: SosieConfig, options: { jobs?: JobManager; roo
     response.status(201).json(voice)
   })
   app.post('/api/voices/design', async (request, response) => {
-    const voice = await designVoice(config, { name: String(request.body?.name ?? ''), description: String(request.body?.description ?? '') }, root)
+    const voice = await jobs.exclusive(() => designVoice(config, { name: String(request.body?.name ?? ''), description: String(request.body?.description ?? '') }, root))
       .catch((error: Error) => { throw new JobError(error.message) })
     response.status(201).json(voice)
   })

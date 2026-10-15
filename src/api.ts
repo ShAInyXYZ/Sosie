@@ -56,7 +56,7 @@ export type JobRequest = {
 }
 export type Settings = Pick<JobRequest, 'lora' | 'seed' | 'punchIn' | 'steps' | 'size' | 'refImageSize'>
 export type ImageLora = { file: string; strength: number }
-export type CharacterForm = { who: string; age?: string; hair?: string; outfit?: string; style?: 'photo' | 'anime' | '3d' }
+export type CharacterForm = { who: string; age?: string; hair?: string; outfit?: string; style?: 'photo' | 'anime' | '3d'; framing?: 'chest' | 'close' }
 export type SendResult = { sent: true; folderPath: string } | { sent: false; reason: string; bundle: string }
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
